@@ -1,0 +1,18 @@
+name: Project C++ CI
+run-name: Checking C++ code
+on: push
+jobs:
+    build:
+        name: Build project
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Build project from source
+              run: make
+    check-style:
+        name: Check code style
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Check project code formatting
+              run: make fmt-check
