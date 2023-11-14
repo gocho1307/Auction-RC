@@ -1,0 +1,7 @@
+.vscode
+*.o
+*.out
+src/user/user
+src/server/AS
+readme.txt
+*.zip
