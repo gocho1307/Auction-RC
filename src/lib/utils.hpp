@@ -9,4 +9,6 @@ std::string readString(std::string &line, bool ignSpaces);
 
 int readInt(std::string &line, bool ignSpaces);
 
+void setupSigHandlers(void (*sigF)(int));
+
 #endif // __UTILS_HPP__

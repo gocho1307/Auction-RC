@@ -1,52 +1,27 @@
-#ifndef __USER_COMMANDS_HPP
-#define __USER_COMMANDS_HPP
+#ifndef __USER_COMMANDS_HPP__
+#define __USER_COMMANDS_HPP__
 
 #include "user.hpp"
 
+#include <functional>
 #include <map>
 #include <string>
 
-class CommandsManager;
+typedef std::map<std::string, std::function<void(UserState &)>> CommandsHandler;
 
-typedef void (CommandsManager::*method)(UserState &);
-typedef std::map<std::string, method> CommandsHandler;
+void helpCommand();
+void interpretCommand(UserState &state);
+void loginCommand(UserState &state);
+void logoutCommand(UserState &state);
+void unregisterCommand(UserState &state);
+void exitCommand(UserState &state);
+void openCommand(UserState &state);
+void closeCommand(UserState &state);
+void myAuctionsCommand(UserState &state);
+void myBidsCommand(UserState &state);
+void listCommand(UserState &state);
+void showAssetCommand(UserState &state);
+void bidCommand(UserState &state);
+void showRecordCommand(UserState &state);
 
-class CommandsManager {
-    CommandsHandler handler = {
-        {"login", &CommandsManager::loginCommand},
-        {"logout", &CommandsManager::logoutCommand},
-        {"unregister", &CommandsManager::unregisterCommand},
-        {"exit", &CommandsManager::exitCommand},
-        {"open", &CommandsManager::openCommand},
-        {"close", &CommandsManager::closeCommand},
-        {"myauctions", &CommandsManager::myAuctionsCommand},
-        {"ma", &CommandsManager::myAuctionsCommand},
-        {"mybids", &CommandsManager::myBidsCommand},
-        {"mb", &CommandsManager::myBidsCommand},
-        {"list", &CommandsManager::listCommand},
-        {"l", &CommandsManager::listCommand},
-        {"show_asset", &CommandsManager::showAssetCommand},
-        {"sa", &CommandsManager::showAssetCommand},
-        {"bid", &CommandsManager::bidCommand},
-        {"b", &CommandsManager::bidCommand},
-        {"show_record", &CommandsManager::showRecordCommand},
-        {"sr", &CommandsManager::showRecordCommand}};
-
-  public:
-    void helpCommand();
-    void interpretCommand(UserState &state);
-    void loginCommand(UserState &state);
-    void logoutCommand(UserState &state);
-    void unregisterCommand(UserState &state);
-    void exitCommand(UserState &state);
-    void openCommand(UserState &state);
-    void closeCommand(UserState &state);
-    void myAuctionsCommand(UserState &state);
-    void myBidsCommand(UserState &state);
-    void listCommand(UserState &state);
-    void showAssetCommand(UserState &state);
-    void bidCommand(UserState &state);
-    void showRecordCommand(UserState &state);
-};
-
-#endif // __USER_COMMANDS_HPP
+#endif // __USER_COMMANDS_HPP__

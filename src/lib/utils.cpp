@@ -1,7 +1,9 @@
 #include "utils.hpp"
 #include "messages.hpp"
 
+#include <csignal>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -26,15 +28,13 @@ int validatePort(std::string port) {
 
 std::string readString(std::string &line, bool ignSpaces) {
     std::string str;
-    char c;
-    do {
+    char c = line.front();
+    while (c != ' ' && c != '\t' && c != '\n' && c != '\0') {
+        str += c;
+        line.erase(line.begin());
         c = line.front();
-        if (c != ' ' && c != '\n' && c != '\0') {
-            str += c;
-            line.erase(line.begin());
-        }
-    } while (c != ' ' && c != '\n' && c != '\0');
-    while (ignSpaces && c == ' ') {
+    }
+    while (ignSpaces && (c == ' ' || c == '\t')) {
         line.erase(line.begin());
         c = line.front();
     }
@@ -43,4 +43,30 @@ std::string readString(std::string &line, bool ignSpaces) {
 
 int readInt(std::string &line, bool ignSpaces) {
     return std::stoi(readString(line, ignSpaces));
+}
+
+void setupSigHandlers(void (*sigF)(int)) {
+    struct sigaction s;
+
+    memset(&s, 0, sizeof(s));
+    s.sa_handler = sigF;
+    if (sigaction(SIGINT, &s, NULL) == -1) {
+        std::cerr << SIGACTION_ERR << std::endl;
+        return;
+    }
+    if (sigaction(SIGTERM, &s, NULL) == -1) {
+        std::cerr << SIGACTION_ERR << std::endl;
+        return;
+    }
+
+    memset(&s, 0, sizeof(s));
+    s.sa_handler = SIG_IGN;
+    if (sigaction(SIGCHLD, &s, NULL) == -1) {
+        std::cerr << SIGACTION_ERR << std::endl;
+        return;
+    }
+    if (sigaction(SIGPIPE, &s, NULL) == -1) {
+        std::cerr << SIGACTION_ERR << std::endl;
+        return;
+    }
 }

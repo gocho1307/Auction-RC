@@ -16,7 +16,6 @@ class UserState {
     struct addrinfo *addrTCP = NULL;
     int socketUDP = -1;
     int socketTCP = -1; // current, if any
-    struct timeval *timeout = NULL;
 
     bool shutDown = false;
 
@@ -28,6 +27,8 @@ class UserState {
 
     void readOpts(int argc, char *argv[]);
     void getServerAddresses();
+    void openTCPSocket();
+    void closeTCPSocket();
     void printTitle();
     void printHelp(std::ostream &stream);
     ~UserState();

@@ -6,7 +6,26 @@
 #include <iostream>
 #include <sstream>
 
-void CommandsManager::helpCommand() {
+CommandsHandler handler = {{"login", loginCommand},
+                           {"logout", logoutCommand},
+                           {"unregister", unregisterCommand},
+                           {"exit", exitCommand},
+                           {"open", openCommand},
+                           {"close", closeCommand},
+                           {"myauctions", myAuctionsCommand},
+                           {"ma", myAuctionsCommand},
+                           {"mybids", myBidsCommand},
+                           {"mb", myBidsCommand},
+                           {"list", listCommand},
+                           {"l", listCommand},
+                           {"show_asset", showAssetCommand},
+                           {"sa", showAssetCommand},
+                           {"bid", bidCommand},
+                           {"b", bidCommand},
+                           {"show_record", showRecordCommand},
+                           {"sr", showRecordCommand}};
+
+void helpCommand() {
     std::cout << std::endl << "Available commands:" << std::endl;
 
     std::cout << "  - login <UID> <password>\t"
@@ -50,9 +69,9 @@ void CommandsManager::helpCommand() {
               << std::endl;
 }
 
-void CommandsManager::interpretCommand(UserState &state) {
+void interpretCommand(UserState &state) {
     std::string commandName = readString(state.line, true);
-    if (commandName.empty() || commandName[0] == '\t') {
+    if (state.line.empty()) {
         return; // the user pressed enter
     }
 
@@ -60,10 +79,10 @@ void CommandsManager::interpretCommand(UserState &state) {
         std::cerr << UNEXPECTED_COMMAND_ERR(commandName) << std::endl;
         return;
     }
-    (this->*(handler[commandName]))(state);
+    handler[commandName](state);
 }
 
-void CommandsManager::loginCommand(UserState &state) {
+void loginCommand(UserState &state) {
     if (state.loggedIn) {
         std::cerr << LOGIN_ERR << std::endl;
         return;
@@ -97,17 +116,17 @@ void CommandsManager::loginCommand(UserState &state) {
     // TODO: implement packets and response handling
 }
 
-void CommandsManager::logoutCommand(UserState &state) {
+void logoutCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::unregisterCommand(UserState &state) {
+void unregisterCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::exitCommand(UserState &state) {
+void exitCommand(UserState &state) {
     if (state.loggedIn) {
         std::cerr << EXIT_ERR << std::endl;
         return;
@@ -115,42 +134,42 @@ void CommandsManager::exitCommand(UserState &state) {
     state.shutDown = true;
 }
 
-void CommandsManager::openCommand(UserState &state) {
+void openCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::closeCommand(UserState &state) {
+void closeCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::myAuctionsCommand(UserState &state) {
+void myAuctionsCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::myBidsCommand(UserState &state) {
+void myBidsCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::listCommand(UserState &state) {
+void listCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::showAssetCommand(UserState &state) {
+void showAssetCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::bidCommand(UserState &state) {
+void bidCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
 
-void CommandsManager::showRecordCommand(UserState &state) {
+void showRecordCommand(UserState &state) {
     (void)state;
     // TODO: implement
 }
