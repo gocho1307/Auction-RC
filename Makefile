@@ -16,13 +16,13 @@ LIB_SOURCES := $(wildcard $(SRC)/lib/*.cpp)
 SOURCES := $(USER_SOURCES) $(SERVER_SOURCES) $(LIB_SOURCES)
 
 USER_HEADERS := $(USER_SOURCES:.cpp=.hpp)
-SERVER_HEADERS := $(SERVER_SOURCES:.c=.hpp)
-LIB_HEADERS := $(LIB_SOURCES:.c=.hpp)
+SERVER_HEADERS := $(SERVER_SOURCES:.cpp=.hpp)
+LIB_HEADERS := $(LIB_SOURCES:.cpp=.hpp)
 HEADERS := $(USER_HEADERS) $(SERVER_SOURCES) $(LIB_HEADERS)
 
 USER_OBJECTS := $(USER_SOURCES:.cpp=.o)
-SERVER_OBJECTS := $(SERVER_SOURCES:.c=.o)
-LIB_OBJECTS := $(LIB_SOURCES:.c=.o)
+SERVER_OBJECTS := $(SERVER_SOURCES:.cpp=.o)
+LIB_OBJECTS := $(LIB_SOURCES:.cpp=.o)
 OBJECTS := $(USER_OBJECTS) $(SERVER_OBJECTS) $(LIB_OBJECTS)
 
 USER_EXEC := user
@@ -54,6 +54,11 @@ ifeq ($(strip $(OPTIM)), no)
 else
   CXXFLAGS += -O3
 endif
+
+.SECONDEXPANSION:
+
+%: src/%/$$@.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 .PHONY: all clean fmt fmt-check package
 
