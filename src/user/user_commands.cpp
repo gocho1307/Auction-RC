@@ -71,7 +71,7 @@ void helpCommand() {
 
 void interpretCommand(UserState &state) {
     std::string commandName = readString(state.line, true);
-    if (state.line.empty()) {
+    if (commandName.empty() && state.line.empty()) {
         return; // the user pressed enter
     }
 

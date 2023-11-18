@@ -69,7 +69,7 @@ $(USER_EXEC): $(USER_OBJECTS) $(LIB_OBJECTS)
 $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
 
 clean:
-	rm -f $(TARGET_EXECS) $(OBJECTS) proj_GXX.zip readme.txt
+	rm -f $(TARGET_EXECS) $(OBJECTS) proj_075.zip readme.txt
 
 fmt: $(SOURCES) $(HEADERS)
 	$(FORMATTER) -i $^
@@ -79,4 +79,4 @@ fmt-check: $(SOURCES) $(HEADERS)
 
 package: clean
 	cp README.md readme.txt
-	zip proj_GXX.zip $(SOURCES) $(HEADERS) Makefile .clang-format readme.txt docs/*.xlsx
+	zip proj_075.zip $(SOURCES) $(HEADERS) Makefile .clang-format readme.txt docs/*.xlsx
