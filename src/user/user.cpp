@@ -7,8 +7,6 @@
 #include <iostream>
 #include <netdb.h>
 #include <signal.h>
-#include <sstream>
-#include <stdlib.h>
 
 UserState state;
 

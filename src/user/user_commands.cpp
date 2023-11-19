@@ -1,10 +1,9 @@
 #include "user_commands.hpp"
 #include "../lib/messages.hpp"
 #include "../lib/utils.hpp"
+#include "user_protocol.hpp"
 
-#include <cstdint>
 #include <iostream>
-#include <sstream>
 
 CommandsHandler handler = {{"login", loginCommand},
                            {"logout", logoutCommand},
@@ -110,20 +109,90 @@ void loginCommand(UserState &state) {
             return;
         }
     }
+
+    LINPacket packetOut;
+    packetOut.UID = uid;
+    packetOut.password = password;
+    RLIPacket packetIn;
+    sendAndReceiveUDPPacket(packetOut, packetIn);
+
+    switch (packetIn.status) {
+    case RLIPacket::status::OK:
+        std::cout << LOGIN_OK << std::endl;
+        break;
+    case RLIPacket::status::NOK:
+        std::cerr << LOGIN_NOK(uid) << std::endl;
+        return;
+        break;
+    case RLIPacket::status::REG:
+        std::cout << LOGIN_REG(uid) << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        return;
+        break;
+    }
+    state.loggedIn = true;
     state.UID = uid;
     state.password = password;
-
-    // TODO: implement packets and response handling
 }
 
 void logoutCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
+    LOUPacket packetOut;
+    packetOut.UID = state.UID;
+    packetOut.password = state.password;
+    RLOPacket packetIn;
+    sendAndReceiveUDPPacket(packetOut, packetIn);
+
+    switch (packetIn.status) {
+    case RLOPacket::status::OK:
+        std::cout << LOGOUT_OK << std::endl;
+        break;
+    case RLOPacket::status::NOK:
+        std::cerr << NO_LOGIN << std::endl;
+        break;
+    case RLOPacket::status::UNR:
+        std::cerr << NO_REG(state.UID) << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
+    state.loggedIn = false;
 }
 
 void unregisterCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
+    UNRPacket packetOut;
+    packetOut.UID = state.UID;
+    packetOut.password = state.password;
+    RURPacket packetIn;
+    sendAndReceiveUDPPacket(packetOut, packetIn);
+
+    switch (packetIn.status) {
+    case RURPacket::status::OK:
+        std::cout << UNREG_OK(state.UID) << std::endl;
+        break;
+    case RURPacket::status::NOK:
+        std::cerr << NO_LOGIN << std::endl;
+        break;
+    case RURPacket::status::UNR:
+        std::cerr << NO_REG(state.UID) << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
+    state.loggedIn = false;
 }
 
 void exitCommand(UserState &state) {
