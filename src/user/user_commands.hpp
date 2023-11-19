@@ -1,7 +1,7 @@
 #ifndef __USER_COMMANDS_HPP__
 #define __USER_COMMANDS_HPP__
 
-#include "user.hpp"
+#include "user_state.hpp"
 
 #include <functional>
 #include <map>

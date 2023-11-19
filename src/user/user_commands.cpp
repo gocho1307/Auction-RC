@@ -1,7 +1,6 @@
 #include "user_commands.hpp"
 #include "../lib/messages.hpp"
 #include "../lib/utils.hpp"
-#include "user_protocol.hpp"
 
 #include <iostream>
 
@@ -114,7 +113,7 @@ void loginCommand(UserState &state) {
     packetOut.UID = uid;
     packetOut.password = password;
     RLIPacket packetIn;
-    sendAndReceiveUDPPacket(packetOut, packetIn);
+    state.sendAndReceiveUDPPacket(packetOut, packetIn);
 
     switch (packetIn.status) {
     case RLIPacket::status::OK:
@@ -147,7 +146,7 @@ void logoutCommand(UserState &state) {
     packetOut.UID = state.UID;
     packetOut.password = state.password;
     RLOPacket packetIn;
-    sendAndReceiveUDPPacket(packetOut, packetIn);
+    state.sendAndReceiveUDPPacket(packetOut, packetIn);
 
     switch (packetIn.status) {
     case RLOPacket::status::OK:
@@ -176,7 +175,7 @@ void unregisterCommand(UserState &state) {
     packetOut.UID = state.UID;
     packetOut.password = state.password;
     RURPacket packetIn;
-    sendAndReceiveUDPPacket(packetOut, packetIn);
+    state.sendAndReceiveUDPPacket(packetOut, packetIn);
 
     switch (packetIn.status) {
     case RURPacket::status::OK:
