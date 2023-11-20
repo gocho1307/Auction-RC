@@ -3,6 +3,8 @@
 
 #include <string>
 
+enum status { OK, NOK, REG, UNR, NLG, EOW, ACC, ILG, END, ERR };
+
 class UDPPacket {
   public:
     virtual std::string serialize() = 0;
@@ -34,8 +36,7 @@ class LINPacket : public UDPPacket {
 class RLIPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RLI";
-    enum status { OK, NOK, REG };
-    status status;
+    status stat;
 
     std::string serialize();
     void deserialize(std::string &buffer);
@@ -56,8 +57,7 @@ class LOUPacket : public UDPPacket {
 class RLOPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RLO";
-    enum status { OK, NOK, UNR };
-    status status;
+    status stat;
 
     std::string serialize();
     void deserialize(std::string &buffer);
@@ -78,19 +78,38 @@ class UNRPacket : public UDPPacket {
 class RURPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RUR";
-    enum status { OK, NOK, UNR };
-    status status;
+    status stat;
 
     std::string serialize();
     void deserialize(std::string &buffer);
 };
 
-void sendUDPPacket(UDPPacket &packet);
+// Error UDP packet (ERR)
+class ERRUDPPacket : public UDPPacket {
+  public:
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
 
-std::string receiveUDPPacket();
+// Error TCP packet (ERR)
+class ERRTCPPacket : public TCPPacket {
+  public:
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
 
-void sendTCPPacket(TCPPacket &packet);
+int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd);
 
-std::string receiveTCPPacket();
+int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd);
+
+int sendTCPPacket(TCPPacket &packet, int fd);
+
+int receiveTCPPacket(std::string &response, int fd);
+
+int readDelimiter(std::string &line);
+
+int readFileData(std::string &fInfo);
+
+int writeFileData(std::string &fName, std::string &str);
 
 #endif // __PROTOCOL_HPP__

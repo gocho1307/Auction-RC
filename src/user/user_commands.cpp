@@ -86,9 +86,7 @@ void loginCommand(UserState &state) {
         return;
     }
     int uid;
-    try {
-        uid = readInt(state.line, true);
-    } catch (...) {
+    if (readInt(state.line, uid, true) == -1) {
         std::cerr << UID_ERR << std::endl;
         return;
     }
@@ -113,19 +111,22 @@ void loginCommand(UserState &state) {
     packetOut.UID = uid;
     packetOut.password = password;
     RLIPacket packetIn;
-    state.sendAndReceiveUDPPacket(packetOut, packetIn);
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
 
-    switch (packetIn.status) {
-    case RLIPacket::status::OK:
+    switch (packetIn.stat) {
+    case status::OK:
         std::cout << LOGIN_OK << std::endl;
         break;
-    case RLIPacket::status::NOK:
+    case status::NOK:
         std::cerr << LOGIN_NOK(uid) << std::endl;
         return;
         break;
-    case RLIPacket::status::REG:
+    case status::REG:
         std::cout << LOGIN_REG(uid) << std::endl;
         break;
+    case status::ERR:
     default:
         std::cerr << PACKET_ERR << std::endl;
         return;
@@ -146,18 +147,21 @@ void logoutCommand(UserState &state) {
     packetOut.UID = state.UID;
     packetOut.password = state.password;
     RLOPacket packetIn;
-    state.sendAndReceiveUDPPacket(packetOut, packetIn);
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
 
-    switch (packetIn.status) {
-    case RLOPacket::status::OK:
+    switch (packetIn.stat) {
+    case status::OK:
         std::cout << LOGOUT_OK << std::endl;
         break;
-    case RLOPacket::status::NOK:
+    case status::NOK:
         std::cerr << NO_LOGIN << std::endl;
         break;
-    case RLOPacket::status::UNR:
+    case status::UNR:
         std::cerr << NO_REG(state.UID) << std::endl;
         break;
+    case status::ERR:
     default:
         std::cerr << PACKET_ERR << std::endl;
         break;
@@ -175,18 +179,21 @@ void unregisterCommand(UserState &state) {
     packetOut.UID = state.UID;
     packetOut.password = state.password;
     RURPacket packetIn;
-    state.sendAndReceiveUDPPacket(packetOut, packetIn);
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
 
-    switch (packetIn.status) {
-    case RURPacket::status::OK:
+    switch (packetIn.stat) {
+    case status::OK:
         std::cout << UNREG_OK(state.UID) << std::endl;
         break;
-    case RURPacket::status::NOK:
+    case status::NOK:
         std::cerr << NO_LOGIN << std::endl;
         break;
-    case RURPacket::status::UNR:
+    case status::UNR:
         std::cerr << NO_REG(state.UID) << std::endl;
         break;
+    case status::ERR:
     default:
         std::cerr << PACKET_ERR << std::endl;
         break;

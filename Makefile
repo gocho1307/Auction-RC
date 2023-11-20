@@ -37,7 +37,7 @@ vpath %.hpp $(INCLUDE_DIRS)
 CXXFLAGS = -std=c++17
 CXXFLAGS += $(INCLUDES)
 # Warnings
-CXXFLAGS += -fdiagnostics-color=always -Wall -Werror -Wextra -Wcast-align -Wconversion -Wfloat-equal -Wformat=2 -Wnull-dereference -Wshadow -Wsign-conversion -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wno-sign-compare
+CXXFLAGS += -fdiagnostics-color=always -Wall -Werror -Wextra -Wcast-align -Wconversion -Wfloat-equal -Wformat=2 -Wnull-dereference -Wshadow -Wsign-conversion -Wswitch-default -Wundef -Wunreachable-code -Wunused -Wno-sign-compare
 
 LDFLAGS = -std=c++17
 LDFLAGS += $(INCLUDES)

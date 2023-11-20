@@ -39,8 +39,13 @@ std::string readString(std::string &line, bool ignSpaces) {
     return str;
 }
 
-int readInt(std::string &line, bool ignSpaces) {
-    return std::stoi(readString(line, ignSpaces));
+int readInt(std::string &line, int &num, bool ignSpaces) {
+    try {
+        num = std::stoi(readString(line, ignSpaces));
+    } catch (...) {
+        return -1;
+    }
+    return 0;
 }
 
 void setupSigHandlers(void (*sigF)(int)) {

@@ -19,11 +19,16 @@
 #define PORT_ERR "[ERR] Invalid port number."
 #define READING_ERR "[ERR] An unexpected error occured while reading a string."
 #define SIGACTION_ERR "[ERR] Failed to set signal action."
+#define SENDTO_ERR "[ERR] Failed to send message via UDP."
+#define RECVFROM_ERR "[ERR] Failed to receive message via UDP."
+#define WRITE_ERR "[ERR] Failed to send message via TCP."
+#define READ_ERR "[ERR] Failed to receive message via TCP."
 
 #define UNEXPECTED_COMMAND_ERR(commandName)                                    \
     "[ERR] The command '" << commandName                                       \
                           << "' is not supported by this application."
 #define PACKET_ERR "[ERR] An error occured with the packet. Please try again."
+#define STATUS_ERR "[ERR] Received invalid status in message. Please try again."
 #define LOGIN_ERR                                                              \
     "A user is already logged in. To log into another account, please log "    \
     "out first."

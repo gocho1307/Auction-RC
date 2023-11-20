@@ -7,7 +7,7 @@ int validatePort(std::string port);
 
 std::string readString(std::string &line, bool ignSpaces);
 
-int readInt(std::string &line, bool ignSpaces);
+int readInt(std::string &line, int &num, bool ignSpaces);
 
 void setupSigHandlers(void (*sigF)(int));
 

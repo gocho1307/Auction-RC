@@ -6,7 +6,7 @@
 #define DEFAULT_AS_HOST "tejo.tecnico.ulisboa.pt"
 #define DEFAULT_AS_PORT "58011" // 58075
 
-#define BUFFER_SIZE (512 + 1)
+#define BUFFER_SIZE (256)
 
 #define MIN_UID (100000)
 #define MAX_UID (999999)

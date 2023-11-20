@@ -1,5 +1,6 @@
 #include "user_state.hpp"
 #include "../lib/messages.hpp"
+#include "../lib/protocol.hpp"
 #include "user.hpp"
 
 #include <cstring>
@@ -9,7 +10,6 @@
 
 void UserState::readOpts(int argc, char *argv[]) {
     int opt;
-
     while ((opt = getopt(argc, argv, "n:p:h")) != -1) {
         switch (opt) {
         case 'n':
@@ -86,17 +86,19 @@ void UserState::closeTCPSocket() {
     this->socketTCP = -1;
 }
 
-void UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
-                                        UDPPacket &packetIn) {
+int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
+                                       UDPPacket &packetIn) {
     (void)packetOut;
     (void)packetIn;
+    return 0;
     // TODO: implement
 }
 
-void UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
-                                        TCPPacket &packetIn) {
+int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
+                                       TCPPacket &packetIn) {
     (void)packetOut;
     (void)packetIn;
+    return 0;
     // TODO: implement
 }
 

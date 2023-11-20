@@ -27,8 +27,8 @@ class UserState {
     void getServerAddresses();
     void openTCPSocket();
     void closeTCPSocket();
-    void sendAndReceiveUDPPacket(UDPPacket &packetOut, UDPPacket &packetIn);
-    void sendAndReceiveTCPPacket(TCPPacket &packetOut, TCPPacket &packetIn);
+    int sendAndReceiveUDPPacket(UDPPacket &packetOut, UDPPacket &packetIn);
+    int sendAndReceiveTCPPacket(TCPPacket &packetOut, TCPPacket &packetIn);
     ~UserState();
 };
 
