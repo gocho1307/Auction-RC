@@ -1,13 +1,13 @@
 #include "utils.hpp"
 #include "messages.hpp"
 
+#include <cctype>
 #include <csignal>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <sstream>
-#include <vector>
 
 int validatePort(std::string port) {
     if (port.empty()) {
@@ -28,6 +28,9 @@ int validatePort(std::string port) {
 }
 
 std::string readString(std::string &line, bool ignSpaces) {
+    if (line.empty()) {
+        return "";
+    }
     std::string str;
     char c = line.front();
     while (c != ' ' && c != '\t' && c != '\n' && c != '\0') {
@@ -51,21 +54,94 @@ int readInt(std::string &line, int &num, bool ignSpaces) {
     return 0;
 }
 
-ImageData getImage(std::string &fname) {
-    ImageData image_data;
+int readUID(std::string &line, int &uid, bool ignSpaces) {
+    if (readInt(line, uid, ignSpaces) == -1 || uid < MIN_UID || uid > MAX_UID) {
+        std::cerr << UID_ERR << std::endl;
+        return -1;
+    }
+    return 0;
+}
 
-    std::ifstream file(fname, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
-        return image_data;
+int readPassword(std::string &line, std::string &password, bool ignSpaces) {
+    password = readString(line, ignSpaces);
+    if (password.length() != PASSWORD_LEN) {
+        std::cerr << PASSWORD_ERR << std::endl;
+        return -1;
+    }
+    for (char c : password) {
+        if (!isalnum(c)) {
+            std::cerr << PASSWORD_ERR << std::endl;
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int readFile(std::string fPath, FileInfo &fInfo) {
+    std::ifstream file(fPath, std::ios::in | std::ios::binary);
+    if (!file.is_open() || !file.good()) {
+        std::cerr << FILE_ERR << std::endl;
+        return -1;
     }
 
-    image_data.fsize = static_cast<std::size_t>(file.tellg());
-    image_data.fdata.resize(image_data.fsize);
-    file.seekg(0, std::ios::beg);
-    file.read(image_data.fdata.data(), image_data.fsize);
-    file.close();
+    std::filesystem::path path(fPath);
+    std::string name = path.filename();
+    unsigned long int size = std::filesystem::file_size(path);
+    for (char c : name) {
+        if (!isalnum(c) && c != '-' && c != '_' && c != '.') {
+            std::cerr << FILE_NAME_ERR << std::endl;
+            return -1;
+        }
+    }
+    if (size <= 0 || size >= MAX_FILE_SIZE) {
+        std::cerr << FILE_SIZE_ERR << std::endl;
+        return -1;
+    }
+    fInfo.name = name;
+    fInfo.size = (int)size;
 
-    return image_data;
+    char buffer[BUFFER_FILE_SIZE] = {0};
+    while (file) {
+        file.read(buffer, BUFFER_FILE_SIZE);
+        fInfo.data += std::string(buffer);
+    }
+    file.close();
+    return 0;
+}
+
+int writeFile(std::string dir, FileInfo fInfo) {
+    std::ofstream file(dir + fInfo.name);
+    if (!file.is_open() || !file.good()) {
+        std::cerr << FILE_ERR << std::endl;
+        return -1;
+    }
+
+    file.write(fInfo.data.c_str(), fInfo.size);
+    if (!file.good()) {
+        file.close();
+        std::cerr << FILE_ERR << std::endl;
+        return -1;
+    }
+    file.close();
+    return 0;
+}
+
+void listAuctions(std::string auctionsInfo) {
+    (void)auctionsInfo;
+    // std::stringstream auctionsStream(auctionsInfo);
+    // int aid, flag;
+    // while (auctionsStream >> aid >> flag) {
+    //     std::cout << "Auction" << aid << " : "
+    //               << (flag == 1 ? "Active" : "Not Active") << std::endl;
+    // }
+
+    // TODO: needs to check the message syntax while printing, and in case of
+    // bad syntax return -1.
+}
+
+void listBids(std::string bidsInfo) {
+    (void)bidsInfo;
+    // TODO: list and verify message syntax while printing bids info from RRC.
 }
 
 void setupSigHandlers(void (*sigF)(int)) {
@@ -91,15 +167,5 @@ void setupSigHandlers(void (*sigF)(int)) {
     if (sigaction(SIGPIPE, &s, NULL) == -1) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
-    }
-}
-
-void listAuctions(std::string auctions) {
-    std::istringstream auctions_stream(auctions);
-    int aid, flag;
-
-    while (auctions_stream >> aid >> flag) {
-        std::cout << "Auction" << aid << " : "
-                  << (flag == 1 ? "Active" : "Not Active") << "\n";
     }
 }

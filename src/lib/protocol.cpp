@@ -7,11 +7,265 @@
 #include <netdb.h>
 #include <unistd.h>
 
-std::map<std::string, status> strToStatus = {
-    {"OK", status::OK},   {"NOK", status::NOK}, {"REG", status::REG},
-    {"UNR", status::UNR}, {"NLG", status::NLG}, {"EOW", status::EOW},
-    {"ACC", status::ACC}, {"ILG", status::ILG}, {"END", status::END},
-    {"ERR", status::ERR}};
+// Packet methods: used by the user side
+
+std::string LINPacket::serialize() {
+    return std::string(ID) + " " + std::to_string(UID) + " " + password + "\n";
+}
+
+int RLIPacket::deserialize(std::string &buffer) {
+    if (verifyPacketID(buffer, std::string(ID)) == -1) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    status = readString(buffer, false);
+    return 0;
+}
+
+std::string LOUPacket::serialize() {
+    return std::string(ID) + " " + std::to_string(UID) + " " + password + "\n";
+}
+
+int RLOPacket::deserialize(std::string &buffer) {
+    if (verifyPacketID(buffer, std::string(ID)) == -1) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    status = readString(buffer, false);
+    return 0;
+}
+
+std::string UNRPacket::serialize() {
+    return std::string(ID) + " " + std::to_string(UID) + " " + password + "\n";
+}
+
+int RURPacket::deserialize(std::string &buffer) {
+    if (verifyPacketID(buffer, std::string(ID)) == -1) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    status = readString(buffer, false);
+    return 0;
+}
+
+std::string OPAPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int ROAPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string CLSPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RCLPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string LMAPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RMAPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string LMBPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RMBPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string LSTPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RLSPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string BIDPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RBDPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string SASPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RSAPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string SRCPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int RRCPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+// Packet methods: used by the server side
+
+std::string RLIPacket::serialize() {
+    return std::string(ID) + " " + status + "\n";
+}
+
+int LINPacket::deserialize(std::string &buffer) {
+    if (verifyPacketID(buffer, std::string(ID)) == -1) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    return 0;
+    // TODO: implement
+}
+
+std::string RLOPacket::serialize() {
+    return std::string(ID) + " " + status + "\n";
+}
+
+int LOUPacket::deserialize(std::string &buffer) {
+    if (verifyPacketID(buffer, std::string(ID)) == -1) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    return 0;
+    // TODO: implement
+}
+
+std::string RURPacket::serialize() {
+    return std::string(ID) + " " + status + "\n";
+}
+
+int UNRPacket::deserialize(std::string &buffer) {
+    if (verifyPacketID(buffer, std::string(ID)) == -1) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    return 0;
+    // TODO: implement
+}
+
+std::string ROAPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int OPAPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RCLPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int CLSPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RMAPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int LMAPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RMBPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int LMBPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RLSPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int LSTPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RBDPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int BIDPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RSAPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int SASPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+std::string RRCPacket::serialize() {
+    // TODO: implement
+    return "";
+}
+
+int SRCPacket::deserialize(std::string &buffer) {
+    (void)buffer;
+    // TODO: implement
+    return 0;
+}
+
+// Transmit packets
 
 int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd) {
     if (res == NULL) {
@@ -77,6 +331,17 @@ int receiveTCPPacket(std::string &response, int fd) {
 
 // Helper functions
 
+int verifyPacketID(std::string &buffer, std::string ID) {
+    if (buffer.empty() || buffer.back() != '\n') {
+        return -1;
+    }
+    buffer.pop_back();
+    if (readString(buffer, false) != ID || readDelimiter(buffer) == -1) {
+        return -1;
+    }
+    return 0;
+}
+
 int readDelimiter(std::string &line) {
     char c = line.front();
     if (c != ' ') {
@@ -92,104 +357,22 @@ int readDelimiter(std::string &line) {
     return 0;
 }
 
-int readStatus(std::string &line, status &stat) {
-    std::string statusStr = readString(line, false);
-    if (strToStatus.find(statusStr) == strToStatus.end()) {
-        std::cerr << STATUS_ERR << std::endl;
+int readFileInfo(std::string &line, FileInfo &fInfo) {
+    fInfo.name = readString(line, false);
+    if (readDelimiter(line) == -1) {
         return -1;
     }
-    stat = strToStatus[statusStr];
+    if (readInt(line, fInfo.size, false) == -1) {
+        std::cerr << FILE_SIZE_ERR << std::endl;
+        return -1;
+    }
+    if (readDelimiter(line) == -1) {
+        return -1;
+    }
+    if (line.length() != fInfo.size) {
+        std::cerr << FILE_SIZE_ERR << std::endl;
+        return -1;
+    }
+    fInfo.data = line;
     return 0;
-}
-
-int readFileData(std::string &fInfo) {
-    (void)fInfo;
-    // TODO: implement
-    return 0;
-}
-
-int writeFileData(std::string &fName, std::string &str) {
-    (void)fName;
-    (void)str;
-    // TODO: implement
-    return 0;
-}
-
-// Packet methods: used by the user side
-
-std::string LINPacket::serialize() {
-    // TODO: implement
-    return "";
-}
-
-void RLIPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-}
-
-std::string LOUPacket::serialize() {
-    // TODO: implement
-    return "";
-}
-
-void RLOPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-}
-
-std::string UNRPacket::serialize() {
-    // TODO: implement
-    return "";
-}
-
-void RURPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-}
-
-// Packet methods: used by the server side
-
-std::string RLIPacket::serialize() {
-    // TODO: implement
-    return "";
-}
-
-void LINPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-}
-
-std::string RLOPacket::serialize() {
-    // TODO: implement
-    return "";
-}
-
-void LOUPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-}
-
-std::string RURPacket::serialize() {
-    // TODO: implement
-    return "";
-}
-
-void UNRPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-}
-
-// Error messages
-
-std::string ERRUDPPacket::serialize() { return "ERR\n"; }
-
-void ERRUDPPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // unimplemented
-}
-std::string ERRTCPPacket::serialize() { return "ERR\n"; }
-
-void ERRTCPPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // unimplemented
 }

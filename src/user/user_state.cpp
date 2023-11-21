@@ -6,6 +6,7 @@
 #include <cstring>
 #include <iostream>
 #include <netdb.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 void UserState::readOpts(int argc, char *argv[]) {
@@ -53,10 +54,10 @@ void UserState::getServerAddresses() {
     }
 }
 
-void UserState::openTCPSocket() {
+int UserState::openTCPSocket() {
     if ((this->socketTCP = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         std::cerr << SOCKET_CREATE_ERR << std::endl;
-        exit(EXIT_FAILURE);
+        return -1;
     }
     struct timeval timeout;
     timeout.tv_sec = TCP_READ_TIMEOUT_SECS;
@@ -64,42 +65,63 @@ void UserState::openTCPSocket() {
     if (setsockopt(this->socketTCP, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                    sizeof(timeout)) < 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << std::endl;
-        exit(EXIT_FAILURE);
+        return -1;
     }
     memset(&timeout, 0, sizeof(timeout));
     timeout.tv_sec = TCP_WRITE_TIMEOUT_SECS;
     if (setsockopt(this->socketTCP, SOL_SOCKET, SO_SNDTIMEO, &timeout,
                    sizeof(timeout)) < 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << std::endl;
-        exit(EXIT_FAILURE);
+        return -1;
     }
+    return 0;
 }
 
-void UserState::closeTCPSocket() {
+int UserState::closeTCPSocket() {
     if (this->socketTCP == -1) {
-        return; // socket was already closed
+        return 0; // socket was already closed
     }
     if (close(this->socketTCP) != 0) {
         std::cerr << SOCKET_CLOSE_ERR << std::endl;
-        exit(EXIT_FAILURE);
+        return -1;
     }
     this->socketTCP = -1;
+    return 0;
 }
 
 int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
                                        UDPPacket &packetIn) {
-    (void)packetOut;
-    (void)packetIn;
-    return 0;
-    // TODO: implement
+    std::string response;
+    if (sendUDPPacket(packetOut, this->addrUDP, this->socketUDP) == -1) {
+        return -1;
+    }
+    if (receiveUDPPacket(response, this->addrUDP, this->socketUDP) == -1) {
+        return -1;
+    }
+    return packetIn.deserialize(response);
 }
 
 int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
                                        TCPPacket &packetIn) {
-    (void)packetOut;
-    (void)packetIn;
-    return 0;
-    // TODO: implement
+    std::string response;
+    if (this->openTCPSocket() == -1) {
+        return -1;
+    }
+    if (connect(this->socketTCP, this->addrTCP->ai_addr,
+                this->addrTCP->ai_addrlen) == -1) {
+        std::cerr << TCP_CONNECT_ERR << std::endl;
+        return -1;
+    }
+    if (sendTCPPacket(packetOut, this->socketTCP) == -1) {
+        return -1;
+    }
+    if (receiveTCPPacket(response, this->socketTCP) == -1) {
+        return -1;
+    }
+    if (this->closeTCPSocket() == -1) {
+        return -1;
+    }
+    return packetIn.deserialize(response);
 }
 
 UserState::~UserState() {
