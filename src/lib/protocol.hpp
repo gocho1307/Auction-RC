@@ -84,6 +84,33 @@ class RURPacket : public UDPPacket {
     void deserialize(std::string &buffer);
 };
 
+// Send open packet (OPA)
+class OPAPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "OPA";
+    int UID;
+    std::string name;
+    std::string fname;
+    std::size_t fsize;
+    std::vector<char> fdata;
+    int start_value;
+    int timeactive;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Receive open packet (ROA)
+class ROAPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "AID";
+    status stat;
+    int AID;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
 // Error UDP packet (ERR)
 class ERRUDPPacket : public UDPPacket {
   public:

@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <fstream>
+#include <vector>
 
 int validatePort(std::string port) {
     if (port.empty()) {
@@ -46,6 +48,23 @@ int readInt(std::string &line, int &num, bool ignSpaces) {
         return -1;
     }
     return 0;
+}
+
+ImageData getImage(std::string &fname) {
+    ImageData image_data;
+
+    std::ifstream file(fname, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        return image_data;
+    }
+
+    image_data.fsize = static_cast<std::size_t>(file.tellg());
+    image_data.fdata.resize(image_data.fsize);
+    file.seekg(0, std::ios::beg);
+    file.read(image_data.fdata.data(), image_data.fsize);
+    file.close();
+
+    return image_data;
 }
 
 void setupSigHandlers(void (*sigF)(int)) {

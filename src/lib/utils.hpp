@@ -3,11 +3,18 @@
 
 #include <string>
 
+struct ImageData {
+    std::size_t fsize;
+    std::vector<char> fdata;
+};
+
 int validatePort(std::string port);
 
 std::string readString(std::string &line, bool ignSpaces);
 
 int readInt(std::string &line, int &num, bool ignSpaces);
+
+ImageData getImage(std::string &fname);
 
 void setupSigHandlers(void (*sigF)(int));
 

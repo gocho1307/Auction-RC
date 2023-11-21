@@ -44,5 +44,13 @@
 #define EXIT_ERR                                                               \
     "A user is still logged in, please make sure to logout before exitting "   \
     "the application."
+#define NAME_ERR "Invalid description. Expected up to 10 alphanumeric characters."
+#define IMAGE_ERR "Invalid image."
+#define START_VAL_ERR "Invalid start value for the auction. Expected a"        \
+    " positive value with up to 6 digits."
+#define DURATION_ERR "Invalid duration value for the auction. Expected a"      \
+    " positive value with up to 5 digits."
+#define OPEN_OK(aid) "New auction with the id of:" << aid << "was created."
+#define OPEN_NOK "Could not open the auction."
 
 #endif // __MESSAGES_HPP__

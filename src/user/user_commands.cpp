@@ -2,7 +2,9 @@
 #include "../lib/messages.hpp"
 #include "../lib/utils.hpp"
 
+#include <fstream>
 #include <iostream>
+#include <vector>
 
 CommandsHandler handler = {{"login", loginCommand},
                            {"logout", logoutCommand},
@@ -210,8 +212,75 @@ void exitCommand(UserState &state) {
 }
 
 void openCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
+    std::string name = readString(state.line, true);
+    if (name.length() > MAX_NAME_LEN) {
+        std::cerr << NAME_ERR << std::endl;
+        return;
+    }
+    for (char c : name) {
+        if (!isalnum(c)) {
+            std::cerr << NAME_ERR << std::endl;
+            return;
+        }
+    }
+
+    // not quite sure if fname is supposed to be the file path of the client or
+    //  the name he wants to give the file. I'm assuming it's file path
+    std::string fname = readString(state.line, true);
+    ImageData image_info = getImage(fname);
+    if (image_info.fdata.empty()) {
+        std::cerr << IMAGE_ERR << std::endl;
+        return;
+    }
+    std::size_t fsize = image_info.fsize;
+    std::vector<char> fdata = image_info.fdata;
+
+    int start_value;
+    if (readInt(state.line, start_value, true) == -1 ||
+        start_value > MAX_START_VAL) {
+        std::cerr << START_VAL_ERR << std::endl;
+        return;
+    }
+
+    int timeactive;
+    if (readInt(state.line, timeactive, true) == -1 ||
+        timeactive > MAX_DURATION) {
+        std::cerr << DURATION_ERR << std::endl;
+        return;
+    }
+
+    OPAPacket packetOut;
+    packetOut.UID = state.UID;
+    packetOut.name = name;
+    packetOut.fname = fname;
+    packetOut.fsize = fsize;
+    packetOut.fdata = fdata;
+    packetOut.start_value = start_value;
+    packetOut.timeactive = timeactive;
+
+    ROAPacket packetIn;
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    switch (packetIn.stat) {
+    case status::OK:
+        std::cout << OPEN_OK(packetIn.AID) << std::endl;
+        break;
+    case status::NOK:
+        std::cerr << OPEN_NOK << std::endl;
+        break;
+    case status::ERR:
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        return;
+        break;
+    }
 }
 
 void closeCommand(UserState &state) {
