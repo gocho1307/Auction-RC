@@ -18,4 +18,6 @@ ImageData getImage(std::string &fname);
 
 void setupSigHandlers(void (*sigF)(int));
 
+void listAuctions(std::string auctions);
+
 #endif // __UTILS_HPP__

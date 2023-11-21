@@ -12,8 +12,9 @@
 #define MAX_UID (999999)
 #define PASSWORD_LEN (8)
 #define MAX_NAME_LEN (10)
-#define MAX_START_VAL (999999)
+#define MAX_VAL (999999)
 #define MAX_DURATION (99999)
+#define MAX_AID (999)
 
 #define TCP_READ_TIMEOUT_SECS (10)
 #define TCP_WRITE_TIMEOUT_SECS (10 * 60) // 10 minutes

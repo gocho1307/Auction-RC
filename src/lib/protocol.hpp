@@ -2,8 +2,9 @@
 #define __PROTOCOL_HPP__
 
 #include <string>
+#include <vector>
 
-enum status { OK, NOK, REG, UNR, NLG, EOW, ACC, ILG, END, ERR };
+enum status { OK, NOK, REG, UNR, NLG, EOW, ACC, REF, ILG, END, EAU, ERR };
 
 class UDPPacket {
   public:
@@ -106,6 +107,114 @@ class ROAPacket : public TCPPacket {
     static constexpr const char *ID = "AID";
     status stat;
     int AID;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Send close packet (CLS)
+class CLSPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "CLS";
+    int UID;
+    std::string password;
+    int AID;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Receive close packet (RCL)
+class RCLPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "RCL";
+    status stat;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Send myAuctions packet (LMA)
+class LMAPacket : public UDPPacket {
+  public:
+    static constexpr const char *ID = "LMA";
+    int UID;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Receive myAuctions packet (RMA)
+class RMAPacket : public UDPPacket {
+  public:
+    static constexpr const char *ID = "RMA";
+    status stat;
+    std::string auctions;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Send myBids packet (LMB)
+class LMBPacket : public UDPPacket {
+  public:
+    static constexpr const char *ID = "LMB";
+    int UID;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Receive myBids packet (RMB)
+class RMBPacket : public UDPPacket {
+  public:
+    static constexpr const char *ID = "RMB";
+    status stat;
+    std::string auctions;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Send list packet (LST)
+class LSTPacket : public UDPPacket {
+  public:
+    static constexpr const char *ID = "LST";
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Receive list packet (RLS)
+class RLSPacket : public UDPPacket {
+  public:
+    static constexpr const char *ID = "RLS";
+    status stat;
+    std::string auctions;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+
+// Send bid packet (BID)
+class BIDPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "BID";
+    int UID;
+    std::string password;
+    int AID;
+    int value;
+
+    std::string serialize();
+    void deserialize(std::string &buffer);
+};
+
+// Receive bid packet (RBD)
+class RBDPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "RBD";
+    status stat;
 
     std::string serialize();
     void deserialize(std::string &buffer);

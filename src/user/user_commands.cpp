@@ -241,8 +241,7 @@ void openCommand(UserState &state) {
     std::vector<char> fdata = image_info.fdata;
 
     int start_value;
-    if (readInt(state.line, start_value, true) == -1 ||
-        start_value > MAX_START_VAL) {
+    if (readInt(state.line, start_value, true) == -1 || start_value > MAX_VAL) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
@@ -284,23 +283,119 @@ void openCommand(UserState &state) {
 }
 
 void closeCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
+    int aid;
+    if (readInt(state.line, aid, true) == -1 || aid > MAX_AID) {
+        std::cerr << AID_ERR << std::endl;
+    }
+
+    CLSPacket packetOut;
+    packetOut.UID = state.UID;
+    packetOut.password = state.password;
+    packetOut.AID = aid;
+
+    RCLPacket packetIn;
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    switch (packetIn.stat) {
+    case status::OK:
+        std::cout << CLOSE_OK << std::endl;
+        break;
+    case status::NLG:
+        std::cout << NOT_LOGGED << std::endl;
+        break;
+    case status::EAU:
+        std::cout << CLOSE_EAU << std::endl;
+        break;
+    case status::EOW:
+        std::cout << CLOSE_EOW << std::endl;
+        break;
+    case status::END:
+        std::cout << CLOSE_END << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
 }
 
 void myAuctionsCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    LMAPacket packetOut;
+    packetOut.UID = state.UID;
+    RMAPacket packetIn;
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    switch (packetIn.stat) {
+    case status::OK:
+        std::cout << MYAUCTIONS_OK << std::endl;
+        listAuctions(packetIn.auctions);
+        break;
+    case status::NLG:
+        std::cout << NOT_LOGGED << std::endl;
+        break;
+    case status::NOK:
+        std::cout << MYAUCTIONS_NOK << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
 }
 
 void myBidsCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    LMBPacket packetOut;
+    packetOut.UID = state.UID;
+    RMBPacket packetIn;
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    switch (packetIn.stat) {
+    case status::OK:
+        std::cout << MYBIDS_OK << std::endl;
+        listAuctions(packetIn.auctions);
+        break;
+    case status::NLG:
+        std::cout << NOT_LOGGED << std::endl;
+        break;
+    case status::NOK:
+        std::cout << MYBIDS_NOK << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
 }
 
 void listCommand(UserState &state) {
     (void)state;
-    // TODO: implement
+
+    LSTPacket packetOut;
+    RLSPacket packetIn;
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    switch (packetIn.stat) {
+    case status::OK:
+        std::cout << LIST_OK << std::endl;
+        listAuctions(packetIn.auctions);
+        break;
+    case status::NOK:
+        std::cout << LIST_NOK << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
 }
 
 void showAssetCommand(UserState &state) {
@@ -309,8 +404,52 @@ void showAssetCommand(UserState &state) {
 }
 
 void bidCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
+    int aid;
+    if (readInt(state.line, aid, true) == -1 || aid > MAX_AID) {
+        std::cerr << AID_ERR << std::endl;
+    }
+
+    int value;
+    if (readInt(state.line, value, true) == -1 || value > MAX_VAL) {
+        std::cerr << START_VAL_ERR << std::endl;
+    }
+
+    BIDPacket packetOut;
+    packetOut.UID = state.UID;
+    packetOut.password = state.password;
+    packetOut.AID = aid;
+    packetOut.value = value;
+
+    RBDPacket packetIn;
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    switch (packetIn.stat) {
+    case status::NOK:
+        std::cout << BID_NOK << std::endl;
+        break;
+    case status::NLG:
+        std::cout << NOT_LOGGED << std::endl;
+        break;
+    case status::ACC:
+        std::cout << BID_ACC << std::endl;
+        break;
+    case status::REF:
+        std::cout << BID_REF << std::endl;
+        break;
+    case status::ILG:
+        std::cout << BID_ILG << std::endl;
+        break;
+    default:
+        std::cerr << PACKET_ERR << std::endl;
+        break;
+    }
 }
 
 void showRecordCommand(UserState &state) {

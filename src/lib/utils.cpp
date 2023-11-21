@@ -4,8 +4,9 @@
 #include <csignal>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <vector>
 
 int validatePort(std::string port) {
@@ -90,5 +91,15 @@ void setupSigHandlers(void (*sigF)(int)) {
     if (sigaction(SIGPIPE, &s, NULL) == -1) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
+    }
+}
+
+void listAuctions(std::string auctions) {
+    std::istringstream auctions_stream(auctions);
+    int aid, flag;
+
+    while (auctions_stream >> aid >> flag) {
+        std::cout << "Auction" << aid << " : "
+                  << (flag == 1 ? "Active" : "Not Active") << "\n";
     }
 }

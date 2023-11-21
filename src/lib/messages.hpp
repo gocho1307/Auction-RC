@@ -40,6 +40,7 @@
 #define LOGOUT_OK "Logged out successfully."
 #define UNREG_OK(user) "Successfully unregistered the user '" << user << "'."
 #define NO_LOGIN "No user is currently logged in."
+#define NOT_LOGGED "User is not logged."
 #define NO_REG(user) "User '" << user << "' is not registered."
 #define EXIT_ERR                                                               \
     "A user is still logged in, please make sure to logout before exitting "   \
@@ -52,5 +53,21 @@
     " positive value with up to 5 digits."
 #define OPEN_OK(aid) "New auction with the id of:" << aid << "was created."
 #define OPEN_NOK "Could not open the auction."
+#define AID_ERR "Invalid auction id. Expected a positive value with up to"     \
+    " 3 digits."
+#define CLOSE_OK "Closed the auction successfully."
+#define CLOSE_EAU "The auction you tried to close does not exist."
+#define CLOSE_EOW "Cannot close auctions you do not own."
+#define CLOSE_END "This auction was already closed."
+#define MYAUCTIONS_OK "Here are your ongoing auctions"
+#define MYAUCTIONS_NOK "You do not have any ongoing auctions."
+#define MYBIDS_OK "Here are the ongoing auctions in which you have placed a bid"
+#define MYBIDS_NOK "You do not have any ongoing bids."
+#define LIST_OK "Here are all the ongoing auctions"
+#define LIST_NOK "There are no auctions."
+#define BID_NOK "The auction you tried to bid on is not active."
+#define BID_ACC "Your bid was accepted."
+#define BID_REF "Your bid was refused. A larger bid has already been placed."
+#define BID_ILG "You cannot bid on an auction that you hosted."
 
 #endif // __MESSAGES_HPP__
