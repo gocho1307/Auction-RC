@@ -267,7 +267,7 @@ int SRCPacket::deserialize(std::string &buffer) {
 
 // Transmit packets
 
-int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd) {
+int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd) {
     if (res == NULL) {
         std::cerr << GETADDRINFO_UDP_ERR << std::endl;
         return -1;
@@ -298,7 +298,7 @@ int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd) {
     return 0;
 }
 
-int sendTCPPacket(TCPPacket &packet, int fd) {
+int sendTCPPacket(Packet &packet, int fd) {
     std::string msg = packet.serialize();
     const char *ptr = msg.c_str();
     ssize_t bytesLeft = (ssize_t)msg.length();

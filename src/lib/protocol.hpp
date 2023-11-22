@@ -5,24 +5,16 @@
 
 #include <string>
 
-class UDPPacket {
+class Packet {
   public:
     virtual std::string serialize() = 0;
     virtual int deserialize(std::string &buffer) = 0;
 
-    virtual ~UDPPacket() = default;
-};
-
-class TCPPacket {
-  public:
-    virtual std::string serialize() = 0;
-    virtual int deserialize(std::string &buffer) = 0;
-
-    virtual ~TCPPacket() = default;
+    virtual ~Packet() = default;
 };
 
 // Send login packet (LIN)
-class LINPacket : public UDPPacket {
+class LINPacket : public Packet {
   public:
     static constexpr const char *ID = "LIN";
     int UID;
@@ -33,7 +25,7 @@ class LINPacket : public UDPPacket {
 };
 
 // Receive login packet (RLI)
-class RLIPacket : public UDPPacket {
+class RLIPacket : public Packet {
   public:
     static constexpr const char *ID = "RLI";
     std::string status;
@@ -43,7 +35,7 @@ class RLIPacket : public UDPPacket {
 };
 
 // Send logout packet (LOU)
-class LOUPacket : public UDPPacket {
+class LOUPacket : public Packet {
   public:
     static constexpr const char *ID = "LOU";
     int UID;
@@ -54,7 +46,7 @@ class LOUPacket : public UDPPacket {
 };
 
 // Receive logout packet (RLO)
-class RLOPacket : public UDPPacket {
+class RLOPacket : public Packet {
   public:
     static constexpr const char *ID = "RLO";
     std::string status;
@@ -64,7 +56,7 @@ class RLOPacket : public UDPPacket {
 };
 
 // Send register packet (UNR)
-class UNRPacket : public UDPPacket {
+class UNRPacket : public Packet {
   public:
     static constexpr const char *ID = "UNR";
     int UID;
@@ -75,7 +67,7 @@ class UNRPacket : public UDPPacket {
 };
 
 // Receive register packet (RUR)
-class RURPacket : public UDPPacket {
+class RURPacket : public Packet {
   public:
     static constexpr const char *ID = "RUR";
     std::string status;
@@ -85,7 +77,7 @@ class RURPacket : public UDPPacket {
 };
 
 // Send open packet (OPA)
-class OPAPacket : public TCPPacket {
+class OPAPacket : public Packet {
   public:
     static constexpr const char *ID = "OPA";
     int UID;
@@ -99,7 +91,7 @@ class OPAPacket : public TCPPacket {
 };
 
 // Receive open packet (ROA)
-class ROAPacket : public TCPPacket {
+class ROAPacket : public Packet {
   public:
     static constexpr const char *ID = "AID";
     std::string status;
@@ -110,7 +102,7 @@ class ROAPacket : public TCPPacket {
 };
 
 // Send close packet (CLS)
-class CLSPacket : public TCPPacket {
+class CLSPacket : public Packet {
   public:
     static constexpr const char *ID = "CLS";
     int UID;
@@ -122,7 +114,7 @@ class CLSPacket : public TCPPacket {
 };
 
 // Receive close packet (RCL)
-class RCLPacket : public TCPPacket {
+class RCLPacket : public Packet {
   public:
     static constexpr const char *ID = "RCL";
     std::string status;
@@ -132,7 +124,7 @@ class RCLPacket : public TCPPacket {
 };
 
 // Send myAuctions packet (LMA)
-class LMAPacket : public UDPPacket {
+class LMAPacket : public Packet {
   public:
     static constexpr const char *ID = "LMA";
     int UID;
@@ -142,7 +134,7 @@ class LMAPacket : public UDPPacket {
 };
 
 // Receive myAuctions packet (RMA)
-class RMAPacket : public UDPPacket {
+class RMAPacket : public Packet {
   public:
     static constexpr const char *ID = "RMA";
     std::string status;
@@ -153,7 +145,7 @@ class RMAPacket : public UDPPacket {
 };
 
 // Send myBids packet (LMB)
-class LMBPacket : public UDPPacket {
+class LMBPacket : public Packet {
   public:
     static constexpr const char *ID = "LMB";
     int UID;
@@ -163,7 +155,7 @@ class LMBPacket : public UDPPacket {
 };
 
 // Receive myBids packet (RMB)
-class RMBPacket : public UDPPacket {
+class RMBPacket : public Packet {
   public:
     static constexpr const char *ID = "RMB";
     std::string status;
@@ -174,7 +166,7 @@ class RMBPacket : public UDPPacket {
 };
 
 // Send list packet (LST)
-class LSTPacket : public UDPPacket {
+class LSTPacket : public Packet {
   public:
     static constexpr const char *ID = "LST";
 
@@ -183,7 +175,7 @@ class LSTPacket : public UDPPacket {
 };
 
 // Receive list packet (RLS)
-class RLSPacket : public UDPPacket {
+class RLSPacket : public Packet {
   public:
     static constexpr const char *ID = "RLS";
     std::string status;
@@ -194,7 +186,7 @@ class RLSPacket : public UDPPacket {
 };
 
 // Send bid packet (BID)
-class BIDPacket : public TCPPacket {
+class BIDPacket : public Packet {
   public:
     static constexpr const char *ID = "BID";
     int UID;
@@ -207,7 +199,7 @@ class BIDPacket : public TCPPacket {
 };
 
 // Receive bid packet (RBD)
-class RBDPacket : public TCPPacket {
+class RBDPacket : public Packet {
   public:
     static constexpr const char *ID = "RBD";
     std::string status;
@@ -217,7 +209,7 @@ class RBDPacket : public TCPPacket {
 };
 
 // Send showAsset packet (SAS)
-class SASPacket : public TCPPacket {
+class SASPacket : public Packet {
   public:
     static constexpr const char *ID = "SAS";
     int AID;
@@ -227,7 +219,7 @@ class SASPacket : public TCPPacket {
 };
 
 // Receive showAsset packet (RSA)
-class RSAPacket : public TCPPacket {
+class RSAPacket : public Packet {
   public:
     static constexpr const char *ID = "RSA";
     std::string status;
@@ -238,7 +230,7 @@ class RSAPacket : public TCPPacket {
 };
 
 // Send showRecord packet (SRC)
-class SRCPacket : public UDPPacket {
+class SRCPacket : public Packet {
   public:
     static constexpr const char *ID = "SRC";
     int AID;
@@ -248,7 +240,7 @@ class SRCPacket : public UDPPacket {
 };
 
 // Receive showRecord packet (RRC)
-class RRCPacket : public UDPPacket {
+class RRCPacket : public Packet {
   public:
     static constexpr const char *ID = "RRC";
     std::string status;
@@ -267,30 +259,20 @@ class RRCPacket : public UDPPacket {
 };
 
 // Error UDP packet (ERR)
-class ERRUDPPacket : public UDPPacket {
+class ERRPacket : public Packet {
   public:
     std::string serialize() { return "ERR\n"; }
     int deserialize(std::string &buffer) {
-        (void)buffer;
+        (void)buffer; // unimplemented
         return 0;
     }
 };
 
-// Error TCP packet (ERR)
-class ERRTCPPacket : public TCPPacket {
-  public:
-    std::string serialize() { return "ERR\n"; }
-    int deserialize(std::string &buffer) {
-        (void)buffer;
-        return 0;
-    }
-};
-
-int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd);
+int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd);
 
 int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd);
 
-int sendTCPPacket(TCPPacket &packet, int fd);
+int sendTCPPacket(Packet &packet, int fd);
 
 int receiveTCPPacket(std::string &response, int fd);
 

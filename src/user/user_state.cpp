@@ -89,8 +89,7 @@ int UserState::closeTCPSocket() {
     return 0;
 }
 
-int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
-                                       UDPPacket &packetIn) {
+int UserState::sendAndReceiveUDPPacket(Packet &packetOut, Packet &packetIn) {
     std::string response;
     if (sendUDPPacket(packetOut, this->addrUDP, this->socketUDP) == -1) {
         return -1;
@@ -101,8 +100,7 @@ int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
     return packetIn.deserialize(response);
 }
 
-int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
-                                       TCPPacket &packetIn) {
+int UserState::sendAndReceiveTCPPacket(Packet &packetOut, Packet &packetIn) {
     std::string response;
     if (this->openTCPSocket() == -1) {
         return -1;
