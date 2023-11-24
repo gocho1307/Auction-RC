@@ -15,17 +15,13 @@ std::string readString(std::string &line, bool ignSpaces);
 
 int readInt(std::string &line, int &num, bool ignSpaces);
 
-int readUID(std::string &line, int &uid, bool ignSpaces);
+int readUID(std::string &line, std::string &uid, bool ignSpaces);
 
 int readPassword(std::string &line, std::string &password, bool ignSpaces);
 
 int readFile(std::string fPath, FileInfo &fInfo);
 
 int writeFile(std::string dir, FileInfo fInfo);
-
-void listAuctions(std::string auctions);
-
-void listBids(std::string bidsInfo);
 
 void setupSigHandlers(void (*sigF)(int));
 

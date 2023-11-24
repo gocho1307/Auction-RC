@@ -85,7 +85,7 @@ void loginCommand(UserState &state) {
         std::cerr << LOGIN_ERR << std::endl;
         return;
     }
-    int uid;
+    std::string uid;
     std::string password;
     if (readUID(state.line, uid, true) == -1 ||
         readPassword(state.line, password, true) == -1) {

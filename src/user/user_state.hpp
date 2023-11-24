@@ -20,7 +20,7 @@ class UserState {
     std::string line;
 
     bool loggedIn = false;
-    int UID = 0;
+    std::string UID;
     std::string password;
 
     void readOpts(int argc, char *argv[]);

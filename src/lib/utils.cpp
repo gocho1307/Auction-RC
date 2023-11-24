@@ -54,10 +54,17 @@ int readInt(std::string &line, int &num, bool ignSpaces) {
     return 0;
 }
 
-int readUID(std::string &line, int &uid, bool ignSpaces) {
-    if (readInt(line, uid, ignSpaces) == -1 || uid < MIN_UID || uid > MAX_UID) {
+int readUID(std::string &line, std::string &uid, bool ignSpaces) {
+    uid = readString(line, ignSpaces);
+    if (uid.length() != UID_LEN) {
         std::cerr << UID_ERR << std::endl;
         return -1;
+    }
+    for (char c : uid) {
+        if (!isdigit(c)) {
+            std::cerr << PASSWORD_ERR << std::endl;
+            return -1;
+        }
     }
     return 0;
 }
@@ -124,24 +131,6 @@ int writeFile(std::string dir, FileInfo fInfo) {
     }
     file.close();
     return 0;
-}
-
-void listAuctions(std::string auctionsInfo) {
-    (void)auctionsInfo;
-    // std::stringstream auctionsStream(auctionsInfo);
-    // int aid, flag;
-    // while (auctionsStream >> aid >> flag) {
-    //     std::cout << "Auction" << aid << " : "
-    //               << (flag == 1 ? "Active" : "Not Active") << std::endl;
-    // }
-
-    // TODO: needs to check the message syntax while printing, and in case of
-    // bad syntax return -1.
-}
-
-void listBids(std::string bidsInfo) {
-    (void)bidsInfo;
-    // TODO: list and verify message syntax while printing bids info from RRC.
 }
 
 void setupSigHandlers(void (*sigF)(int)) {

@@ -17,7 +17,7 @@ class Packet {
 class LINPacket : public Packet {
   public:
     static constexpr const char *ID = "LIN";
-    int UID;
+    std::string UID;
     std::string password;
 
     std::string serialize();
@@ -38,7 +38,7 @@ class RLIPacket : public Packet {
 class LOUPacket : public Packet {
   public:
     static constexpr const char *ID = "LOU";
-    int UID;
+    std::string UID;
     std::string password;
 
     std::string serialize();
@@ -59,7 +59,7 @@ class RLOPacket : public Packet {
 class UNRPacket : public Packet {
   public:
     static constexpr const char *ID = "UNR";
-    int UID;
+    std::string UID;
     std::string password;
 
     std::string serialize();
@@ -80,7 +80,7 @@ class RURPacket : public Packet {
 class OPAPacket : public Packet {
   public:
     static constexpr const char *ID = "OPA";
-    int UID;
+    std::string UID;
     std::string auctionName;
     FileInfo fInfo;
     int startValue;
@@ -105,7 +105,7 @@ class ROAPacket : public Packet {
 class CLSPacket : public Packet {
   public:
     static constexpr const char *ID = "CLS";
-    int UID;
+    std::string UID;
     std::string password;
     int AID;
 
@@ -127,7 +127,7 @@ class RCLPacket : public Packet {
 class LMAPacket : public Packet {
   public:
     static constexpr const char *ID = "LMA";
-    int UID;
+    std::string UID;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -148,7 +148,7 @@ class RMAPacket : public Packet {
 class LMBPacket : public Packet {
   public:
     static constexpr const char *ID = "LMB";
-    int UID;
+    std::string UID;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -189,7 +189,7 @@ class RLSPacket : public Packet {
 class BIDPacket : public Packet {
   public:
     static constexpr const char *ID = "BID";
-    int UID;
+    std::string UID;
     std::string password;
     int AID;
     int value;
@@ -244,7 +244,7 @@ class RRCPacket : public Packet {
   public:
     static constexpr const char *ID = "RRC";
     std::string status;
-    int hostUID;
+    std::string hostUID;
     std::string auctionName;
     std::string assetfName;
     int startValue;
@@ -276,10 +276,14 @@ int sendTCPPacket(Packet &packet, int fd);
 
 int receiveTCPPacket(std::string &response, int fd);
 
-int verifyPacketID(std::string &buffer, std::string ID);
+int verifyPacketFormat(std::string &buffer, std::string ID);
 
 int readDelimiter(std::string &line);
 
 int readFileInfo(std::string &line, FileInfo &fInfo);
+
+void listAuctions(std::string auctions);
+
+void listBids(std::string bidsInfo);
 
 #endif // __PROTOCOL_HPP__

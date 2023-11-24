@@ -10,8 +10,7 @@
 #define BUFFER_FILE_SIZE (1024)
 #define MAX_FILE_SIZE (10000000)
 
-#define MIN_UID (100000)
-#define MAX_UID (999999)
+#define UID_LEN (6)
 #define PASSWORD_LEN (8)
 #define MAX_NAME_LEN (10)
 #define MAX_START_VAL (999999)

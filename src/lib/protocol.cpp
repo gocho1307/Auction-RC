@@ -10,12 +10,12 @@
 // Packet methods: used by the user side
 
 std::string LINPacket::serialize() {
-    return std::string(ID) + " " + std::to_string(UID) + " " + password + "\n";
+    return std::string(ID) + " " + UID + " " + password + "\n";
 }
 
 int RLIPacket::deserialize(std::string &buffer) {
-    if (verifyPacketID(buffer, std::string(ID)) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
+        readDelimiter(buffer) == -1) {
         return -1;
     }
     status = readString(buffer, false);
@@ -23,12 +23,12 @@ int RLIPacket::deserialize(std::string &buffer) {
 }
 
 std::string LOUPacket::serialize() {
-    return std::string(ID) + " " + std::to_string(UID) + " " + password + "\n";
+    return std::string(ID) + " " + UID + " " + password + "\n";
 }
 
 int RLOPacket::deserialize(std::string &buffer) {
-    if (verifyPacketID(buffer, std::string(ID)) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
+        readDelimiter(buffer) == -1) {
         return -1;
     }
     status = readString(buffer, false);
@@ -36,12 +36,12 @@ int RLOPacket::deserialize(std::string &buffer) {
 }
 
 std::string UNRPacket::serialize() {
-    return std::string(ID) + " " + std::to_string(UID) + " " + password + "\n";
+    return std::string(ID) + " " + UID + " " + password + "\n";
 }
 
 int RURPacket::deserialize(std::string &buffer) {
-    if (verifyPacketID(buffer, std::string(ID)) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
+        readDelimiter(buffer) == -1) {
         return -1;
     }
     status = readString(buffer, false);
@@ -143,8 +143,8 @@ std::string RLIPacket::serialize() {
 }
 
 int LINPacket::deserialize(std::string &buffer) {
-    if (verifyPacketID(buffer, std::string(ID)) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
+        readDelimiter(buffer) == -1) {
         return -1;
     }
     return 0;
@@ -156,8 +156,8 @@ std::string RLOPacket::serialize() {
 }
 
 int LOUPacket::deserialize(std::string &buffer) {
-    if (verifyPacketID(buffer, std::string(ID)) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
+        readDelimiter(buffer) == -1) {
         return -1;
     }
     return 0;
@@ -169,8 +169,8 @@ std::string RURPacket::serialize() {
 }
 
 int UNRPacket::deserialize(std::string &buffer) {
-    if (verifyPacketID(buffer, std::string(ID)) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
+        readDelimiter(buffer) == -1) {
         return -1;
     }
     return 0;
@@ -265,7 +265,7 @@ int SRCPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-// Transmit packets
+// Transmit packets // TODO: this to put limits to how much we read from sockets
 
 int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd) {
     if (res == NULL) {
@@ -331,18 +331,29 @@ int receiveTCPPacket(std::string &response, int fd) {
 
 // Helper functions
 
-int verifyPacketID(std::string &buffer, std::string ID) {
+int verifyPacketFormat(std::string &buffer, std::string ID) {
     if (buffer.empty() || buffer.back() != '\n') {
+        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     buffer.pop_back();
-    if (readString(buffer, false) != ID || readDelimiter(buffer) == -1) {
+    char c = buffer.back();
+    if (c == ' ' || c == '\t' || c == '\n') {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    if (readString(buffer, false) != ID) {
+        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return 0;
 }
 
 int readDelimiter(std::string &line) {
+    if (line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
     char c = line.front();
     if (c != ' ') {
         std::cerr << PACKET_ERR << std::endl;
@@ -357,6 +368,7 @@ int readDelimiter(std::string &line) {
     return 0;
 }
 
+// TODO: make this use the 'read' function to read from socket
 int readFileInfo(std::string &line, FileInfo &fInfo) {
     fInfo.name = readString(line, false);
     if (readDelimiter(line) == -1) {
@@ -375,4 +387,22 @@ int readFileInfo(std::string &line, FileInfo &fInfo) {
     }
     fInfo.data = line;
     return 0;
+}
+
+void listAuctions(std::string auctionsInfo) {
+    (void)auctionsInfo;
+    // std::stringstream auctionsStream(auctionsInfo);
+    // int aid, flag;
+    // while (auctionsStream >> aid >> flag) {
+    //     std::cout << "Auction" << aid << " : "
+    //               << (flag == 1 ? "Active" : "Not Active") << std::endl;
+    // }
+
+    // TODO: needs to check the message syntax while printing, and in case of
+    // bad syntax return -1.
+}
+
+void listBids(std::string bidsInfo) {
+    (void)bidsInfo;
+    // TODO: list and verify message syntax while printing bids info from RRC.
 }
