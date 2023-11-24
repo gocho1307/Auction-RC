@@ -1,7 +1,7 @@
 #include "user.hpp"
 #include "../lib/messages.hpp"
 #include "../lib/utils.hpp"
-#include "user_commands.hpp"
+#include "commands.hpp"
 #include "user_state.hpp"
 
 #include <netdb.h>

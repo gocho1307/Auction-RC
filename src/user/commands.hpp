@@ -1,5 +1,5 @@
-#ifndef __USER_COMMANDS_HPP__
-#define __USER_COMMANDS_HPP__
+#ifndef __COMMANDS_HPP__
+#define __COMMANDS_HPP__
 
 #include "user_state.hpp"
 
@@ -24,4 +24,4 @@ void showAssetCommand(UserState &state);
 void bidCommand(UserState &state);
 void showRecordCommand(UserState &state);
 
-#endif // __USER_COMMANDS_HPP__
+#endif // __COMMANDS_HPP__

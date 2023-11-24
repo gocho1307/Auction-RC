@@ -14,12 +14,19 @@ std::string LINPacket::serialize() {
 }
 
 int RLIPacket::deserialize(std::string &buffer) {
-    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
-        readDelimiter(buffer) == -1) {
+    if (readString(buffer, false) != std::string(ID)) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    if (readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer, false);
-    return 0;
+    if (status.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    return readNewLine(buffer);
 }
 
 std::string LOUPacket::serialize() {
@@ -27,12 +34,19 @@ std::string LOUPacket::serialize() {
 }
 
 int RLOPacket::deserialize(std::string &buffer) {
-    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
-        readDelimiter(buffer) == -1) {
+    if (readString(buffer, false) != std::string(ID)) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    if (readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer, false);
-    return 0;
+    if (status.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    return readNewLine(buffer);
 }
 
 std::string UNRPacket::serialize() {
@@ -40,12 +54,19 @@ std::string UNRPacket::serialize() {
 }
 
 int RURPacket::deserialize(std::string &buffer) {
-    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
-        readDelimiter(buffer) == -1) {
+    if (readString(buffer, false) != std::string(ID)) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    if (readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer, false);
-    return 0;
+    if (status.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    return readNewLine(buffer);
 }
 
 std::string OPAPacket::serialize() {
@@ -143,12 +164,9 @@ std::string RLIPacket::serialize() {
 }
 
 int LINPacket::deserialize(std::string &buffer) {
-    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
-        readDelimiter(buffer) == -1) {
-        return -1;
-    }
-    return 0;
+    (void)buffer;
     // TODO: implement
+    return 0;
 }
 
 std::string RLOPacket::serialize() {
@@ -156,12 +174,9 @@ std::string RLOPacket::serialize() {
 }
 
 int LOUPacket::deserialize(std::string &buffer) {
-    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
-        readDelimiter(buffer) == -1) {
-        return -1;
-    }
-    return 0;
+    (void)buffer;
     // TODO: implement
+    return 0;
 }
 
 std::string RURPacket::serialize() {
@@ -169,12 +184,9 @@ std::string RURPacket::serialize() {
 }
 
 int UNRPacket::deserialize(std::string &buffer) {
-    if (verifyPacketFormat(buffer, std::string(ID)) == -1 ||
-        readDelimiter(buffer) == -1) {
-        return -1;
-    }
-    return 0;
+    (void)buffer;
     // TODO: implement
+    return 0;
 }
 
 std::string ROAPacket::serialize() {
@@ -331,25 +343,7 @@ int receiveTCPPacket(std::string &response, int fd) {
 
 // Helper functions
 
-int verifyPacketFormat(std::string &buffer, std::string ID) {
-    if (buffer.empty() || buffer.back() != '\n') {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    buffer.pop_back();
-    char c = buffer.back();
-    if (c == ' ' || c == '\t' || c == '\n') {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readString(buffer, false) != ID) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    return 0;
-}
-
-int readDelimiter(std::string &line) {
+int readSpace(std::string &line) {
     if (line.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -359,33 +353,60 @@ int readDelimiter(std::string &line) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
+
     line.erase(line.begin());
+    if (line.empty()) {
+        return 0;
+    }
     c = line.front();
-    if (c == ' ' || c == '\t' || c == '\n' || c == '\0') {
+    if (c == ' ' || c == '\t' || c == '\n') {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
+
+    return 0;
+}
+
+int readNewLine(std::string &line) {
+    if (line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    char c = line.front();
+    if (c != '\n') {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+
+    line.erase(line.begin());
+    if (!line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+
     return 0;
 }
 
 // TODO: make this use the 'read' function to read from socket
 int readFileInfo(std::string &line, FileInfo &fInfo) {
-    fInfo.name = readString(line, false);
-    if (readDelimiter(line) == -1) {
-        return -1;
-    }
-    if (readInt(line, fInfo.size, false) == -1) {
-        std::cerr << FILE_SIZE_ERR << std::endl;
-        return -1;
-    }
-    if (readDelimiter(line) == -1) {
-        return -1;
-    }
-    if (line.length() != fInfo.size) {
-        std::cerr << FILE_SIZE_ERR << std::endl;
-        return -1;
-    }
-    fInfo.data = line;
+    (void)line;
+    (void)fInfo;
+    //     fInfo.name = readString(line, false);
+    //     if (readDelimiter(line) == -1) {
+    //         return -1;
+    //     }
+    //     if (readInt(line, fInfo.size, false) == -1) {
+    //         std::cerr << FILE_SIZE_ERR << std::endl;
+    //         return -1;
+    //     }
+    //     if (readDelimiter(line) == -1) {
+    //         return -1;
+    //     }
+    //     if (line.length() != fInfo.size) {
+    //         std::cerr << FILE_SIZE_ERR << std::endl;
+    //         return -1;
+    //     }
+    //     fInfo.data = line;
     return 0;
 }
 

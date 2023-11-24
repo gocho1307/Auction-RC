@@ -276,9 +276,9 @@ int sendTCPPacket(Packet &packet, int fd);
 
 int receiveTCPPacket(std::string &response, int fd);
 
-int verifyPacketFormat(std::string &buffer, std::string ID);
+int readSpace(std::string &line);
 
-int readDelimiter(std::string &line);
+int readNewLine(std::string &line);
 
 int readFileInfo(std::string &line, FileInfo &fInfo);
 
