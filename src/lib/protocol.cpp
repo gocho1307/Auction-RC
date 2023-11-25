@@ -387,10 +387,15 @@ int readNewLine(std::string &line) {
     return 0;
 }
 
-// TODO: make this use the 'read' function to read from socket
-int readFileInfo(std::string &line, FileInfo &fInfo) {
+int sendFile(std::string &line) {
     (void)line;
-    (void)fInfo;
+    // TODO: implement
+    return 0;
+}
+
+// TODO: make this use the 'read' function to read from socket
+int receiveFile(std::string &line) {
+    (void)line;
     //     fInfo.name = readString(line, false);
     //     if (readDelimiter(line) == -1) {
     //         return -1;

@@ -193,10 +193,10 @@ void openCommand(UserState &state) {
     }
 
     std::string fPath = readString(state.line, true);
-    FileInfo fInfo;
-    if (readFile(fPath, fInfo) == -1) {
-        return;
-    }
+    // FileInfo fInfo;
+    // if (readFile(fPath, fInfo) == -1) {
+    //     return;
+    // }
 
     int startValue;
     if (readInt(state.line, startValue, true) == -1 ||
@@ -215,7 +215,6 @@ void openCommand(UserState &state) {
     OPAPacket packetOut;
     packetOut.UID = state.UID;
     packetOut.auctionName = auctionName;
-    packetOut.fInfo = fInfo;
     packetOut.startValue = startValue;
     packetOut.timeActive = timeActive;
     ROAPacket packetIn;

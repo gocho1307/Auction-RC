@@ -82,7 +82,6 @@ class OPAPacket : public Packet {
     static constexpr const char *ID = "OPA";
     std::string UID;
     std::string auctionName;
-    FileInfo fInfo;
     int startValue;
     int timeActive;
 
@@ -223,7 +222,6 @@ class RSAPacket : public Packet {
   public:
     static constexpr const char *ID = "RSA";
     std::string status;
-    FileInfo fInfo;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -280,7 +278,9 @@ int readSpace(std::string &line);
 
 int readNewLine(std::string &line);
 
-int readFileInfo(std::string &line, FileInfo &fInfo);
+int sendFile(std::string &line);
+
+int receiveFile(std::string &line);
 
 void listAuctions(std::string auctions);
 
