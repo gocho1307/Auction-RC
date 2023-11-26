@@ -300,8 +300,8 @@ int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd) {
         return -1;
     }
 
-    char msg[BUFFER_SIZE] = {0};
-    if (recvfrom(fd, msg, BUFFER_SIZE, 0, res->ai_addr, &res->ai_addrlen) ==
+    char msg[BUFFER_UDP_SIZE] = {0};
+    if (recvfrom(fd, msg, BUFFER_UDP_SIZE, 0, res->ai_addr, &res->ai_addrlen) ==
         -1) {
         std::cerr << RECVFROM_ERR << std::endl;
         return -1;
@@ -327,9 +327,10 @@ int sendTCPPacket(Packet &packet, int fd) {
     return 0;
 }
 
-int receiveTCPPacket(std::string &response, int fd) {
+int receiveTCPPacket(std::string &response, int fd, ssize_t lim) {
     char c;
     ssize_t bytesRead = 0;
+    ssize_t bytesTotal = 0;
     do {
         bytesRead = read(fd, &c, 1);
         if (bytesRead < 0) {
@@ -337,7 +338,8 @@ int receiveTCPPacket(std::string &response, int fd) {
             return -1;
         }
         response.push_back(c);
-    } while (bytesRead != 0);
+        bytesTotal += bytesRead;
+    } while (bytesTotal < lim && bytesRead != 0);
     return 0;
 }
 

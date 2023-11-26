@@ -218,7 +218,7 @@ void openCommand(UserState &state) {
     packetOut.startValue = startValue;
     packetOut.timeActive = timeActive;
     ROAPacket packetIn;
-    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn, ROA_LEN) == -1) {
         return;
     }
 
@@ -247,7 +247,7 @@ void closeCommand(UserState &state) {
     packetOut.password = state.password;
     packetOut.AID = aid;
     RCLPacket packetIn;
-    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn, RCL_LEN) == -1) {
         return;
     }
 
@@ -350,7 +350,7 @@ void bidCommand(UserState &state) {
     packetOut.AID = aid;
     packetOut.value = value;
     RBDPacket packetIn;
-    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn, RBD_LEN) == -1) {
         return;
     }
 

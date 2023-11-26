@@ -28,7 +28,8 @@ class UserState {
     int openTCPSocket();
     int closeTCPSocket();
     int sendAndReceiveUDPPacket(Packet &packetOut, Packet &packetIn);
-    int sendAndReceiveTCPPacket(Packet &packetOut, Packet &packetIn);
+    int sendAndReceiveTCPPacket(Packet &packetOut, Packet &packetIn,
+                                ssize_t lim);
     ~UserState();
 };
 

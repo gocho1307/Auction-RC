@@ -9,7 +9,6 @@ class Packet {
   public:
     virtual std::string serialize() = 0;
     virtual int deserialize(std::string &buffer) = 0;
-
     virtual ~Packet() = default;
 };
 
@@ -77,6 +76,7 @@ class RURPacket : public Packet {
 };
 
 // Send open packet (OPA)
+#define OPA_LEN 0
 class OPAPacket : public Packet {
   public:
     static constexpr const char *ID = "OPA";
@@ -90,6 +90,7 @@ class OPAPacket : public Packet {
 };
 
 // Receive open packet (ROA)
+#define ROA_LEN 0
 class ROAPacket : public Packet {
   public:
     static constexpr const char *ID = "AID";
@@ -101,6 +102,7 @@ class ROAPacket : public Packet {
 };
 
 // Send close packet (CLS)
+#define CLS_LEN 0
 class CLSPacket : public Packet {
   public:
     static constexpr const char *ID = "CLS";
@@ -113,6 +115,7 @@ class CLSPacket : public Packet {
 };
 
 // Receive close packet (RCL)
+#define RCL_LEN 0
 class RCLPacket : public Packet {
   public:
     static constexpr const char *ID = "RCL";
@@ -185,6 +188,7 @@ class RLSPacket : public Packet {
 };
 
 // Send bid packet (BID)
+#define BID_LEN 0
 class BIDPacket : public Packet {
   public:
     static constexpr const char *ID = "BID";
@@ -198,6 +202,7 @@ class BIDPacket : public Packet {
 };
 
 // Receive bid packet (RBD)
+#define RBD_LEN 0
 class RBDPacket : public Packet {
   public:
     static constexpr const char *ID = "RBD";
@@ -208,6 +213,7 @@ class RBDPacket : public Packet {
 };
 
 // Send showAsset packet (SAS)
+#define SAS_LEN 0
 class SASPacket : public Packet {
   public:
     static constexpr const char *ID = "SAS";
@@ -218,6 +224,7 @@ class SASPacket : public Packet {
 };
 
 // Receive showAsset packet (RSA)
+#define RSA_LEN 0
 class RSAPacket : public Packet {
   public:
     static constexpr const char *ID = "RSA";
@@ -257,6 +264,7 @@ class RRCPacket : public Packet {
 };
 
 // Error UDP packet (ERR)
+#define ERR_LEN 4
 class ERRPacket : public Packet {
   public:
     std::string serialize() { return "ERR\n"; }
@@ -272,7 +280,7 @@ int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd);
 
 int sendTCPPacket(Packet &packet, int fd);
 
-int receiveTCPPacket(std::string &response, int fd);
+int receiveTCPPacket(std::string &response, int fd, ssize_t lim);
 
 int readSpace(std::string &line);
 
