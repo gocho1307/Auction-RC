@@ -198,16 +198,18 @@ void openCommand(UserState &state) {
     //     return;
     // }
 
+    // TODO: check if startValue can be equal to 0
     int startValue;
     if (readInt(state.line, startValue, true) == -1 ||
-        startValue > MAX_START_VAL) {
+        startValue > MAX_START_VAL || startValue < 0) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
 
+    // TODO: check if timeActive can be equal to 0
     int timeActive;
     if (readInt(state.line, timeActive, true) == -1 ||
-        timeActive > MAX_DURATION) {
+        timeActive > MAX_DURATION || timeActive < 0) {
         std::cerr << DURATION_ERR << std::endl;
         return;
     }
@@ -215,6 +217,7 @@ void openCommand(UserState &state) {
     OPAPacket packetOut;
     packetOut.UID = state.UID;
     packetOut.auctionName = auctionName;
+    packetOut.assetfPath = fPath;
     packetOut.startValue = startValue;
     packetOut.timeActive = timeActive;
     ROAPacket packetIn;

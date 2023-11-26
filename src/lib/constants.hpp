@@ -12,6 +12,7 @@
 
 #define UID_LEN (6)
 #define PASSWORD_LEN (8)
+#define AID_LEN (3)
 #define MAX_NAME_LEN (10)
 #define MAX_START_VAL (999999)
 #define MAX_DURATION (99999)

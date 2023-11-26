@@ -277,7 +277,7 @@ int SRCPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-// Transmit packets // TODO: this to put limits to how much we read from sockets
+// Transmit packets // TODO: NEED to be able to send files before receiving
 
 int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd) {
     if (res == NULL) {
@@ -343,6 +343,34 @@ int receiveTCPPacket(std::string &response, int fd, ssize_t lim) {
     return 0;
 }
 
+int sendFile(std::string &line) {
+    (void)line;
+    // TODO: implement
+    return 0;
+}
+
+// TODO: make this use the 'read' function to read from socket
+int receiveFile(std::string &line) {
+    (void)line;
+    //     fInfo.name = readString(line, false);
+    //     if (readDelimiter(line) == -1) {
+    //         return -1;
+    //     }
+    //     if (readInt(line, fInfo.size, false) == -1) {
+    //         std::cerr << FILE_SIZE_ERR << std::endl;
+    //         return -1;
+    //     }
+    //     if (readDelimiter(line) == -1) {
+    //         return -1;
+    //     }
+    //     if (line.length() != fInfo.size) {
+    //         std::cerr << FILE_SIZE_ERR << std::endl;
+    //         return -1;
+    //     }
+    //     fInfo.data = line;
+    return 0;
+}
+
 // Helper functions
 
 int readSpace(std::string &line) {
@@ -386,34 +414,6 @@ int readNewLine(std::string &line) {
         return -1;
     }
 
-    return 0;
-}
-
-int sendFile(std::string &line) {
-    (void)line;
-    // TODO: implement
-    return 0;
-}
-
-// TODO: make this use the 'read' function to read from socket
-int receiveFile(std::string &line) {
-    (void)line;
-    //     fInfo.name = readString(line, false);
-    //     if (readDelimiter(line) == -1) {
-    //         return -1;
-    //     }
-    //     if (readInt(line, fInfo.size, false) == -1) {
-    //         std::cerr << FILE_SIZE_ERR << std::endl;
-    //         return -1;
-    //     }
-    //     if (readDelimiter(line) == -1) {
-    //         return -1;
-    //     }
-    //     if (line.length() != fInfo.size) {
-    //         std::cerr << FILE_SIZE_ERR << std::endl;
-    //         return -1;
-    //     }
-    //     fInfo.data = line;
     return 0;
 }
 

@@ -59,11 +59,9 @@
 #define DURATION_ERR                                                           \
     "Invalid duration (in seconds) for the auction. Expected a"                \
     " positive value with up to 5 digits."
-#define OPEN_OK(aid) "New auction with the id of:" << aid << "was created."
+#define OPEN_OK(aid) "New auction with the id of '" << aid << "' was created."
 #define OPEN_NOK "Could not open the auction."
-#define AID_ERR                                                                \
-    "Invalid auction id. Expected a positive value with up to"                 \
-    " 3 digits."
+#define AID_ERR "Invalid auction id. Expected a 3 digit number."
 #define CLOSE_OK "Closed the auction successfully."
 #define CLOSE_EAU "The auction you tried to close does not exist."
 #define CLOSE_EOW "Cannot close auctions you do not own."

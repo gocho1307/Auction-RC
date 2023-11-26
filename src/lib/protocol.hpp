@@ -81,9 +81,11 @@ class OPAPacket : public Packet {
   public:
     static constexpr const char *ID = "OPA";
     std::string UID;
+    std::string password;
     std::string auctionName;
     int startValue;
     int timeActive;
+    std::string assetfPath;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -229,6 +231,7 @@ class RSAPacket : public Packet {
   public:
     static constexpr const char *ID = "RSA";
     std::string status;
+    std::string assetfPath;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -267,6 +270,7 @@ class RRCPacket : public Packet {
 #define ERR_LEN 4
 class ERRPacket : public Packet {
   public:
+    static constexpr const char *ID = "ERR";
     std::string serialize() { return "ERR\n"; }
     int deserialize(std::string &buffer) {
         (void)buffer; // unimplemented

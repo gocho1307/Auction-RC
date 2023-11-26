@@ -82,6 +82,60 @@ int readPassword(std::string &line, std::string &password, bool ignSpaces) {
     return 0;
 }
 
+int readAID(std::string &line, std::string &aid, bool ignSpaces) {
+    aid = readString(line, ignSpaces);
+    if (aid.length() != AID_LEN) {
+        std::cerr << AID_ERR << std::endl;
+        return -1;
+    }
+    for (char c : aid) {
+        if (!isdigit(c)) {
+            std::cerr << AID_ERR << std::endl;
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int readAuctionName(std::string &line, std::string &auctionName,
+                    bool ignSpaces) {
+    (void)line;
+    (void)auctionName;
+    (void)ignSpaces;
+    // TODO: implement
+    return 0;
+}
+
+int readFileName(std::string &line, std::string &fName, bool ignSpaces) {
+    (void)line;
+    (void)fName;
+    (void)ignSpaces;
+    // TODO: implement
+    return 0;
+}
+
+int readFilePath(std::string &line, std::string &fPath, bool ignSpaces) {
+    (void)line;
+    (void)fPath;
+    (void)ignSpaces;
+    // TODO: implement
+    return 0;
+}
+
+int checkFileName(std::string fName) {
+    (void)fName;
+    // TODO: implement
+    return 0;
+}
+
+int readTime(std::string &line, std::string &time, bool ignSpaces) {
+    (void)line;
+    (void)time;
+    (void)ignSpaces;
+    // TODO: implement
+    return 0;
+}
+
 void setupSigHandlers(void (*sigF)(int)) {
     struct sigaction s;
 
