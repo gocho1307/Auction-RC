@@ -92,8 +92,7 @@ int RCLPacket::deserialize(std::string &buffer) {
 }
 
 std::string LMAPacket::serialize() {
-    // TODO: implement
-    return "";
+    return std::string(ID) + " " + UID + "\n";
 }
 
 int RMAPacket::deserialize(std::string &buffer) {
@@ -103,8 +102,7 @@ int RMAPacket::deserialize(std::string &buffer) {
 }
 
 std::string LMBPacket::serialize() {
-    // TODO: implement
-    return "";
+    return std::string(ID) + " " + UID + "\n";
 }
 
 int RMBPacket::deserialize(std::string &buffer) {
@@ -113,10 +111,7 @@ int RMBPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-std::string LSTPacket::serialize() {
-    // TODO: implement
-    return "";
-}
+std::string LSTPacket::serialize() { return std::string(ID) + "\n"; }
 
 int RLSPacket::deserialize(std::string &buffer) {
     (void)buffer;
@@ -284,7 +279,6 @@ int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd) {
         std::cerr << GETADDRINFO_UDP_ERR << std::endl;
         return -1;
     }
-
     std::string msg = packet.serialize();
     if (sendto(fd, msg.c_str(), msg.length(), 0, res->ai_addr,
                res->ai_addrlen) == -1) {
@@ -294,15 +288,14 @@ int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd) {
     return 0;
 }
 
-int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd) {
+int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd,
+                     const size_t lim) {
     if (res == NULL) {
         std::cerr << GETADDRINFO_UDP_ERR << std::endl;
         return -1;
     }
-
-    char msg[BUFFER_UDP_SIZE] = {0};
-    if (recvfrom(fd, msg, BUFFER_UDP_SIZE, 0, res->ai_addr, &res->ai_addrlen) ==
-        -1) {
+    char msg[lim + 1] = {0};
+    if (recvfrom(fd, msg, lim, 0, res->ai_addr, &res->ai_addrlen) == -1) {
         std::cerr << RECVFROM_ERR << std::endl;
         return -1;
     }
@@ -310,10 +303,9 @@ int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd) {
     return 0;
 }
 
-int sendTCPPacket(Packet &packet, int fd) {
-    std::string msg = packet.serialize();
-    const char *ptr = msg.c_str();
-    ssize_t bytesLeft = (ssize_t)msg.length();
+int sendTCPPacket(const char *msg, const ssize_t len, int fd) {
+    const char *ptr = msg;
+    ssize_t bytesLeft = len;
     ssize_t bytesWritten = 0;
     while (bytesLeft > 0) {
         bytesWritten = write(fd, ptr, (size_t)bytesLeft);
@@ -327,7 +319,7 @@ int sendTCPPacket(Packet &packet, int fd) {
     return 0;
 }
 
-int receiveTCPPacket(std::string &response, int fd, ssize_t lim) {
+int receiveTCPPacket(std::string &response, int fd, const ssize_t lim) {
     char c;
     ssize_t bytesRead = 0;
     ssize_t bytesTotal = 0;
@@ -417,8 +409,8 @@ int readNewLine(std::string &line) {
     return 0;
 }
 
-void listAuctions(std::string auctionsInfo) {
-    (void)auctionsInfo;
+void listAuctions(std::vector<Auction> auctions) {
+    (void)auctions;
     // std::stringstream auctionsStream(auctionsInfo);
     // int aid, flag;
     // while (auctionsStream >> aid >> flag) {
@@ -430,7 +422,7 @@ void listAuctions(std::string auctionsInfo) {
     // bad syntax return -1.
 }
 
-void listBids(std::string bidsInfo) {
-    (void)bidsInfo;
+void listBids(std::vector<Bid> bids) {
+    (void)bids;
     // TODO: list and verify message syntax while printing bids info from RRC.
 }

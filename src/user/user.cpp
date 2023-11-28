@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     setupSigHandlers(shutDownSigHandler);
 
     state.readOpts(argc, argv);
-    validatePort(state.port);
+    checkPort(state.port);
     state.getServerAddresses();
     if ((state.socketUDP = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
         std::cerr << SOCKET_CREATE_ERR << std::endl;
@@ -65,6 +65,6 @@ void printHelp(std::ostream &stream, char *programPath) {
 }
 
 void shutDownSigHandler(int sig) {
-    (void)sig;
+    (void)sig; // not used
     state.shutDown = true;
 }

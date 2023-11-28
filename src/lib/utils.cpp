@@ -5,9 +5,10 @@
 #include <csignal>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 
-int validatePort(std::string port) {
+int checkPort(std::string port) {
     if (port.empty()) {
         std::cerr << PORT_ERR << std::endl;
         exit(EXIT_FAILURE);
@@ -52,23 +53,28 @@ int readInt(std::string &line, int &num, bool ignSpaces) {
     return 0;
 }
 
-int readUID(std::string &line, std::string &uid, bool ignSpaces) {
-    uid = readString(line, ignSpaces);
+int readTime(std::string &line, std::string &time) {
+    (void)line;
+    (void)time;
+    // TODO: implement (maybe struct for time, it depends...)
+    return 0;
+}
+
+int checkUID(std::string uid) {
     if (uid.length() != UID_LEN) {
         std::cerr << UID_ERR << std::endl;
         return -1;
     }
     for (char c : uid) {
         if (!isdigit(c)) {
-            std::cerr << PASSWORD_ERR << std::endl;
+            std::cerr << UID_ERR << std::endl;
             return -1;
         }
     }
     return 0;
 }
 
-int readPassword(std::string &line, std::string &password, bool ignSpaces) {
-    password = readString(line, ignSpaces);
+int checkPassword(std::string password) {
     if (password.length() != PASSWORD_LEN) {
         std::cerr << PASSWORD_ERR << std::endl;
         return -1;
@@ -82,8 +88,7 @@ int readPassword(std::string &line, std::string &password, bool ignSpaces) {
     return 0;
 }
 
-int readAID(std::string &line, std::string &aid, bool ignSpaces) {
-    aid = readString(line, ignSpaces);
+int checkAID(std::string aid) {
     if (aid.length() != AID_LEN) {
         std::cerr << AID_ERR << std::endl;
         return -1;
@@ -97,42 +102,46 @@ int readAID(std::string &line, std::string &aid, bool ignSpaces) {
     return 0;
 }
 
-int readAuctionName(std::string &line, std::string &auctionName,
-                    bool ignSpaces) {
-    (void)line;
-    (void)auctionName;
-    (void)ignSpaces;
-    // TODO: implement
+int checkAuctionName(std::string auctionName) {
+    if (auctionName.length() != MAX_NAME_LEN) {
+        std::cerr << NAME_ERR << std::endl;
+        return -1;
+    }
+    for (char c : auctionName) {
+        if (!isalnum(c)) {
+            std::cerr << NAME_ERR << std::endl;
+            return -1;
+        }
+    }
     return 0;
 }
 
-int readFileName(std::string &line, std::string &fName, bool ignSpaces) {
-    (void)line;
-    (void)fName;
-    (void)ignSpaces;
-    // TODO: implement
-    return 0;
-}
-
-int readFilePath(std::string &line, std::string &fPath, bool ignSpaces) {
-    (void)line;
-    (void)fPath;
-    (void)ignSpaces;
-    // TODO: implement
+int checkFilePath(std::string fPath) {
+    if (!std::filesystem::exists(fPath)) {
+        std::cerr << FILE_EXISTANCE_ERR << std::endl;
+        return -1;
+    }
+    std::string fName = std::filesystem::path(fPath).filename();
+    if (checkFileName(fName) == -1) {
+        return -1;
+    }
     return 0;
 }
 
 int checkFileName(std::string fName) {
-    (void)fName;
-    // TODO: implement
-    return 0;
-}
-
-int readTime(std::string &line, std::string &time, bool ignSpaces) {
-    (void)line;
-    (void)time;
-    (void)ignSpaces;
-    // TODO: implement
+    if (fName.length() != MAX_FILE_NAME_LEN) {
+        std::cerr << FILE_NAME_ERR << std::endl;
+        return -1;
+    }
+    char c;
+    for (size_t i = 0; i < MAX_FILE_NAME_LEN; i++) {
+        c = fName.at(i);
+        if (!isalnum(c) || c != '-' || c != '_' ||
+            (i == MAX_FILE_NAME_LEN - 4 && c != '.')) {
+            std::cerr << FILE_NAME_ERR << std::endl;
+            return -1;
+        }
+    }
     return 0;
 }
 

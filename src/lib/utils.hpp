@@ -3,28 +3,25 @@
 
 #include <string>
 
-int validatePort(std::string port);
+int checkPort(std::string port);
 
 std::string readString(std::string &line, bool ignSpaces);
 
 int readInt(std::string &line, int &num, bool ignSpaces);
 
-int readUID(std::string &line, std::string &uid, bool ignSpaces);
+int readTime(std::string &line, std::string &time, bool ignSpaces);
 
-int readPassword(std::string &line, std::string &password, bool ignSpaces);
+int checkUID(std::string uid);
 
-int readAID(std::string &line, std::string &aid, bool ignSpaces);
+int checkPassword(std::string password);
 
-int readAuctionName(std::string &line, std::string &auctionName,
-                    bool ignSpaces);
+int checkAID(std::string aid);
 
-int readFileName(std::string &line, std::string &fName, bool ignSpaces);
+int checkAuctionName(std::string auctionName);
 
-int readFilePath(std::string &line, std::string &fPath, bool ignSpaces);
+int checkFilePath(std::string fPath);
 
 int checkFileName(std::string fName);
-
-int readTime(std::string &line, std::string &time, bool ignSpaces);
 
 void setupSigHandlers(void (*sigF)(int));
 

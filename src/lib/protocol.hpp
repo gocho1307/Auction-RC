@@ -4,6 +4,19 @@
 #include "utils.hpp"
 
 #include <string>
+#include <vector>
+
+typedef struct {
+    std::string AID;
+    bool state;
+} Auction;
+
+typedef struct {
+    std::string bidderUID;
+    int value;
+    std::string dateTime;
+    int secTime;
+} Bid;
 
 class Packet {
   public:
@@ -13,6 +26,7 @@ class Packet {
 };
 
 // Send login packet (LIN)
+#define LIN_LEN 21
 class LINPacket : public Packet {
   public:
     static constexpr const char *ID = "LIN";
@@ -24,6 +38,7 @@ class LINPacket : public Packet {
 };
 
 // Receive login packet (RLI)
+#define RLI_LEN 9
 class RLIPacket : public Packet {
   public:
     static constexpr const char *ID = "RLI";
@@ -34,6 +49,7 @@ class RLIPacket : public Packet {
 };
 
 // Send logout packet (LOU)
+#define LOU_LEN 21
 class LOUPacket : public Packet {
   public:
     static constexpr const char *ID = "LOU";
@@ -45,6 +61,7 @@ class LOUPacket : public Packet {
 };
 
 // Receive logout packet (RLO)
+#define RLO_LEN 9
 class RLOPacket : public Packet {
   public:
     static constexpr const char *ID = "RLO";
@@ -55,6 +72,7 @@ class RLOPacket : public Packet {
 };
 
 // Send register packet (UNR)
+#define UNR_LEN 21
 class UNRPacket : public Packet {
   public:
     static constexpr const char *ID = "UNR";
@@ -66,6 +84,7 @@ class UNRPacket : public Packet {
 };
 
 // Receive register packet (RUR)
+#define RUR_LEN 9
 class RURPacket : public Packet {
   public:
     static constexpr const char *ID = "RUR";
@@ -97,7 +116,7 @@ class ROAPacket : public Packet {
   public:
     static constexpr const char *ID = "AID";
     std::string status;
-    int AID;
+    std::string AID;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -110,7 +129,7 @@ class CLSPacket : public Packet {
     static constexpr const char *ID = "CLS";
     std::string UID;
     std::string password;
-    int AID;
+    std::string AID;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -128,6 +147,7 @@ class RCLPacket : public Packet {
 };
 
 // Send myAuctions packet (LMA)
+#define LMA_LEN 12
 class LMAPacket : public Packet {
   public:
     static constexpr const char *ID = "LMA";
@@ -138,17 +158,19 @@ class LMAPacket : public Packet {
 };
 
 // Receive myAuctions packet (RMA)
+#define RMA_LEN 6003
 class RMAPacket : public Packet {
   public:
     static constexpr const char *ID = "RMA";
     std::string status;
-    std::string auctionsInfo;
+    std::vector<Auction> auctions;
 
     std::string serialize();
     int deserialize(std::string &buffer);
 };
 
 // Send myBids packet (LMB)
+#define LMB_LEN 12
 class LMBPacket : public Packet {
   public:
     static constexpr const char *ID = "LMB";
@@ -159,17 +181,19 @@ class LMBPacket : public Packet {
 };
 
 // Receive myBids packet (RMB)
+#define RMB_LEN 6003
 class RMBPacket : public Packet {
   public:
     static constexpr const char *ID = "RMB";
     std::string status;
-    std::string auctionsInfo;
+    std::vector<Auction> auctions;
 
     std::string serialize();
     int deserialize(std::string &buffer);
 };
 
 // Send list packet (LST)
+#define LST_LEN 5
 class LSTPacket : public Packet {
   public:
     static constexpr const char *ID = "LST";
@@ -179,11 +203,12 @@ class LSTPacket : public Packet {
 };
 
 // Receive list packet (RLS)
+#define RLS_LEN 6003
 class RLSPacket : public Packet {
   public:
     static constexpr const char *ID = "RLS";
     std::string status;
-    std::string auctionsInfo;
+    std::vector<Auction> auctions;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -196,7 +221,7 @@ class BIDPacket : public Packet {
     static constexpr const char *ID = "BID";
     std::string UID;
     std::string password;
-    int AID;
+    std::string AID;
     int value;
 
     std::string serialize();
@@ -219,7 +244,7 @@ class RBDPacket : public Packet {
 class SASPacket : public Packet {
   public:
     static constexpr const char *ID = "SAS";
-    int AID;
+    std::string AID;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -238,16 +263,18 @@ class RSAPacket : public Packet {
 };
 
 // Send showRecord packet (SRC)
+#define SRC_LEN 9
 class SRCPacket : public Packet {
   public:
     static constexpr const char *ID = "SRC";
-    int AID;
+    std::string AID;
 
     std::string serialize();
     int deserialize(std::string &buffer);
 };
 
 // Receive showRecord packet (RRC)
+#define RRC_LEN 2163
 class RRCPacket : public Packet {
   public:
     static constexpr const char *ID = "RRC";
@@ -258,7 +285,7 @@ class RRCPacket : public Packet {
     int startValue;
     std::string startDateTime;
     int timeActive;
-    std::string bidsInfo;
+    std::vector<Bid> bids;
     std::string endDateTime;
     int endSecTime;
 
@@ -280,11 +307,12 @@ class ERRPacket : public Packet {
 
 int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd);
 
-int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd);
+int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd,
+                     const size_t lim);
 
-int sendTCPPacket(Packet &packet, int fd);
+int sendTCPPacket(const char *msg, const ssize_t len, int fd);
 
-int receiveTCPPacket(std::string &response, int fd, ssize_t lim);
+int receiveTCPPacket(std::string &response, int fd, const ssize_t lim);
 
 int readSpace(std::string &line);
 
@@ -294,8 +322,8 @@ int sendFile(std::string &line);
 
 int receiveFile(std::string &line);
 
-void listAuctions(std::string auctions);
+void listAuctions(std::vector<Auction> auctions);
 
-void listBids(std::string bidsInfo);
+void listBids(std::vector<Bid> bids);
 
 #endif // __PROTOCOL_HPP__

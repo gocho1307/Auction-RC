@@ -25,16 +25,11 @@
 #define WRITE_ERR "[ERR] Failed to send message via TCP."
 #define READ_ERR "[ERR] Failed to receive message via TCP."
 #define FILE_ERR "[ERR] Failed to process the file."
+#define PACKET_ERR "[ERR] An error occured with the packet. Please try again."
+#define FILE_SIZE_ERR "[ERR] Incorrect file size received for the data."
 
 #define UNEXPECTED_COMMAND_ERR(commandName)                                    \
-    "[ERR] The command '" << commandName                                       \
-                          << "' is not supported by this application."
-#define PACKET_ERR "[ERR] An error occured with the packet. Please try again."
-#define STATUS_ERR "[ERR] Received invalid status in message. Please try again."
-#define FILE_NAME_ERR                                                          \
-    "[ERR] The filename must only contain alphanumeric characters, '.', '-' "  \
-    "and '_'."
-#define FILE_SIZE_ERR "[ERR] Incorrect file size received for the data."
+    "The command '" << commandName << "' is not supported by this application."
 #define LOGIN_ERR                                                              \
     "A user is already logged in. To log into another account, please log "    \
     "out first."
@@ -53,6 +48,10 @@
     "the application."
 #define NAME_ERR                                                               \
     "Invalid description. Expected up to 10 alphanumeric characters."
+#define FILE_NAME_ERR                                                          \
+    "Invalid file name. Expected up to 24 alphanumeric characters (plus '-', " \
+    "'_' and '.') with a 3-letter extension."
+#define FILE_EXISTANCE_ERR "The given file doesn't exist."
 #define START_VAL_ERR                                                          \
     "Invalid start value for the auction. Expected a"                          \
     " positive value with up to 6 digits."

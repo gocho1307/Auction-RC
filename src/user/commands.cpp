@@ -85,10 +85,9 @@ void loginCommand(UserState &state) {
         std::cerr << LOGIN_ERR << std::endl;
         return;
     }
-    std::string uid;
-    std::string password;
-    if (readUID(state.line, uid, true) == -1 ||
-        readPassword(state.line, password, true) == -1) {
+    std::string uid = readString(state.line, true);
+    std::string password = readString(state.line, true);
+    if (checkUID(uid) == -1 || checkPassword(password) == -1) {
         return;
     }
 
@@ -96,7 +95,7 @@ void loginCommand(UserState &state) {
     packetOut.UID = uid;
     packetOut.password = password;
     RLIPacket packetIn;
-    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RLI_LEN) == -1) {
         return;
     }
 
@@ -121,11 +120,12 @@ void logoutCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
+
     LOUPacket packetOut;
     packetOut.UID = state.UID;
     packetOut.password = state.password;
     RLOPacket packetIn;
-    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RLO_LEN) == -1) {
         return;
     }
 
@@ -146,11 +146,12 @@ void unregisterCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
+
     UNRPacket packetOut;
     packetOut.UID = state.UID;
     packetOut.password = state.password;
     RURPacket packetIn;
-    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RUR_LEN) == -1) {
         return;
     }
 
@@ -179,37 +180,25 @@ void openCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-
     std::string auctionName = readString(state.line, true);
-    if (auctionName.length() > MAX_NAME_LEN) {
-        std::cerr << NAME_ERR << std::endl;
+    if (checkAuctionName(auctionName) == -1) {
         return;
     }
-    for (char c : auctionName) {
-        if (!isalnum(c)) {
-            std::cerr << NAME_ERR << std::endl;
-            return;
-        }
-    }
-
     std::string fPath = readString(state.line, true);
-    // FileInfo fInfo;
-    // if (readFile(fPath, fInfo) == -1) {
-    //     return;
-    // }
-
+    if (checkFilePath(fPath) == -1) {
+        return;
+    }
     // TODO: check if startValue can be equal to 0
     int startValue;
     if (readInt(state.line, startValue, true) == -1 ||
-        startValue > MAX_START_VAL || startValue < 0) {
+        startValue > MAX_START_VAL || startValue <= 0) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
-
     // TODO: check if timeActive can be equal to 0
     int timeActive;
     if (readInt(state.line, timeActive, true) == -1 ||
-        timeActive > MAX_DURATION || timeActive < 0) {
+        timeActive > MAX_DURATION || timeActive <= 0) {
         std::cerr << DURATION_ERR << std::endl;
         return;
     }
@@ -239,10 +228,9 @@ void closeCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-
-    int aid;
-    if (readInt(state.line, aid, true) == -1 || aid > MAX_AID) {
-        std::cerr << AID_ERR << std::endl;
+    std::string aid = readString(state.line, true);
+    if (checkAID(aid) == -1) {
+        return;
     }
 
     CLSPacket packetOut;
@@ -270,16 +258,21 @@ void closeCommand(UserState &state) {
 }
 
 void myAuctionsCommand(UserState &state) {
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
     LMAPacket packetOut;
     packetOut.UID = state.UID;
     RMAPacket packetIn;
-    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RMA_LEN) == -1) {
         return;
     }
 
     if (packetIn.status == "OK") {
         std::cout << MYAUCTIONS_OK << std::endl;
-        listAuctions(packetIn.auctionsInfo);
+        listAuctions(packetIn.auctions);
     } else if (packetIn.status == "NLG") {
         std::cout << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "NOK") {
@@ -290,16 +283,21 @@ void myAuctionsCommand(UserState &state) {
 }
 
 void myBidsCommand(UserState &state) {
+    if (!state.loggedIn) {
+        std::cerr << NO_LOGIN << std::endl;
+        return;
+    }
+
     LMBPacket packetOut;
     packetOut.UID = state.UID;
     RMBPacket packetIn;
-    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RMB_LEN) == -1) {
         return;
     }
 
     if (packetIn.status == "OK") {
         std::cout << MYBIDS_OK << std::endl;
-        listAuctions(packetIn.auctionsInfo);
+        listAuctions(packetIn.auctions);
     } else if (packetIn.status == "NLG") {
         std::cout << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "NOK") {
@@ -312,13 +310,13 @@ void myBidsCommand(UserState &state) {
 void listCommand(UserState &state) {
     LSTPacket packetOut;
     RLSPacket packetIn;
-    if (state.sendAndReceiveUDPPacket(packetOut, packetIn) == -1) {
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RLS_LEN) == -1) {
         return;
     }
 
     if (packetIn.status == "OK") {
         std::cout << LIST_OK << std::endl;
-        listAuctions(packetIn.auctionsInfo);
+        listAuctions(packetIn.auctions);
     } else if (packetIn.status == "NOK") {
         std::cout << LIST_NOK << std::endl;
     } else {
@@ -336,12 +334,10 @@ void bidCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-
-    int aid;
-    if (readInt(state.line, aid, true) == -1 || aid > MAX_AID) {
-        std::cerr << AID_ERR << std::endl;
+    std::string aid = readString(state.line, true);
+    if (checkAID(aid) == -1) {
+        return;
     }
-
     int value;
     if (readInt(state.line, value, true) == -1 || value > MAX_START_VAL) {
         std::cerr << START_VAL_ERR << std::endl;
