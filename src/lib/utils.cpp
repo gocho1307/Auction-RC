@@ -60,6 +60,91 @@ int readTime(std::string &line, std::string &time) {
     return 0;
 }
 
+int readSpace(std::string &line) {
+    if (line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    char c = line.front();
+    if (c != ' ') {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+
+    line.erase(line.begin());
+    if (line.empty()) {
+        return 0;
+    }
+    c = line.front();
+    if (c == ' ' || c == '\t' || c == '\n') {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+int readNewLine(std::string &line) {
+    if (line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+    char c = line.front();
+    if (c != '\n') {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+
+    line.erase(line.begin());
+    if (!line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+int readAuctions(std::string &line, std::vector<Auction> &auctions) {
+
+    if (line.empty()) {
+        std::cerr << PACKET_ERR << std::endl;
+        return;
+    }
+
+    char c = line.front();
+
+    while (c != '\n') {
+        std::string aid = readString(line, false);
+        if (checkAID(aid) == -1) {
+            return -1;
+        }
+        if (readSpace(line) == -1) {
+            return -1;
+        }
+        int state_number;
+        if (readInt(line, state_number, false) == -1 ||
+            (state_number != 0 && state_number != 1)) {
+            return -1;
+        }
+        bool state = (state_number == 1);
+        c = line.front();
+        if (c != ' ') {
+            continue;
+        }
+        if (readSpace(line) == -1) {
+            return -1;
+        }
+
+        Auction auction_to_add;
+        auction_to_add.AID = aid;
+        auction_to_add.state = state;
+
+        auctions.push_back(auction_to_add);
+    }
+
+    return 0;
+}
+
 int checkUID(std::string uid) {
     if (uid.length() != UID_LEN) {
         std::cerr << UID_ERR << std::endl;

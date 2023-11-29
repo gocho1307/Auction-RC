@@ -6,18 +6,6 @@
 #include <string>
 #include <vector>
 
-typedef struct {
-    std::string AID;
-    bool state;
-} Auction;
-
-typedef struct {
-    std::string bidderUID;
-    int value;
-    std::string dateTime;
-    int secTime;
-} Bid;
-
 class Packet {
   public:
     virtual std::string serialize() = 0;
