@@ -108,7 +108,7 @@ int readAuctions(std::string &line, std::vector<Auction> &auctions) {
 
     if (line.empty()) {
         std::cerr << PACKET_ERR << std::endl;
-        return;
+        return -1; 
     }
 
     char c = line.front();

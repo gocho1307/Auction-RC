@@ -254,6 +254,7 @@ std::string SRCPacket::serialize() {
 }
 
 int RRCPacket::deserialize(std::string &buffer) {
+    (void)buffer;
     // TODO: implement
     return 0;
 }
