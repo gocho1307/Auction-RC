@@ -83,7 +83,7 @@ class RURPacket : public Packet {
 };
 
 // Send open packet (OPA)
-#define OPA_LEN 0
+#define OPA_LEN 69
 class OPAPacket : public Packet {
   public:
     static constexpr const char *ID = "OPA";
@@ -99,7 +99,7 @@ class OPAPacket : public Packet {
 };
 
 // Receive open packet (ROA)
-#define ROA_LEN 0
+#define ROA_LEN 12
 class ROAPacket : public Packet {
   public:
     static constexpr const char *ID = "AID";
@@ -111,7 +111,7 @@ class ROAPacket : public Packet {
 };
 
 // Send close packet (CLS)
-#define CLS_LEN 0
+#define CLS_LEN 24
 class CLSPacket : public Packet {
   public:
     static constexpr const char *ID = "CLS";
@@ -124,7 +124,7 @@ class CLSPacket : public Packet {
 };
 
 // Receive close packet (RCL)
-#define RCL_LEN 0
+#define RCL_LEN 8
 class RCLPacket : public Packet {
   public:
     static constexpr const char *ID = "RCL";
@@ -203,7 +203,7 @@ class RLSPacket : public Packet {
 };
 
 // Send bid packet (BID)
-#define BID_LEN 0
+#define BID_LEN 31
 class BIDPacket : public Packet {
   public:
     static constexpr const char *ID = "BID";
@@ -217,7 +217,7 @@ class BIDPacket : public Packet {
 };
 
 // Receive bid packet (RBD)
-#define RBD_LEN 0
+#define RBD_LEN 8
 class RBDPacket : public Packet {
   public:
     static constexpr const char *ID = "RBD";
@@ -228,7 +228,7 @@ class RBDPacket : public Packet {
 };
 
 // Send showAsset packet (SAS)
-#define SAS_LEN 0
+#define SAS_LEN 8
 class SASPacket : public Packet {
   public:
     static constexpr const char *ID = "SAS";
@@ -239,7 +239,7 @@ class SASPacket : public Packet {
 };
 
 // Receive showAsset packet (RSA)
-#define RSA_LEN 0
+#define RSA_LEN 33
 class RSAPacket : public Packet {
   public:
     static constexpr const char *ID = "RSA";
