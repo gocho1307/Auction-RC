@@ -7,6 +7,13 @@
 #include <netdb.h>
 #include <unistd.h>
 
+std::string UDPPacket::readString(std::string &buffer, uint32_t max_len) {
+    std::string str;
+    (void) buffer;
+    (void) max_len;
+    return str;
+}
+
 // Packet methods: used by the user side
 
 std::string LINPacket::serialize() {
@@ -14,14 +21,14 @@ std::string LINPacket::serialize() {
 }
 
 int RLIPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -34,14 +41,14 @@ std::string LOUPacket::serialize() {
 }
 
 int RLOPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -54,14 +61,14 @@ std::string UNRPacket::serialize() {
 }
 
 int RURPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -75,14 +82,14 @@ std::string OPAPacket::serialize() {
 }
 
 int ROAPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -90,7 +97,7 @@ int ROAPacket::deserialize(std::string &buffer) {
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    AID = readString(buffer, false);
+    AID = readToken(buffer, false);
     if (AID.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -103,14 +110,14 @@ std::string CLSPacket::serialize() {
 }
 
 int RCLPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -123,14 +130,14 @@ std::string LMAPacket::serialize() {
 }
 
 int RMAPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -151,14 +158,14 @@ std::string LMBPacket::serialize() {
 }
 
 int RMBPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -177,14 +184,14 @@ int RMBPacket::deserialize(std::string &buffer) {
 std::string LSTPacket::serialize() { return std::string(ID) + "\n"; }
 
 int RLSPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -206,14 +213,14 @@ std::string BIDPacket::serialize() {
 }
 
 int RBDPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -226,14 +233,14 @@ std::string SASPacket::serialize() {
 }
 
 int RSAPacket::deserialize(std::string &buffer) {
-    if (readString(buffer, false) != std::string(ID)) {
+    if (readToken(buffer, false) != std::string(ID)) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    status = readString(buffer, false);
+    status = readToken(buffer, false);
     if (status.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -241,7 +248,7 @@ int RSAPacket::deserialize(std::string &buffer) {
     if (readSpace(buffer) == -1) {
         return -1;
     }
-    assetfPath = readString(buffer, false);
+    assetfPath = readToken(buffer, false);
     if (assetfPath.empty()) {
         std::cerr << PACKET_ERR << std::endl;
         return -1;
@@ -381,7 +388,7 @@ int SRCPacket::deserialize(std::string &buffer) {
 
 // Transmit packets // TODO: NEED to be able to send files before receiving
 
-int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd) {
+int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd) {
     if (res == NULL) {
         std::cerr << GETADDRINFO_UDP_ERR << std::endl;
         return -1;
@@ -451,7 +458,7 @@ int sendFile(std::string &line) {
 // TODO: make this use the 'read' function to read from socket
 int receiveFile(std::string &line) {
     (void)line;
-    //     fInfo.name = readString(line, false);
+    //     fInfo.name = readToken(line, false);
     //     if (readDelimiter(line) == -1) {
     //         return -1;
     //     }

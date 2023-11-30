@@ -18,7 +18,7 @@ typedef struct {
 
 int checkPort(std::string port);
 
-std::string readString(std::string &line, bool ignSpaces);
+std::string readToken(std::string &line, bool ignSpaces);
 
 int readInt(std::string &line, int &num, bool ignSpaces);
 

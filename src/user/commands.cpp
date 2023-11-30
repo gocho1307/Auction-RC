@@ -68,7 +68,7 @@ void helpCommand() {
 }
 
 void interpretCommand(UserState &state) {
-    std::string commandName = readString(state.line, true);
+    std::string commandName = readToken(state.line, true);
     if (commandName.empty() && state.line.empty()) {
         return; // the user pressed enter
     }
@@ -85,8 +85,8 @@ void loginCommand(UserState &state) {
         std::cerr << LOGIN_ERR << std::endl;
         return;
     }
-    std::string uid = readString(state.line, true);
-    std::string password = readString(state.line, true);
+    std::string uid = readToken(state.line, true);
+    std::string password = readToken(state.line, true);
     if (checkUID(uid) == -1 || checkPassword(password) == -1) {
         return;
     }
@@ -180,11 +180,11 @@ void openCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string auctionName = readString(state.line, true);
+    std::string auctionName = readToken(state.line, true);
     if (checkAuctionName(auctionName) == -1) {
         return;
     }
-    std::string fPath = readString(state.line, true);
+    std::string fPath = readToken(state.line, true);
     if (checkFilePath(fPath) == -1) {
         return;
     }
@@ -228,7 +228,7 @@ void closeCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string aid = readString(state.line, true);
+    std::string aid = readToken(state.line, true);
     if (checkAID(aid) == -1) {
         return;
     }
@@ -334,7 +334,7 @@ void bidCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string aid = readString(state.line, true);
+    std::string aid =readToken (state.line, true);
     if (checkAID(aid) == -1) {
         return;
     }

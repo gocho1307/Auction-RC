@@ -26,7 +26,7 @@ int checkPort(std::string port) {
     return 0;
 }
 
-std::string readString(std::string &line, bool ignSpaces) {
+std::string readToken(std::string &line, bool ignSpaces) {
     if (line.empty()) {
         return "";
     }
@@ -46,7 +46,7 @@ std::string readString(std::string &line, bool ignSpaces) {
 
 int readInt(std::string &line, int &num, bool ignSpaces) {
     try {
-        num = std::stoi(readString(line, ignSpaces));
+        num = std::stoi(readToken(line, ignSpaces));
     } catch (...) {
         return -1;
     }
@@ -114,7 +114,7 @@ int readAuctions(std::string &line, std::vector<Auction> &auctions) {
     char c = line.front();
 
     while (c != '\n') {
-        std::string aid = readString(line, false);
+        std::string aid = readToken(line, false);
         if (checkAID(aid) == -1) {
             return -1;
         }

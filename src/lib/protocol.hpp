@@ -6,16 +6,26 @@
 #include <string>
 #include <vector>
 
-class Packet {
+class UDPPacket {
   public:
     virtual std::string serialize() = 0;
     virtual int deserialize(std::string &buffer) = 0;
-    virtual ~Packet() = default;
+    virtual ~UDPPacket() = default;
+  
+  protected:
+    std::string readString(std::string &buffer, uint32_t max_len);
+};
+
+class TCPPacket {
+  public:
+    virtual std::string serialize() = 0;
+    virtual int deserialize(std::string &buffer) = 0;
+    virtual ~TCPPacket() = default;
 };
 
 // Send login packet (LIN)
 #define LIN_LEN 21
-class LINPacket : public Packet {
+class LINPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "LIN";
     std::string UID;
@@ -27,7 +37,7 @@ class LINPacket : public Packet {
 
 // Receive login packet (RLI)
 #define RLI_LEN 9
-class RLIPacket : public Packet {
+class RLIPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RLI";
     std::string status;
@@ -38,7 +48,7 @@ class RLIPacket : public Packet {
 
 // Send logout packet (LOU)
 #define LOU_LEN 21
-class LOUPacket : public Packet {
+class LOUPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "LOU";
     std::string UID;
@@ -50,7 +60,7 @@ class LOUPacket : public Packet {
 
 // Receive logout packet (RLO)
 #define RLO_LEN 9
-class RLOPacket : public Packet {
+class RLOPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RLO";
     std::string status;
@@ -61,7 +71,7 @@ class RLOPacket : public Packet {
 
 // Send register packet (UNR)
 #define UNR_LEN 21
-class UNRPacket : public Packet {
+class UNRPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "UNR";
     std::string UID;
@@ -73,7 +83,7 @@ class UNRPacket : public Packet {
 
 // Receive register packet (RUR)
 #define RUR_LEN 9
-class RURPacket : public Packet {
+class RURPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RUR";
     std::string status;
@@ -84,7 +94,7 @@ class RURPacket : public Packet {
 
 // Send open packet (OPA)
 #define OPA_LEN 69
-class OPAPacket : public Packet {
+class OPAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "OPA";
     std::string UID;
@@ -100,7 +110,7 @@ class OPAPacket : public Packet {
 
 // Receive open packet (ROA)
 #define ROA_LEN 12
-class ROAPacket : public Packet {
+class ROAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "AID";
     std::string status;
@@ -112,7 +122,7 @@ class ROAPacket : public Packet {
 
 // Send close packet (CLS)
 #define CLS_LEN 24
-class CLSPacket : public Packet {
+class CLSPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "CLS";
     std::string UID;
@@ -125,7 +135,7 @@ class CLSPacket : public Packet {
 
 // Receive close packet (RCL)
 #define RCL_LEN 8
-class RCLPacket : public Packet {
+class RCLPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RCL";
     std::string status;
@@ -136,7 +146,7 @@ class RCLPacket : public Packet {
 
 // Send myAuctions packet (LMA)
 #define LMA_LEN 12
-class LMAPacket : public Packet {
+class LMAPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "LMA";
     std::string UID;
@@ -147,7 +157,7 @@ class LMAPacket : public Packet {
 
 // Receive myAuctions packet (RMA)
 #define RMA_LEN 6003
-class RMAPacket : public Packet {
+class RMAPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RMA";
     std::string status;
@@ -159,7 +169,7 @@ class RMAPacket : public Packet {
 
 // Send myBids packet (LMB)
 #define LMB_LEN 12
-class LMBPacket : public Packet {
+class LMBPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "LMB";
     std::string UID;
@@ -170,7 +180,7 @@ class LMBPacket : public Packet {
 
 // Receive myBids packet (RMB)
 #define RMB_LEN 6003
-class RMBPacket : public Packet {
+class RMBPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RMB";
     std::string status;
@@ -182,7 +192,7 @@ class RMBPacket : public Packet {
 
 // Send list packet (LST)
 #define LST_LEN 5
-class LSTPacket : public Packet {
+class LSTPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "LST";
 
@@ -192,7 +202,7 @@ class LSTPacket : public Packet {
 
 // Receive list packet (RLS)
 #define RLS_LEN 6003
-class RLSPacket : public Packet {
+class RLSPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RLS";
     std::string status;
@@ -204,7 +214,7 @@ class RLSPacket : public Packet {
 
 // Send bid packet (BID)
 #define BID_LEN 31
-class BIDPacket : public Packet {
+class BIDPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "BID";
     std::string UID;
@@ -218,7 +228,7 @@ class BIDPacket : public Packet {
 
 // Receive bid packet (RBD)
 #define RBD_LEN 8
-class RBDPacket : public Packet {
+class RBDPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RBD";
     std::string status;
@@ -229,7 +239,7 @@ class RBDPacket : public Packet {
 
 // Send showAsset packet (SAS)
 #define SAS_LEN 8
-class SASPacket : public Packet {
+class SASPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "SAS";
     std::string AID;
@@ -240,7 +250,7 @@ class SASPacket : public Packet {
 
 // Receive showAsset packet (RSA)
 #define RSA_LEN 33
-class RSAPacket : public Packet {
+class RSAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RSA";
     std::string status;
@@ -252,7 +262,7 @@ class RSAPacket : public Packet {
 
 // Send showRecord packet (SRC)
 #define SRC_LEN 9
-class SRCPacket : public Packet {
+class SRCPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "SRC";
     std::string AID;
@@ -263,7 +273,7 @@ class SRCPacket : public Packet {
 
 // Receive showRecord packet (RRC)
 #define RRC_LEN 2163
-class RRCPacket : public Packet {
+class RRCPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RRC";
     std::string status;
@@ -283,7 +293,7 @@ class RRCPacket : public Packet {
 
 // Error UDP packet (ERR)
 #define ERR_LEN 4
-class ERRPacket : public Packet {
+class ERRPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "ERR";
     std::string serialize() { return "ERR\n"; }
@@ -293,7 +303,7 @@ class ERRPacket : public Packet {
     }
 };
 
-int sendUDPPacket(Packet &packet, struct addrinfo *res, int fd);
+int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd);
 
 int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd,
                      const size_t lim);
