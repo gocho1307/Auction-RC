@@ -18,7 +18,7 @@ class UDPPacket {
 
 class TCPPacket {
   public:
-    virtual std::string serialize() = 0;
+    virtual int serialize(std::string &output) = 0;
     virtual int deserialize(std::string &buffer) = 0;
     virtual ~TCPPacket() = default;
 };
@@ -104,7 +104,7 @@ class OPAPacket : public TCPPacket {
     int timeActive;
     std::string assetfPath;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -116,7 +116,7 @@ class ROAPacket : public TCPPacket {
     std::string status;
     std::string AID;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -129,7 +129,7 @@ class CLSPacket : public TCPPacket {
     std::string password;
     std::string AID;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -140,7 +140,7 @@ class RCLPacket : public TCPPacket {
     static constexpr const char *ID = "RCL";
     std::string status;
 
-    std::string serialize();
+     int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -222,7 +222,7 @@ class BIDPacket : public TCPPacket {
     std::string AID;
     int value;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -233,7 +233,7 @@ class RBDPacket : public TCPPacket {
     static constexpr const char *ID = "RBD";
     std::string status;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -244,7 +244,7 @@ class SASPacket : public TCPPacket {
     static constexpr const char *ID = "SAS";
     std::string AID;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 
@@ -256,7 +256,7 @@ class RSAPacket : public TCPPacket {
     std::string status;
     std::string assetfPath;
 
-    std::string serialize();
+    int serialize(std::string &output);
     int deserialize(std::string &buffer);
 };
 

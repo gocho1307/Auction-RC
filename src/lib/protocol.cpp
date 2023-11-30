@@ -76,9 +76,11 @@ int RURPacket::deserialize(std::string &buffer) {
     return readNewLine(buffer);
 }
 
-std::string OPAPacket::serialize() {
-    return std::string(ID) + " " + UID + " " + auctionName + " " + assetfPath +
+int OPAPacket::serialize(std::string &output) {
+    output = std::string(ID) + " " + UID + " " + auctionName + " " + assetfPath +
            " " + std::to_string(startValue) + "\n";
+    if(output.length()>OPA_LEN) return -1;
+    return 0;
 }
 
 int ROAPacket::deserialize(std::string &buffer) {
@@ -105,8 +107,10 @@ int ROAPacket::deserialize(std::string &buffer) {
     return readNewLine(buffer);
 }
 
-std::string CLSPacket::serialize() {
-    return std::string(ID) + " " + UID + " " + password + " " + AID + "\n";
+int CLSPacket::serialize(std::string &output) {
+    output = std::string(ID) + " " + UID + " " + password + " " + AID + "\n";
+    if(output.length()>CLS_LEN) return -1;
+    return 0;
 }
 
 int RCLPacket::deserialize(std::string &buffer) {
@@ -207,9 +211,11 @@ int RLSPacket::deserialize(std::string &buffer) {
     return readNewLine(buffer);
 }
 
-std::string BIDPacket::serialize() {
-    return std::string(ID) + " " + UID + " " + password + " " + AID + " " +
+int BIDPacket::serialize(std::string &output) {
+    output = std::string(ID) + " " + UID + " " + password + " " + AID + " " +
            std::to_string(value) + "\n";
+    if (output.length() > BID_LEN) return -1;
+    return 0;
 }
 
 int RBDPacket::deserialize(std::string &buffer) {
@@ -228,8 +234,10 @@ int RBDPacket::deserialize(std::string &buffer) {
     return readNewLine(buffer);
 }
 
-std::string SASPacket::serialize() {
-    return std::string(ID) + " " + AID + "\n";
+int SASPacket::serialize(std::string &output) {
+    output = std::string(ID) + " " + AID + "\n";
+    if(output.length()>SAS_LEN) return -1;
+    return 0;
 }
 
 int RSAPacket::deserialize(std::string &buffer) {
@@ -298,9 +306,10 @@ int UNRPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-std::string ROAPacket::serialize() {
+int ROAPacket::serialize(std::string &output) {
+    (void) output;
     // TODO: implement
-    return "";
+    return 0;
 }
 
 int OPAPacket::deserialize(std::string &buffer) {
@@ -309,9 +318,10 @@ int OPAPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-std::string RCLPacket::serialize() {
+int RCLPacket::serialize(std::string &output) {
+    (void) output;
     // TODO: implement
-    return "";
+    return 0;
 }
 
 int CLSPacket::deserialize(std::string &buffer) {
@@ -353,9 +363,10 @@ int LSTPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-std::string RBDPacket::serialize() {
+int RBDPacket::serialize(std::string &output) {
+    (void) output;
     // TODO: implement
-    return "";
+    return 0;
 }
 
 int BIDPacket::deserialize(std::string &buffer) {
@@ -364,9 +375,10 @@ int BIDPacket::deserialize(std::string &buffer) {
     return 0;
 }
 
-std::string RSAPacket::serialize() {
+int RSAPacket::serialize(std::string &output) {
+    (void) output;
     // TODO: implement
-    return "";
+    return 0;
 }
 
 int SASPacket::deserialize(std::string &buffer) {
