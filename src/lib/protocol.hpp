@@ -11,16 +11,26 @@ class UDPPacket {
     virtual std::string serialize() = 0;
     virtual int deserialize(std::string &buffer) = 0;
     virtual ~UDPPacket() = default;
-  
+
   protected:
-    std::string readString(std::string &buffer, uint32_t max_len);
+    std::string readString(std::string &buffer);
+    int readSpace(std::string &buffer);
+    int readNewLine(std::string &buffer);
+    int readInt(std::string &buffer, int &num);
+    int readAuctions(std::string &buffer, std::vector<Auction> &auctions);
 };
 
 class TCPPacket {
   public:
     virtual int serialize(std::string &output) = 0;
-    virtual int deserialize(std::string &buffer) = 0;
+    virtual int deserialize(int fd) = 0;
     virtual ~TCPPacket() = default;
+
+  protected:
+    std::string readString(const int fd);
+    int readSpace(const int fd);
+    int readNewLine(const int fd);
+    int readInt(const int fd, int &num);
 };
 
 // Send login packet (LIN)
@@ -105,7 +115,7 @@ class OPAPacket : public TCPPacket {
     std::string assetfPath;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Receive open packet (ROA)
@@ -117,7 +127,7 @@ class ROAPacket : public TCPPacket {
     std::string AID;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Send close packet (CLS)
@@ -130,7 +140,7 @@ class CLSPacket : public TCPPacket {
     std::string AID;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Receive close packet (RCL)
@@ -140,8 +150,8 @@ class RCLPacket : public TCPPacket {
     static constexpr const char *ID = "RCL";
     std::string status;
 
-     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int serialize(std::string &output);
+    int deserialize(int fd);
 };
 
 // Send myAuctions packet (LMA)
@@ -223,7 +233,7 @@ class BIDPacket : public TCPPacket {
     int value;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Receive bid packet (RBD)
@@ -234,7 +244,7 @@ class RBDPacket : public TCPPacket {
     std::string status;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Send showAsset packet (SAS)
@@ -245,7 +255,7 @@ class SASPacket : public TCPPacket {
     std::string AID;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Receive showAsset packet (RSA)
@@ -257,7 +267,7 @@ class RSAPacket : public TCPPacket {
     std::string assetfPath;
 
     int serialize(std::string &output);
-    int deserialize(std::string &buffer);
+    int deserialize(int fd);
 };
 
 // Send showRecord packet (SRC)

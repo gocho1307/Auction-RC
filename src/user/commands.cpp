@@ -334,7 +334,7 @@ void bidCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string aid =readToken (state.line, true);
+    std::string aid = readToken(state.line, true);
     if (checkAID(aid) == -1) {
         return;
     }
