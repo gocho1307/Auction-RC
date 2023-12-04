@@ -16,21 +16,24 @@ class UDPPacket {
     std::string readString(std::string &buffer);
     int readSpace(std::string &buffer);
     int readNewLine(std::string &buffer);
-    int readInt(std::string &buffer, int &num);
     int readAuctions(std::string &buffer, std::vector<Auction> &auctions);
 };
 
 class TCPPacket {
   public:
-    virtual int serialize(std::string &output) = 0;
-    virtual int deserialize(int fd) = 0;
+    virtual int serialize(const int fd) = 0;
+    virtual int deserialize(const int fd) = 0;
     virtual ~TCPPacket() = default;
 
   protected:
-    std::string readString(const int fd);
+    std::string readString(const int fd, const size_t lim);
     int readSpace(const int fd);
     int readNewLine(const int fd);
-    int readInt(const int fd, int &num);
+    int sendFile(std::string &buffer);
+    int receiveFile(std::string &buffer);
+
+  private:
+    char delim = 0;
 };
 
 // Send login packet (LIN)
@@ -103,7 +106,6 @@ class RURPacket : public UDPPacket {
 };
 
 // Send open packet (OPA)
-#define OPA_LEN 69
 class OPAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "OPA";
@@ -114,24 +116,22 @@ class OPAPacket : public TCPPacket {
     int timeActive;
     std::string assetfPath;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Receive open packet (ROA)
-#define ROA_LEN 12
 class ROAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "AID";
     std::string status;
     std::string AID;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Send close packet (CLS)
-#define CLS_LEN 24
 class CLSPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "CLS";
@@ -139,19 +139,18 @@ class CLSPacket : public TCPPacket {
     std::string password;
     std::string AID;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Receive close packet (RCL)
-#define RCL_LEN 8
 class RCLPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RCL";
     std::string status;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Send myAuctions packet (LMA)
@@ -223,7 +222,6 @@ class RLSPacket : public UDPPacket {
 };
 
 // Send bid packet (BID)
-#define BID_LEN 31
 class BIDPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "BID";
@@ -232,42 +230,39 @@ class BIDPacket : public TCPPacket {
     std::string AID;
     int value;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Receive bid packet (RBD)
-#define RBD_LEN 8
 class RBDPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RBD";
     std::string status;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Send showAsset packet (SAS)
-#define SAS_LEN 8
 class SASPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "SAS";
     std::string AID;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Receive showAsset packet (RSA)
-#define RSA_LEN 33
 class RSAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RSA";
     std::string status;
     std::string assetfPath;
 
-    int serialize(std::string &output);
-    int deserialize(int fd);
+    int serialize(const int fd);
+    int deserialize(const int fd);
 };
 
 // Send showRecord packet (SRC)
@@ -302,13 +297,23 @@ class RRCPacket : public UDPPacket {
 };
 
 // Error UDP packet (ERR)
-#define ERR_LEN 4
-class ERRPacket : public UDPPacket {
+class ERRUDPPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "ERR";
-    std::string serialize() { return "ERR\n"; }
+    std::string serialize();
     int deserialize(std::string &buffer) {
         (void)buffer; // unimplemented
+        return 0;
+    }
+};
+
+// Error TCP packet (ERR)
+class ERRTCPPacket : public TCPPacket {
+  public:
+    static constexpr const char *ID = "ERR";
+    int serialize(const int fd);
+    int deserialize(const int fd) {
+        (void)fd; // unimplemented
         return 0;
     }
 };
@@ -318,20 +323,6 @@ int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd);
 int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd,
                      const size_t lim);
 
-int sendTCPPacket(const char *msg, const ssize_t len, int fd);
-
-int receiveTCPPacket(std::string &response, int fd, const ssize_t lim);
-
-int readSpace(std::string &line);
-
-int readNewLine(std::string &line);
-
-int sendFile(std::string &line);
-
-int receiveFile(std::string &line);
-
-void listAuctions(std::vector<Auction> auctions);
-
-void listBids(std::vector<Bid> bids);
+int sendTCPPacket(const char *msg, const size_t len, int fd);
 
 #endif // __PROTOCOL_HPP__

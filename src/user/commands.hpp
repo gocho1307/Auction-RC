@@ -9,6 +9,8 @@
 
 typedef std::map<std::string, std::function<void(UserState &)>> CommandsHandler;
 
+std::string readToken(std::string &line);
+
 void helpCommand();
 void interpretCommand(UserState &state);
 void loginCommand(UserState &state);
@@ -23,5 +25,8 @@ void listCommand(UserState &state);
 void showAssetCommand(UserState &state);
 void bidCommand(UserState &state);
 void showRecordCommand(UserState &state);
+
+void listAuctions(std::vector<Auction> auctions);
+void listBids(std::vector<Bid> bids);
 
 #endif // __COMMANDS_HPP__

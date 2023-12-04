@@ -9,6 +9,8 @@
 #define BUFFER_SIZE (1024)
 #define MAX_FILE_SIZE (10000000)
 
+#define PACKET_ID_LEN (3)
+#define MAX_STATUS_LEN (3)
 #define UID_LEN (6)
 #define PASSWORD_LEN (8)
 #define AID_LEN (3)

@@ -23,6 +23,19 @@ CommandsHandler handler = {{"login", loginCommand},
                            {"show_record", showRecordCommand},
                            {"sr", showRecordCommand}};
 
+std::string readToken(std::string &line) {
+    std::string str = "";
+    char c;
+    while (!line.empty() && !isspace(c = line.front())) {
+        str.push_back(c);
+        line.erase(line.begin());
+    }
+    while (!line.empty() && isspace(line.front())) {
+        line.erase(line.begin());
+    }
+    return str;
+}
+
 void helpCommand() {
     std::cout << std::endl << "Available commands:" << std::endl;
 
@@ -68,7 +81,7 @@ void helpCommand() {
 }
 
 void interpretCommand(UserState &state) {
-    std::string commandName = readToken(state.line, true);
+    std::string commandName = readToken(state.line);
     if (commandName.empty() && state.line.empty()) {
         return; // the user pressed enter
     }
@@ -85,9 +98,12 @@ void loginCommand(UserState &state) {
         std::cerr << LOGIN_ERR << std::endl;
         return;
     }
-    std::string uid = readToken(state.line, true);
-    std::string password = readToken(state.line, true);
-    if (checkUID(uid) == -1 || checkPassword(password) == -1) {
+    std::string uid = readToken(state.line);
+    if (checkUID(uid) == -1) {
+        return;
+    }
+    std::string password = readToken(state.line);
+    if (checkPassword(password) == -1) {
         return;
     }
 
@@ -180,24 +196,24 @@ void openCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string auctionName = readToken(state.line, true);
+    std::string auctionName = readToken(state.line);
     if (checkAuctionName(auctionName) == -1) {
         return;
     }
-    std::string fPath = readToken(state.line, true);
+    std::string fPath = readToken(state.line);
     if (checkFilePath(fPath) == -1) {
         return;
     }
     // TODO: check if startValue can be equal to 0
     int startValue;
-    if (readInt(state.line, startValue, true) == -1 ||
+    if (toInt(readToken(state.line), startValue) == -1 ||
         startValue > MAX_START_VAL || startValue <= 0) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
     // TODO: check if timeActive can be equal to 0
     int timeActive;
-    if (readInt(state.line, timeActive, true) == -1 ||
+    if (toInt(readToken(state.line), timeActive) == -1 ||
         timeActive > MAX_DURATION || timeActive <= 0) {
         std::cerr << DURATION_ERR << std::endl;
         return;
@@ -210,7 +226,7 @@ void openCommand(UserState &state) {
     packetOut.startValue = startValue;
     packetOut.timeActive = timeActive;
     ROAPacket packetIn;
-    if (state.sendAndReceiveTCPPacket(packetOut, packetIn, ROA_LEN) == -1) {
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
         return;
     }
 
@@ -228,7 +244,7 @@ void closeCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string aid = readToken(state.line, true);
+    std::string aid = readToken(state.line);
     if (checkAID(aid) == -1) {
         return;
     }
@@ -238,7 +254,7 @@ void closeCommand(UserState &state) {
     packetOut.password = state.password;
     packetOut.AID = aid;
     RCLPacket packetIn;
-    if (state.sendAndReceiveTCPPacket(packetOut, packetIn, RCL_LEN) == -1) {
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
         return;
     }
 
@@ -334,13 +350,14 @@ void bidCommand(UserState &state) {
         std::cerr << NO_LOGIN << std::endl;
         return;
     }
-    std::string aid = readToken(state.line, true);
+    std::string aid = readToken(state.line);
     if (checkAID(aid) == -1) {
         return;
     }
     int value;
-    if (readInt(state.line, value, true) == -1 || value > MAX_START_VAL) {
+    if (toInt(readToken(state.line), value) == -1 || value > MAX_START_VAL) {
         std::cerr << START_VAL_ERR << std::endl;
+        return;
     }
 
     BIDPacket packetOut;
@@ -349,7 +366,7 @@ void bidCommand(UserState &state) {
     packetOut.AID = aid;
     packetOut.value = value;
     RBDPacket packetIn;
-    if (state.sendAndReceiveTCPPacket(packetOut, packetIn, RBD_LEN) == -1) {
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
         return;
     }
 
@@ -371,4 +388,24 @@ void bidCommand(UserState &state) {
 void showRecordCommand(UserState &state) {
     (void)state;
     // TODO: implement
+}
+
+// Helper functions
+
+void listAuctions(std::vector<Auction> auctions) {
+    (void)auctions;
+    // std::stringstream auctionsStream(auctionsInfo);
+    // int aid, flag;
+    // while (auctionsStream >> aid >> flag) {
+    //     std::cout << "Auction" << aid << " : "
+    //               << (flag == 1 ? "Active" : "Not Active") << std::endl;
+    // }
+
+    // TODO: needs to check the message syntax while printing, and in case of
+    // bad syntax return -1.
+}
+
+void listBids(std::vector<Bid> bids) {
+    (void)bids;
+    // TODO: list and verify message syntax while printing bids info from RRC.
 }

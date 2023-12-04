@@ -102,7 +102,7 @@ int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
 }
 
 int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
-                                       TCPPacket &packetIn, ssize_t lim) {
+                                       TCPPacket &packetIn) {
     std::string response;
     if (this->openTCPSocket() == -1) {
         return -1;
@@ -112,17 +112,13 @@ int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
         std::cerr << TCP_CONNECT_ERR << std::endl;
         return -1;
     }
-    std::string message;
-    if (packetOut.serialize(message) == -1) {
+    if (packetOut.serialize(this->socketTCP) == -1) {
         return -1;
     }
-    if (receiveTCPPacket(response, this->socketTCP, lim) == -1) {
+    if (packetIn.deserialize(this->socketTCP) == -1) {
         return -1;
     }
-    if (this->closeTCPSocket() == -1) {
-        return -1;
-    }
-    return packetIn.deserialize(this->socketTCP);
+    return this->closeTCPSocket();
 }
 
 UserState::~UserState() {

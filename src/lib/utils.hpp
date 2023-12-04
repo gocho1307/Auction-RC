@@ -1,12 +1,13 @@
 #ifndef __UTILS_HPP__
 #define __UTILS_HPP__
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
 typedef struct {
     std::string AID;
-    bool state;
+    uint8_t state;
 } Auction;
 
 typedef struct {
@@ -18,9 +19,7 @@ typedef struct {
 
 int checkPort(std::string port);
 
-std::string readToken(std::string &line, bool ignSpaces);
-
-int readInt(std::string &line, int &num, bool ignSpaces);
+int toInt(std::string intStr, int &num);
 
 int readTime(std::string &line, std::string &time, bool ignSpaces);
 

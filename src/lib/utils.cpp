@@ -26,27 +26,14 @@ int checkPort(std::string port) {
     return 0;
 }
 
-std::string readToken(std::string &line, bool ignSpaces) {
-    if (line.empty()) {
-        return "";
-    }
-    std::string str;
-    char c = line.front();
-    while (c != ' ' && c != '\t' && c != '\n' && c != '\0') {
-        str += c;
-        line.erase(line.begin());
-        c = line.front();
-    }
-    while (ignSpaces && (c == ' ' || c == '\t')) {
-        line.erase(line.begin());
-        c = line.front();
-    }
-    return str;
-}
-
-int readInt(std::string &line, int &num, bool ignSpaces) {
+int toInt(std::string intStr, int &num) {
     try {
-        num = std::stoi(readToken(line, ignSpaces));
+        size_t conv = 0;
+        int64_t resNum = std::stoll(intStr, &conv, 10);
+        if (conv != intStr.length() || resNum < 0 || resNum > INT32_MAX) {
+            return -1;
+        }
+        num = (int)resNum;
     } catch (...) {
         return -1;
     }
