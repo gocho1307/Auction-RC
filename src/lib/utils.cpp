@@ -7,6 +7,7 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <sstream>
 
 int checkPort(std::string port) {
     if (port.empty()) {
@@ -40,11 +41,16 @@ int toInt(std::string intStr, int &num) {
     return 0;
 }
 
-int readTime(std::string &line, std::string &time) {
-    (void)line;
-    (void)time;
-    // TODO: implement (maybe struct for time, it depends...)
-    return 0;
+std::string toDate(time_t seconds) {
+    struct tm *time = gmtime(&seconds);
+    std::stringstream date;
+    date << time->tm_year + 1900 << "-" << std::setfill('0') << std::setw(2)
+         << time->tm_mon + 1 << "-" << std::setfill('0') << std::setw(2)
+         << time->tm_mday << " " << std::setfill('0') << std::setw(2)
+         << time->tm_hour << ":" << std::setfill('0') << std::setw(2)
+         << time->tm_min << ":" << std::setfill('0') << std::setw(2)
+         << time->tm_sec;
+    return date.str();
 }
 
 int checkUID(std::string uid) {
@@ -121,13 +127,31 @@ int checkFileName(std::string fName) {
         return -1;
     }
     char c;
-    for (size_t i = 0; i < MAX_FILE_NAME_LEN; i++) {
+    for (size_t i = 0; i < MAX_FILE_NAME_LEN; ++i) {
         c = fName.at(i);
         if (!isalnum(c) || c != '-' || c != '_' ||
             (i == MAX_FILE_NAME_LEN - 4 && c != '.')) {
             std::cerr << FILE_NAME_ERR << std::endl;
             return -1;
         }
+    }
+    return 0;
+}
+
+int checkCalDate(std::string calDate) {
+    if (calDate.empty() || calDate.length() != CAL_DATE_LEN ||
+        !strptime(calDate.c_str(), "%Y-%m-%d", NULL)) {
+        std::cerr << CAL_DATE_ERR << std::endl;
+        return -1;
+    }
+    return 0;
+}
+
+int checkTimeDate(std::string timeDate) {
+    if (timeDate.empty() || timeDate.length() != TIME_DATE_LEN ||
+        !strptime(timeDate.c_str(), "%H:%M:%S", NULL)) {
+        std::cerr << TIME_DATE_ERR << std::endl;
+        return -1;
     }
     return 0;
 }

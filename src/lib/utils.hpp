@@ -21,7 +21,7 @@ int checkPort(std::string port);
 
 int toInt(std::string intStr, int &num);
 
-int readTime(std::string &line, std::string &time, bool ignSpaces);
+std::string toDate(time_t seconds);
 
 int checkUID(std::string uid);
 
@@ -34,6 +34,10 @@ int checkAuctionName(std::string auctionName);
 int checkFilePath(std::string fPath);
 
 int checkFileName(std::string fName);
+
+int checkCalDate(std::string calDate);
+
+int checkTimeDate(std::string timeDate);
 
 void setupSigHandlers(void (*sigF)(int));
 

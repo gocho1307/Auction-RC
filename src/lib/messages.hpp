@@ -26,7 +26,7 @@
 #define READ_ERR "[ERR] Failed to receive message via TCP."
 #define FILE_ERR "[ERR] Failed to process the file."
 #define PACKET_ERR "[ERR] An error occured with the packet. Please try again."
-#define FILE_SIZE_ERR "[ERR] Incorrect file size received for the data."
+#define FILE_SIZE_ERR "[ERR] Invalid file size received for the data."
 #define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
 
@@ -38,7 +38,7 @@
 #define UID_ERR "Invalid user ID. Expected a 6 digit positive number."
 #define PASSWORD_ERR "Invalid password. Expected 8 alphanumeric characters."
 #define LOGIN_OK "Logged in successfully."
-#define LOGIN_NOK(user) "Incorrect password for user '" << user << "'."
+#define LOGIN_NOK(user) "Invalid password for user '" << user << "'."
 #define LOGIN_REG(user) "New user '" << user << "' registered and logged in."
 #define LOGOUT_OK "Logged out successfully."
 #define UNREG_OK(user) "Successfully unregistered the user '" << user << "'."
@@ -72,11 +72,13 @@
 #define MYAUCTIONS_NOK "You do not have any ongoing auctions."
 #define MYBIDS_OK "Here are the ongoing auctions in which you have placed a bid"
 #define MYBIDS_NOK "You do not have any ongoing bids."
-#define LIST_OK "Here are all the ongoing auctions"
+#define LIST_OK "Here are all the auctions:"
 #define LIST_NOK "There are no auctions."
 #define BID_NOK "The auction you tried to bid on is not active."
 #define BID_ACC "Your bid was accepted."
 #define BID_REF "Your bid was refused. A larger bid has already been placed."
 #define BID_ILG "You cannot bid on an auction that you hosted."
+#define CAL_DATE_ERR "Invalid calendar date. Expected YYYY-MM-DD format."
+#define TIME_DATE_ERR "Invalid time. Expected HH:MM:SS format."
 
 #endif // __MESSAGES_HPP__

@@ -27,6 +27,5 @@ void bidCommand(UserState &state);
 void showRecordCommand(UserState &state);
 
 void listAuctions(std::vector<Auction> auctions);
-void listBids(std::vector<Bid> bids);
 
 #endif // __COMMANDS_HPP__

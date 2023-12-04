@@ -393,19 +393,10 @@ void showRecordCommand(UserState &state) {
 // Helper functions
 
 void listAuctions(std::vector<Auction> auctions) {
-    (void)auctions;
-    // std::stringstream auctionsStream(auctionsInfo);
-    // int aid, flag;
-    // while (auctionsStream >> aid >> flag) {
-    //     std::cout << "Auction" << aid << " : "
-    //               << (flag == 1 ? "Active" : "Not Active") << std::endl;
-    // }
-
-    // TODO: needs to check the message syntax while printing, and in case of
-    // bad syntax return -1.
-}
-
-void listBids(std::vector<Bid> bids) {
-    (void)bids;
-    // TODO: list and verify message syntax while printing bids info from RRC.
+    std::cout << "------------------------------------------" << std::endl;
+    for (Auction auction : auctions) {
+        std::cout << "Auction with id '" << auction.AID << "' --------> "
+                  << (auction.state == 1 ? "active" : "not active")
+                  << std::endl;
+    }
 }

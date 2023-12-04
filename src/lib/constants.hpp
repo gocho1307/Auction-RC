@@ -17,7 +17,8 @@
 #define MAX_NAME_LEN (10)
 #define MAX_START_VAL (999999)
 #define MAX_DURATION (99999)
-#define DATE_TIME_LEN (19)
+#define CAL_DATE_LEN (10)
+#define TIME_DATE_LEN (8)
 #define MAX_BID_TIME (999999)
 #define MAX_FILE_NAME_LEN (24)
 

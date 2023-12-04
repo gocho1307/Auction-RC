@@ -2,6 +2,7 @@
 #include "messages.hpp"
 #include "utils.hpp"
 
+#include <ctime>
 #include <iostream>
 #include <netdb.h>
 #include <unistd.h>
