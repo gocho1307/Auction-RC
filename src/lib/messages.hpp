@@ -27,6 +27,8 @@
 #define FILE_ERR "[ERR] Failed to process the file."
 #define PACKET_ERR "[ERR] An error occured with the packet. Please try again."
 #define FILE_SIZE_ERR "[ERR] Incorrect file size received for the data."
+#define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
+#define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
 
 #define UNEXPECTED_COMMAND_ERR(commandName)                                    \
     "The command '" << commandName << "' is not supported by this application."

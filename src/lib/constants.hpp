@@ -22,4 +22,7 @@
 #define TCP_READ_TIMEOUT_SECS (10)
 #define TCP_WRITE_TIMEOUT_SECS (10 * 60) // 10 minutes
 
+// Same as in-class exercise, don't know if we should change
+#define MAX_TCP_QUEUE (5)
+
 #endif // __CONSTANTS_HPP__
