@@ -1,5 +1,5 @@
 #include "server_state.hpp"
-#include "./lib/messages.hpp"
+#include "../lib/messages.hpp"
 #include "packets_handler.hpp"
 #include "server.hpp"
 
@@ -27,6 +27,46 @@ void ServerState::readOpts(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     }
+}
+
+void ServerState::resolveServerAddress() {
+    struct addrinfo hints;
+    int res;
+    const char *port_str = port.c_str();
+
+    // Get UDP address
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET;      // IPv4
+    hints.ai_socktype = SOCK_DGRAM; // UDP socket
+    hints.ai_flags = AI_PASSIVE;    // Listen on 0.0.0.0
+    if ((res = getaddrinfo(NULL, port_str, &hints, &this->addrUDP)) != 0) {
+        std::cerr << GETADDRINFO_UDP_ERR << gai_strerror(res) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (bind(this->socketUDP, this->addrUDP->ai_addr,
+             this->addrUDP->ai_addrlen)) {
+        std::cerr << UDP_BIND_ERR << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Get TCP address
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET;       // IPv4
+    hints.ai_socktype = SOCK_STREAM; // TCP socket
+    hints.ai_flags = AI_PASSIVE;     // Listen on 0.0.0.0
+    if ((res = getaddrinfo(NULL, port.c_str(), &hints, &this->addrTCP)) != 0) {
+        std::cerr << GETADDRINFO_TCP_ERR << gai_strerror(res) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (bind(this->socketTCP, this->addrTCP->ai_addr,
+             this->addrTCP->ai_addrlen)) {
+        std::cerr << TCP_BIND_ERR << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::cout << "Listening for connections on port " << port << std::endl;
 }
 
 void ServerState::registerPacketHandlers() {

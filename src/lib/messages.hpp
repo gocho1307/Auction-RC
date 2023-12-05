@@ -10,6 +10,7 @@
     "[INFO] Could not find ASport number, using default port: "                \
         << DEFAULT_AS_PORT
 #define SHUTDOWN_STR "Closing the user application..."
+#define SHUTDOWN_SERVER "Closing the server application..."
 
 #define GETADDRINFO_UDP_ERR "[ERR] Failed to get address for UDP connection: "
 #define GETADDRINFO_TCP_ERR "[ERR] Failed to get address for TCP connection: "
@@ -31,6 +32,13 @@
 #define FILE_SIZE_ERR "[ERR] Invalid file size received for the data."
 #define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
+#define TCP_BIND_ERR "[ERR] Failed to bind TCP address."
+#define UDP_BIND_ERR "[ERR] Failed to bind UDP address."
+#define TCP_CONNECION_ERR "[ERR] Failed to accept a TCP connection."
+#define UDP_CONNECION_ERR "[ERR] Failed to recieve a message from a UDP connection."
+
+#define TCP_CONNECTION "Receiving TCP connection from: "
+#define UDP_CONNECTION "Receiving UDP connection from: "
 
 #define UNEXPECTED_COMMAND_ERR(commandName)                                    \
     "The command '" << commandName << "' is not supported by this application."

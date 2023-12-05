@@ -33,6 +33,7 @@ class ServerState {
     bool verbose_mode = false;
 
     void readOpts(int argc, char *argv[]);
+    void resolveServerAddress();
     void registerPacketHandlers();
     void processUDPPacket(std::string packet_id, std::string &buffer,
                           Address &connection_addr);

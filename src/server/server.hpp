@@ -10,4 +10,10 @@ void printHelp(std::ostream &stream, char *programPath);
 
 void tcp();
 
+void awaitUDPPacket();
+
+void awaitTCPPacket();
+
+void handlePacket();
+
 #endif // __SERVER_HPP__
