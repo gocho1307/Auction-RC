@@ -36,6 +36,7 @@
 #define UDP_BIND_ERR "[ERR] Failed to bind UDP address."
 #define TCP_CONNECION_ERR "[ERR] Failed to accept a TCP connection."
 #define UDP_CONNECION_ERR "[ERR] Failed to recieve a message from a UDP connection."
+#define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 
 #define TCP_CONNECTION "Receiving TCP connection from: "
 #define UDP_CONNECTION "Receiving UDP connection from: "

@@ -71,19 +71,19 @@ void ServerState::resolveServerAddress() {
 
 void ServerState::registerPacketHandlers() {
     // UDP
-    udp_packets_handler.insert({LINPacket::ID, handle_login});
-    udp_packets_handler.insert({LOUPacket::ID, handle_logout});
-    udp_packets_handler.insert({UNRPacket::ID, handle_register});
-    udp_packets_handler.insert({LMAPacket::ID, handle_my_auctions});
-    udp_packets_handler.insert({LMBPacket::ID, handle_my_bids});
-    udp_packets_handler.insert({LSTPacket::ID, handle_list});
-    udp_packets_handler.insert({SRCPacket::ID, handle_show_record});
+    udp_packets_handler.insert({LINPacket::ID, handleLogin});
+    udp_packets_handler.insert({LOUPacket::ID, handleLogout});
+    udp_packets_handler.insert({UNRPacket::ID, handleRegister});
+    udp_packets_handler.insert({LMAPacket::ID, handleMyAuctions});
+    udp_packets_handler.insert({LMBPacket::ID, handleMyBids});
+    udp_packets_handler.insert({LSTPacket::ID, handleList});
+    udp_packets_handler.insert({SRCPacket::ID, handleShowRecord});
 
     // TCP
-    tcp_packets_handler.insert({OPAPacket::ID, handle_open_bid});
-    tcp_packets_handler.insert({CLSPacket::ID, handle_close_bid});
-    tcp_packets_handler.insert({BIDPacket::ID, handle_bid});
-    tcp_packets_handler.insert({SASPacket::ID, handle_show_asset});
+    tcp_packets_handler.insert({OPAPacket::ID, handleOpenAuction});
+    tcp_packets_handler.insert({CLSPacket::ID, handleCloseAuction});
+    tcp_packets_handler.insert({BIDPacket::ID, handleBid});
+    tcp_packets_handler.insert({SASPacket::ID, handleShowAsset});
 }
 
 void ServerState::processUDPPacket(std::string packet_id, std::string &buffer,
@@ -103,4 +103,19 @@ void ServerState::processTCPPacket(std::string packet_id, int connection_fd) {
     }
 
     tcp_packets_handler[packet_id](connection_fd);
+}
+
+ServerState::~ServerState() {
+    if (this->socketUDP != -1) {
+        close(this->socketUDP);
+    }
+    if (this->socketTCP != -1) {
+        close(this->socketTCP);
+    }
+    if (this->addrUDP != NULL) {
+        freeaddrinfo(this->addrUDP);
+    }
+    if (this->addrTCP != NULL) {
+        freeaddrinfo(this->addrTCP);
+    }
 }

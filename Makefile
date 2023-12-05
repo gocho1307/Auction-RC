@@ -66,7 +66,10 @@ endif
 all: $(TARGET_EXECS)
 
 $(USER_EXEC): $(USER_OBJECTS) $(LIB_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
 $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 clean:
 	rm -f $(TARGET_EXECS) $(OBJECTS) proj_075.zip readme.txt

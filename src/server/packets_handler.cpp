@@ -1,60 +1,63 @@
 #include "packets_handler.hpp"
 
-// UDP
-
-void handle_login(std::string &buffer, Address &addr_from) {
+void handleLogin(std::string &buffer, Address &addr_from) {
     (void)buffer;
     (void)addr_from;
     // TO DO
 }
 
-void handle_logout(std::string &buffer, Address &addr_from) {
+void handleLogout(std::string &buffer, Address &addr_from) {
     (void)buffer;
     (void)addr_from;
     // TO DO
 }
 
-void handle_register(std::string &buffer, Address &addr_from) {
-    (void)buffer;
-    (void)addr_from;
-    // TO DO
-}
-void handle_my_auctions(std::string &buffer, Address &addr_from) {
-    (void)buffer;
-    (void)addr_from;
-    // TO DO
-}
-void handle_my_bids(std::string &buffer, Address &addr_from) {
-    (void)buffer;
-    (void)addr_from;
-    // TO DO
-}
-void handle_list(std::string &buffer, Address &addr_from) {
-    (void)buffer;
-    (void)addr_from;
-    // TO DO
-}
-void handle_show_record(std::string &buffer, Address &addr_from) {
+void handleRegister(std::string &buffer, Address &addr_from) {
     (void)buffer;
     (void)addr_from;
     // TO DO
 }
 
-// TCP
+void handleMyAuctions(std::string &buffer, Address &addr_from) {
+    (void)buffer;
+    (void)addr_from;
+    // TO DO
+}
 
-void handle_open_bid(int connection_fd) {
+void handleMyBids(std::string &buffer, Address &addr_from) {
+    (void)buffer;
+    (void)addr_from;
+    // TO DO
+}
+
+void handleList(std::string &buffer, Address &addr_from) {
+    (void)buffer;
+    (void)addr_from;
+    // TO DO
+}
+
+void handleShowRecord(std::string &buffer, Address &addr_from) {
+    (void)buffer;
+    (void)addr_from;
+    // TO DO
+}
+
+void handleOpenAuction(int connection_fd) {
     (void)connection_fd;
     // TO DO
 }
-void handle_close_bid(int connection_fd) {
+
+void handleCloseAuction(int connection_fd) {
     (void)connection_fd;
     // TO DO
 }
-void handle_bid(int connection_fd) {
+
+void handleBid(int connection_fd) {
     (void)connection_fd;
     // TO DO
 }
-void handle_show_asset(int connection_fd) {
+
+void handleShowAsset(int connection_fd) {
     (void)connection_fd;
     // TO DO
 }
