@@ -25,7 +25,9 @@
 #define WRITE_ERR "[ERR] Failed to send message via TCP."
 #define READ_ERR "[ERR] Failed to receive message via TCP."
 #define FILE_ERR "[ERR] Failed to process the file."
-#define PACKET_ERR "[ERR] An error occured with the packet. Please try again..."
+#define PACKET_ERR                                                             \
+    "[ERR] An error occured with the structure of the packet. Please try "     \
+    "again..."
 #define FILE_SIZE_ERR "[ERR] Invalid file size received for the data."
 #define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."

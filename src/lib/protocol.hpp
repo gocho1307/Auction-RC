@@ -29,8 +29,8 @@ class TCPPacket {
     std::string readString(const int fd, const size_t lim);
     int readSpace(const int fd);
     int readNewLine(const int fd);
-    int sendFile(const int fd, std::string fPath);
-    int receiveFile(const int fd, std::string fName, size_t fSize);
+    int sendFile(std::string fPath, const int fd);
+    int receiveFile(std::string fName, size_t fSize, const int fd);
 
   private:
     char delim = 0;
@@ -289,10 +289,12 @@ class RRCPacket : public UDPPacket {
     std::string auctionName;
     std::string assetfName;
     int startValue;
-    std::string startDateTime;
+    std::string calStartDate;
+    std::string timeStartDate;
     int timeActive;
     std::vector<Bid> bids;
-    std::string endDateTime;
+    std::string calEndDate;
+    std::string timeEndDate;
     int endSecTime;
 
     std::string serialize();

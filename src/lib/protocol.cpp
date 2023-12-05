@@ -13,7 +13,6 @@
 
 std::string UDPPacket::readString(std::string &buffer) {
     if (buffer.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return "";
     }
     std::string str;
@@ -27,17 +26,14 @@ std::string UDPPacket::readString(std::string &buffer) {
 
 int UDPPacket::readSpace(std::string &buffer) {
     if (buffer.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     char c = buffer.front();
     if (c != ' ') {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     buffer.erase(buffer.begin());
     if (buffer.empty() || (c = buffer.front()) == ' ' || c == '\n') {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return 0;
@@ -45,17 +41,14 @@ int UDPPacket::readSpace(std::string &buffer) {
 
 int UDPPacket::readNewLine(std::string &buffer) {
     if (buffer.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     char c = buffer.front();
     if (c != '\n') {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     buffer.erase(buffer.begin());
     if (!buffer.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return 0;
@@ -64,7 +57,6 @@ int UDPPacket::readNewLine(std::string &buffer) {
 int UDPPacket::readAuctions(std::string &buffer,
                             std::vector<Auction> &auctions) {
     if (buffer.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
 
@@ -97,7 +89,6 @@ std::string TCPPacket::readString(const int fd, const size_t lim) {
     char c = 0;
     while (i < lim && c != ' ' && c != '\n') {
         if (read(fd, &c, 1) != 1) {
-            std::cerr << PACKET_ERR << std::endl;
             return "";
         }
         i++;
@@ -113,11 +104,9 @@ int TCPPacket::readSpace(const int fd) {
     delim = 0;
     if (c == 0) {
         if (read(fd, &c, 1) != 1 || c != ' ') {
-            std::cerr << PACKET_ERR << std::endl;
             return -1;
         }
     } else if (c != ' ') {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return 0;
@@ -128,17 +117,15 @@ int TCPPacket::readNewLine(const int fd) {
     delim = 0;
     if (c == 0) {
         if (read(fd, &c, 1) != 1 || c != '\n') {
-            std::cerr << PACKET_ERR << std::endl;
             return -1;
         }
     } else if (c != '\n') {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return 0;
 }
 
-int TCPPacket::sendFile(const int fd, std::string fPath) {
+int TCPPacket::sendFile(std::string fPath, const int fd) {
     std::ifstream file(fPath, std::ios::in | std::ios::binary);
     if (!file) {
         std::cerr << "Failed to open file: " << fPath << std::endl;
@@ -188,7 +175,7 @@ int TCPPacket::sendFile(const int fd, std::string fPath) {
     return 0;
 }
 
-int TCPPacket::receiveFile(const int fd, std::string fName, size_t fSize) {
+int TCPPacket::receiveFile(std::string fName, size_t fSize, const int fd) {
     std::ofstream file(fName);
     if (!file.good() || !file.is_open()) {
         std::cerr << FILE_ERR << std::endl;
@@ -233,16 +220,11 @@ std::string LINPacket::serialize() {
 }
 
 int RLIPacket::deserialize(std::string &buffer) {
-    if (readString(buffer) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(buffer) == -1) {
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return readNewLine(buffer);
@@ -253,16 +235,11 @@ std::string LOUPacket::serialize() {
 }
 
 int RLOPacket::deserialize(std::string &buffer) {
-    if (readString(buffer) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(buffer) == -1) {
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return readNewLine(buffer);
@@ -273,68 +250,57 @@ std::string UNRPacket::serialize() {
 }
 
 int RURPacket::deserialize(std::string &buffer) {
-    if (readString(buffer) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(buffer) == -1) {
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return readNewLine(buffer);
 }
 
 int OPAPacket::serialize(const int fd) {
-    (void)fd;
-    // TODO
-    return 0;
+    std::string msg = std::string(ID) + " " + UID + " " + password + " " +
+                      auctionName + " " + std::to_string(startValue) + " " +
+                      std::to_string(timeActive) + " ";
+    if (sendTCPPacket(msg.c_str(), msg.length(), fd) == -1) {
+        return -1;
+    }
+    return sendFile(assetfPath, fd);
 }
 
 int ROAPacket::deserialize(int fd) {
-    if (readString(fd, PACKET_ID_LEN) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(fd) == -1) {
+    if (readString(fd, PACKET_ID_LEN) != std::string(ID) ||
+        readSpace(fd) == -1) {
         return -1;
     }
     status = readString(fd, MAX_STATUS_LEN);
-    if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (status.empty() || readSpace(fd) == -1) {
         return -1;
     }
-    if (readSpace(fd) == -1) {
-        return -1;
-    }
-    AID = readString(fd, AID_LEN);
-    if (AID.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
+    if (status == "OK") {
+        AID = readString(fd, AID_LEN);
+        if (checkAID(AID) == -1) {
+            return -1;
+        }
     }
     return readNewLine(fd);
 }
 
 int CLSPacket::serialize(const int fd) {
-    (void)fd;
-    // TODO
-    return 0;
+    std::string msg =
+        std::string(ID) + " " + UID + " " + password + " " + AID + "\n";
+    return sendTCPPacket(msg.c_str(), msg.length(), fd);
 }
 
 int RCLPacket::deserialize(int fd) {
-    if (readString(fd, PACKET_ID_LEN) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(fd) == -1) {
+    if (readString(fd, PACKET_ID_LEN) != std::string(ID) ||
+        readSpace(fd) == -1) {
         return -1;
     }
     status = readString(fd, MAX_STATUS_LEN);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return readNewLine(fd);
@@ -345,20 +311,14 @@ std::string LMAPacket::serialize() {
 }
 
 int RMAPacket::deserialize(std::string &buffer) {
-    if (readString(buffer) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(buffer) == -1) {
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
-    if (readAuctions(buffer, auctions) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (status == "OK" && readAuctions(buffer, auctions) == -1) {
         return -1;
     }
     return readNewLine(buffer);
@@ -369,20 +329,14 @@ std::string LMBPacket::serialize() {
 }
 
 int RMBPacket::deserialize(std::string &buffer) {
-    if (readString(buffer) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(buffer) == -1) {
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
-    if (readAuctions(buffer, auctions) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (status == "OK" && readAuctions(buffer, auctions) == -1) {
         return -1;
     }
     return readNewLine(buffer);
@@ -391,67 +345,70 @@ int RMBPacket::deserialize(std::string &buffer) {
 std::string LSTPacket::serialize() { return std::string(ID) + "\n"; }
 
 int RLSPacket::deserialize(std::string &buffer) {
-    if (readString(buffer) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(buffer) == -1) {
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
         return -1;
     }
     status = readString(buffer);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
-    if (readAuctions(buffer, auctions) == -1) {
-        std::cerr << PACKET_ERR << std::endl;
+    if (status == "OK" && readAuctions(buffer, auctions) == -1) {
         return -1;
     }
     return readNewLine(buffer);
 }
 
 int BIDPacket::serialize(const int fd) {
-    (void)fd;
-    // TODO
-    return 0;
+    std::string msg = std::string(ID) + " " + UID + " " + password + " " + AID +
+                      " " + std::to_string(value) + "\n";
+    return sendTCPPacket(msg.c_str(), msg.length(), fd);
 }
 
 int RBDPacket::deserialize(int fd) {
-    if (readString(fd, PACKET_ID_LEN) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(fd) == -1) {
+    if (readString(fd, PACKET_ID_LEN) != std::string(ID) ||
+        readSpace(fd) == -1) {
         return -1;
     }
     status = readString(fd, MAX_STATUS_LEN);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
     return readNewLine(fd);
 }
 
 int SASPacket::serialize(const int fd) {
-    (void)fd;
-    // TODO
-    return 0;
+    std::string msg = std::string(ID) + " " + AID + "\n";
+    return sendTCPPacket(msg.c_str(), msg.length(), fd);
 }
 
 int RSAPacket::deserialize(int fd) {
-    if (readString(fd, PACKET_ID_LEN) != std::string(ID)) {
-        std::cerr << PACKET_ERR << std::endl;
-        return -1;
-    }
-    if (readSpace(fd) == -1) {
+    if (readString(fd, PACKET_ID_LEN) != std::string(ID) ||
+        readSpace(fd) == -1) {
         return -1;
     }
     status = readString(fd, MAX_STATUS_LEN);
     if (status.empty()) {
-        std::cerr << PACKET_ERR << std::endl;
         return -1;
     }
-    return readSpace(fd);
+    if (status == "OK") {
+        if (readSpace(fd) == -1) {
+            return -1;
+        }
+        assetfName = readString(fd, MAX_FILE_NAME_LEN);
+        if (checkFileName(assetfName) == -1) {
+            return -1;
+        }
+        // TODO: fix this garbage casting jesus..
+        // std::string strfSize = readString(fd, 8);
+        // if (toInt(strfSize, (int &)assetfSize) == -1 || assetfSize == 0 ||
+        //     assetfSize > MAX_FILE_SIZE) {
+        //     return -1;
+        // }
+        if (receiveFile(assetfName, assetfSize, fd) == -1) {
+            return -1;
+        }
+    }
+    return readNewLine(fd);
 }
 
 std::string SRCPacket::serialize() {
@@ -459,9 +416,52 @@ std::string SRCPacket::serialize() {
 }
 
 int RRCPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
-    return 0;
+    if (readString(buffer) != std::string(ID) || readSpace(buffer) == -1) {
+        return -1;
+    }
+    status = readString(buffer);
+    if (status.empty()) {
+        return -1;
+    }
+    if (status == "OK") {
+        if (readSpace(buffer) == -1) {
+            return -1;
+        }
+        hostUID = readString(buffer);
+        if (checkUID(hostUID) == -1 || readSpace(buffer) == -1) {
+            return -1;
+        }
+        auctionName = readString(buffer);
+        if (checkAuctionName(auctionName) == -1 || readSpace(buffer) == -1) {
+            return -1;
+        }
+        assetfName = readString(buffer);
+        if (checkFileName(assetfName) == -1 || readSpace(buffer) == -1) {
+            return -1;
+        }
+        // TODO (previous): check if start value can be zero
+        std::string strStartValue = readString(buffer);
+        if (toInt(strStartValue, startValue) == -1 ||
+            startValue > MAX_START_VAL || readSpace(buffer) == -1) {
+            return -1;
+        }
+        calStartDate = readString(buffer);
+        if (checkCalDate(calStartDate) == -1 || readSpace(buffer) == -1) {
+            return -1;
+        }
+        timeStartDate = readString(buffer);
+        if (checkTimeDate(timeStartDate) == -1 || readSpace(buffer) == -1) {
+            return -1;
+        }
+        // TODO (previous): check if time active can be zero
+        std::string strTimeActive = readString(buffer);
+        if (toInt(strTimeActive, timeActive) == -1 ||
+            timeActive > MAX_DURATION) {
+            return -1;
+        }
+        // TODO: READ THE 'B' AND 'E' LINESSSSSSSSSSSSS
+    }
+    return readNewLine(buffer);
 }
 
 // Packet methods: used by the server side
@@ -526,6 +526,8 @@ std::string RMAPacket::serialize() {
 }
 
 int LMAPacket::deserialize(std::string &buffer) {
+    UID = readString(buffer);
+
     (void)buffer;
     // TODO: implement
     return 0;

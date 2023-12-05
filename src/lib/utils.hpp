@@ -13,7 +13,8 @@ typedef struct {
 typedef struct {
     std::string bidderUID;
     int value;
-    std::string dateTime;
+    std::string calDate;
+    std::string timeDate;
     int secTime;
 } Bid;
 

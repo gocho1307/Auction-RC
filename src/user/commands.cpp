@@ -425,10 +425,12 @@ void showRecordCommand(UserState &state) {
                   << " | auction name: " << packetIn.auctionName
                   << " | asset file name: " << packetIn.assetfName
                   << " | start value: " << packetIn.startValue
-                  << " | start date time: " << packetIn.startDateTime
+                  << " | start date time: " << packetIn.calStartDate << " "
+                  << packetIn.timeStartDate
                   << " | time active: " << packetIn.timeActive << std::endl;
-        if (!packetIn.endDateTime.empty()) {
-            std::cout << "end date time: " << packetIn.endDateTime
+        if (!packetIn.calEndDate.empty()) {
+            std::cout << "end date time: " << packetIn.calEndDate << " "
+                      << packetIn.timeEndDate
                       << " | end seconds: " << packetIn.endSecTime << std::endl;
         }
         int i = 0;
@@ -437,8 +439,9 @@ void showRecordCommand(UserState &state) {
                       << std::endl;
             std::cout << "bidder UID: " << bid.bidderUID
                       << " | bid value: " << bid.value
-                      << " | bid date time: " << bid.dateTime
-                      << " | bid seconds: " << bid.secTime << std::endl;
+                      << " | bid date time: " << bid.calDate << " "
+                      << bid.timeDate << " | bid seconds: " << bid.secTime
+                      << std::endl;
         }
     } else if (packetIn.status == "NOK") {
         std::cerr << SHOW_RECORD_NOK << std::endl;
