@@ -2,9 +2,13 @@
 #include "messages.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
 #include <ctime>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <netdb.h>
+#include <string>
 #include <unistd.h>
 
 std::string UDPPacket::readString(std::string &buffer) {
@@ -135,15 +139,90 @@ int TCPPacket::readNewLine(const int fd) {
 }
 
 int TCPPacket::sendFile(const int fd, std::string fPath) {
-    (void)fd;
-    (void)fPath;
-    // TODO: implement
+    std::ifstream file(fPath, std::ios::in | std::ios::binary);
+    if (!file) {
+        std::cerr << "Failed to open file: " << fPath << std::endl;
+        return -1;
+    }
+    std::filesystem::path p(fPath);
+    std::string fName = p.filename();
+    size_t fSize = (size_t)std::filesystem::file_size(p);
+    std::string msg = fName + " " + std::to_string((int)fSize) + " ";
+    if (sendTCPPacket(msg.c_str(), msg.length(), fd) == -1) {
+        file.close();
+        std::cerr << FILE_ERR << std::endl;
+        return -1;
+    }
+
+    ssize_t read;
+    ssize_t sent;
+    char buffer[FILE_BUFFER_SIZE];
+    std::cout << "Upload is in progress..." << std::endl;
+    while (file) {
+        file.read(buffer, FILE_BUFFER_SIZE);
+        read = (ssize_t)file.gcount();
+        sent = 0;
+        while (sent < read) {
+            ssize_t n = write(fd, buffer + sent, (size_t)(read - sent));
+            if (n < 0) {
+                file.close();
+                std::cerr << FILE_ERR << std::endl;
+                return -1;
+            }
+            sent += n;
+
+            // Upload bar
+            for (size_t i = 0; i < ((size_t)n / fSize) * 50; ++i) {
+                std::cout << "-";
+            }
+        }
+    }
+    std::cout << std::endl;
+    char newLine = '\n';
+    if (sendTCPPacket(&newLine, 1, fd) == -1) {
+        file.close();
+        std::cerr << FILE_ERR << std::endl;
+        return -1;
+    }
+    file.close();
     return 0;
 }
 
-int TCPPacket::receiveFile(const int fd) {
-    (void)fd;
-    // TODO: make this use the 'read' function to read from socket
+int TCPPacket::receiveFile(const int fd, std::string fName, size_t fSize) {
+    std::ofstream file(fName);
+    if (!file.good() || !file.is_open()) {
+        std::cerr << FILE_ERR << std::endl;
+        return -1;
+    }
+    size_t remaining = fSize;
+    size_t toRead;
+    ssize_t gotRead;
+    char buffer[FILE_BUFFER_SIZE];
+
+    std::cout << "Download is in progress..." << std::endl;
+    while (remaining > 0) {
+        toRead = std::min(remaining, (size_t)FILE_BUFFER_SIZE);
+        gotRead = read(fd, buffer, toRead);
+        if (gotRead <= 0) {
+            file.close();
+            std::cerr << FILE_ERR << std::endl;
+            return -1;
+        }
+        file.write(buffer, gotRead);
+        if (!file.good()) {
+            file.close();
+            std::cerr << FILE_ERR << std::endl;
+            return -1;
+        }
+        remaining -= (size_t)gotRead;
+
+        // Download bar
+        for (size_t i = 0; i < ((size_t)gotRead / fSize) * 50; ++i) {
+            std::cout << "-";
+        }
+    }
+    std::cout << std::endl;
+    file.close();
     return 0;
 }
 

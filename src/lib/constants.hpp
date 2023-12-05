@@ -6,7 +6,7 @@
 #define DEFAULT_AS_HOST "tejo.tecnico.ulisboa.pt" // localhost
 #define DEFAULT_AS_PORT "58011"                   // 58075
 
-#define BUFFER_SIZE (1024)
+#define FILE_BUFFER_SIZE (1024)
 #define MAX_FILE_SIZE (10000000)
 
 #define PACKET_ID_LEN (3)
