@@ -45,7 +45,7 @@ void ServerState::resolveServerAddress() {
     }
 
     if (bind(this->socketUDP, this->addrUDP->ai_addr,
-             this->addrUDP->ai_addrlen)) {
+             this->addrUDP->ai_addrlen) == -1) {
         std::cerr << UDP_BIND_ERR << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -61,7 +61,7 @@ void ServerState::resolveServerAddress() {
     }
 
     if (bind(this->socketTCP, this->addrTCP->ai_addr,
-             this->addrTCP->ai_addrlen)) {
+             this->addrTCP->ai_addrlen) == -1) {
         std::cerr << TCP_BIND_ERR << std::endl;
         exit(EXIT_FAILURE);
     }

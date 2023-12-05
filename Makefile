@@ -55,11 +55,6 @@ else
   CXXFLAGS += -O3
 endif
 
-.SECONDEXPANSION:
-
-%: src/%/$$@.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
-
 .PHONY: all clean fmt fmt-check package
 
 # must be the first target in the Makefile

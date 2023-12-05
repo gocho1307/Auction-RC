@@ -226,7 +226,7 @@ int RLIPacket::deserialize(std::string &buffer) {
     if (status.empty()) {
         return 1;
     }
-    return readNewLine(buffer) || !buffer.empty();
+    return readNewLine(buffer);
 }
 
 std::string LOUPacket::serialize() {
@@ -241,7 +241,7 @@ int RLOPacket::deserialize(std::string &buffer) {
     if (status.empty()) {
         return 1;
     }
-    return readNewLine(buffer) || !buffer.empty();
+    return readNewLine(buffer);
 }
 
 std::string UNRPacket::serialize() {
@@ -256,7 +256,7 @@ int RURPacket::deserialize(std::string &buffer) {
     if (status.empty()) {
         return 1;
     }
-    return readNewLine(buffer) || !buffer.empty();
+    return readNewLine(buffer);
 }
 
 int OPAPacket::serialize(const int fd) {
@@ -318,7 +318,7 @@ int RMAPacket::deserialize(std::string &buffer) {
     if (status == "OK" && readAuctions(buffer, auctions)) {
         return 1;
     }
-    return readNewLine(buffer) || !buffer.empty();
+    return readNewLine(buffer);
 }
 
 std::string LMBPacket::serialize() {
@@ -336,7 +336,7 @@ int RMBPacket::deserialize(std::string &buffer) {
     if (status == "OK" && readAuctions(buffer, auctions)) {
         return 1;
     }
-    return readNewLine(buffer) || !buffer.empty();
+    return readNewLine(buffer);
 }
 
 std::string LSTPacket::serialize() { return std::string(ID) + "\n"; }
@@ -352,7 +352,7 @@ int RLSPacket::deserialize(std::string &buffer) {
     if (status == "OK" && readAuctions(buffer, auctions)) {
         return 1;
     }
-    return readNewLine(buffer) || !buffer.empty();
+    return readNewLine(buffer);
 }
 
 int BIDPacket::serialize(const int fd) {
@@ -418,7 +418,7 @@ int RRCPacket::deserialize(std::string &buffer) {
         return 1;
     }
     if (status != "OK") {
-        return readNewLine(buffer) || !buffer.empty();
+        return readNewLine(buffer);
     }
 
     if (readSpace(buffer)) {
@@ -456,8 +456,8 @@ int RRCPacket::deserialize(std::string &buffer) {
         return 1;
     }
 
-    if (!readNewLine(buffer)) {
-        return !buffer.empty();
+    if (!buffer.empty() && buffer.front() == '\n') {
+        return readNewLine(buffer);
     }
     int i = 0;
     do {
@@ -508,12 +508,13 @@ int RRCPacket::deserialize(std::string &buffer) {
             if (toInt(strEndSecTime, endSecTime) || endSecTime > MAX_DURATION) {
                 return 1;
             }
-            return readNewLine(buffer) || !buffer.empty();
+            return readNewLine(buffer);
         } else {
             return 1;
         }
-    } while (!readNewLine(buffer) && ++i < MAX_BIDS_LISTINGS + 1);
-    return !buffer.empty();
+    } while (!buffer.empty() && buffer.front() != '\n' &&
+             ++i < MAX_BIDS_LISTINGS);
+    return readNewLine(buffer);
 }
 
 // Packet methods: used by the server side
@@ -651,7 +652,7 @@ int ERRTCPPacket::serialize(const int fd) {
     return 0;
 }
 
-// Transmit packets // TODO: NEED to be able to send files before receiving
+// Transmit packets
 
 int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, const int fd) {
     if (res == NULL) {
@@ -660,7 +661,7 @@ int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, const int fd) {
     }
     std::string msg = packet.serialize();
     if (sendto(fd, msg.c_str(), msg.length(), 0, res->ai_addr,
-               res->ai_addrlen)) {
+               res->ai_addrlen) == -1) {
         std::cerr << SENDTO_ERR << std::endl;
         return 1;
     }
@@ -674,7 +675,7 @@ int receiveUDPPacket(std::string &response, struct addrinfo *res, const int fd,
         return 1;
     }
     char msg[lim + 1] = {0};
-    if (recvfrom(fd, msg, lim, 0, res->ai_addr, &res->ai_addrlen)) {
+    if (recvfrom(fd, msg, lim, 0, res->ai_addr, &res->ai_addrlen) == -1) {
         std::cerr << RECVFROM_ERR << std::endl;
         return 1;
     }

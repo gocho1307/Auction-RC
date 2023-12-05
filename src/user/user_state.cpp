@@ -55,7 +55,7 @@ void UserState::getServerAddresses() {
 }
 
 int UserState::openTCPSocket() {
-    if ((this->socketTCP = socket(AF_INET, SOCK_STREAM, 0))) {
+    if ((this->socketTCP = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         std::cerr << SOCKET_CREATE_ERR << std::endl;
         return 1;
     }
@@ -78,7 +78,7 @@ int UserState::openTCPSocket() {
 }
 
 int UserState::closeTCPSocket() {
-    if (this->socketTCP) {
+    if (this->socketTCP == -1) {
         return 0; // socket was already closed
     }
     if (close(this->socketTCP) != 0) {
@@ -112,7 +112,7 @@ int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
         return 1;
     }
     if (connect(this->socketTCP, this->addrTCP->ai_addr,
-                this->addrTCP->ai_addrlen)) {
+                this->addrTCP->ai_addrlen) == -1) {
         std::cerr << TCP_CONNECT_ERR << std::endl;
         return 1;
     }

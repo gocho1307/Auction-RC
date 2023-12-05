@@ -14,7 +14,8 @@ int main(int argc, char *argv[]) {
     state.readOpts(argc, argv);
     checkPort(state.port);
     state.getServerAddresses();
-    if ((state.socketUDP = socket(AF_INET, SOCK_DGRAM, 0))) {
+    if ((state.socketUDP = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+        std::cout << DEFAULT_AS_HOST << " " << DEFAULT_AS_PORT << std::endl;
         std::cerr << SOCKET_CREATE_ERR << std::endl;
         return EXIT_FAILURE;
     }

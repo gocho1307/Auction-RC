@@ -161,22 +161,22 @@ void setupSigHandlers(void (*sigF)(int)) {
 
     memset(&s, 0, sizeof(s));
     s.sa_handler = sigF;
-    if (sigaction(SIGINT, &s, NULL)) {
+    if (sigaction(SIGINT, &s, NULL) == -1) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
     }
-    if (sigaction(SIGTERM, &s, NULL)) {
+    if (sigaction(SIGTERM, &s, NULL) == -1) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
     }
 
     memset(&s, 0, sizeof(s));
     s.sa_handler = SIG_IGN;
-    if (sigaction(SIGCHLD, &s, NULL)) {
+    if (sigaction(SIGCHLD, &s, NULL) == -1) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
     }
-    if (sigaction(SIGPIPE, &s, NULL)) {
+    if (sigaction(SIGPIPE, &s, NULL) == -1) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
     }
