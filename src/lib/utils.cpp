@@ -9,24 +9,6 @@
 #include <iostream>
 #include <sstream>
 
-int checkPort(std::string port) {
-    if (port.empty()) {
-        std::cerr << PORT_ERR << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    try {
-        int32_t portNum = std::stoi(port);
-        if (portNum <= 0 || portNum >= (1 << 16)) {
-            std::cerr << PORT_ERR << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    } catch (const std::exception &e) {
-        std::cerr << PORT_ERR << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    return 0;
-}
-
 int toInt(std::string intStr, int &num) {
     try {
         size_t conv = 0;
@@ -51,6 +33,24 @@ std::string toDate(time_t seconds) {
          << time->tm_min << ":" << std::setfill('0') << std::setw(2)
          << time->tm_sec;
     return date.str();
+}
+
+int checkPort(std::string port) {
+    if (port.empty()) {
+        std::cerr << PORT_ERR << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    try {
+        int32_t portNum = std::stoi(port);
+        if (portNum <= 0 || portNum >= (1 << 16)) {
+            std::cerr << PORT_ERR << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    } catch (const std::exception &e) {
+        std::cerr << PORT_ERR << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    return 0;
 }
 
 int checkUID(std::string uid) {
@@ -96,7 +96,7 @@ int checkAID(std::string aid) {
 }
 
 int checkAuctionName(std::string auctionName) {
-    if (auctionName.length() != MAX_NAME_LEN) {
+    if (auctionName.length() > MAX_NAME_LEN) {
         std::cerr << NAME_ERR << std::endl;
         return -1;
     }
@@ -122,7 +122,7 @@ int checkFilePath(std::string fPath) {
 }
 
 int checkFileName(std::string fName) {
-    if (fName.length() != MAX_FILE_NAME_LEN) {
+    if (fName.length() > MAX_FILE_NAME_LEN) {
         std::cerr << FILE_NAME_ERR << std::endl;
         return -1;
     }

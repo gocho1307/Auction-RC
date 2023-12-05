@@ -134,31 +134,16 @@ int TCPPacket::readNewLine(const int fd) {
     return 0;
 }
 
-int TCPPacket::sendFile(std::string &buffer) {
-    (void)buffer;
+int TCPPacket::sendFile(const int fd, std::string fPath) {
+    (void)fd;
+    (void)fPath;
     // TODO: implement
     return 0;
 }
 
-int TCPPacket::receiveFile(std::string &buffer) {
-    (void)buffer;
+int TCPPacket::receiveFile(const int fd) {
+    (void)fd;
     // TODO: make this use the 'read' function to read from socket
-    //     fInfo.name = readString(buffer);
-    //     if (readDelimiter(buffer) == -1) {
-    //         return -1;
-    //     }
-    //     if (readInt(buffer, fInfo.size, false) == -1) {
-    //         std::cerr << FILE_SIZE_ERR << std::endl;
-    //         return -1;
-    //     }
-    //     if (readDelimiter(buffer) == -1) {
-    //         return -1;
-    //     }
-    //     if (buffer.length() != fInfo.size) {
-    //         std::cerr << FILE_SIZE_ERR << std::endl;
-    //         return -1;
-    //     }
-    //     fInfo.data = buffer;
     return 0;
 }
 

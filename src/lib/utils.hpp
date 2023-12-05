@@ -17,11 +17,11 @@ typedef struct {
     int secTime;
 } Bid;
 
-int checkPort(std::string port);
-
 int toInt(std::string intStr, int &num);
 
 std::string toDate(time_t seconds);
+
+int checkPort(std::string port);
 
 int checkUID(std::string uid);
 

@@ -29,8 +29,8 @@ class TCPPacket {
     std::string readString(const int fd, const size_t lim);
     int readSpace(const int fd);
     int readNewLine(const int fd);
-    int sendFile(std::string &buffer);
-    int receiveFile(std::string &buffer);
+    int sendFile(const int fd, std::string fPath);
+    int receiveFile(const int fd);
 
   private:
     char delim = 0;
@@ -259,7 +259,8 @@ class RSAPacket : public TCPPacket {
   public:
     static constexpr const char *ID = "RSA";
     std::string status;
-    std::string assetfPath;
+    std::string assetfName;
+    uint32_t assetfSize;
 
     int serialize(const int fd);
     int deserialize(const int fd);

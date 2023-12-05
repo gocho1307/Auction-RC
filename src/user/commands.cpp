@@ -234,6 +234,8 @@ void openCommand(UserState &state) {
         std::cout << OPEN_OK(packetIn.AID) << std::endl;
     } else if (packetIn.status == "NOK") {
         std::cerr << OPEN_NOK << std::endl;
+    } else if (packetIn.status == "NLG") {
+        std::cerr << NOT_LOGGED << std::endl;
     } else {
         std::cerr << PACKET_ERR << std::endl;
     }
@@ -261,13 +263,13 @@ void closeCommand(UserState &state) {
     if (packetIn.status == "OK") {
         std::cout << CLOSE_OK << std::endl;
     } else if (packetIn.status == "NLG") {
-        std::cout << NOT_LOGGED << std::endl;
+        std::cerr << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "EAU") {
-        std::cout << CLOSE_EAU << std::endl;
+        std::cerr << CLOSE_EAU << std::endl;
     } else if (packetIn.status == "EOW") {
-        std::cout << CLOSE_EOW << std::endl;
+        std::cerr << CLOSE_EOW << std::endl;
     } else if (packetIn.status == "END") {
-        std::cout << CLOSE_END << std::endl;
+        std::cerr << CLOSE_END << std::endl;
     } else {
         std::cerr << PACKET_ERR << std::endl;
     }
@@ -290,9 +292,9 @@ void myAuctionsCommand(UserState &state) {
         std::cout << MYAUCTIONS_OK << std::endl;
         listAuctions(packetIn.auctions);
     } else if (packetIn.status == "NLG") {
-        std::cout << NOT_LOGGED << std::endl;
+        std::cerr << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "NOK") {
-        std::cout << MYAUCTIONS_NOK << std::endl;
+        std::cerr << MYAUCTIONS_NOK << std::endl;
     } else {
         std::cerr << PACKET_ERR << std::endl;
     }
@@ -315,9 +317,9 @@ void myBidsCommand(UserState &state) {
         std::cout << MYBIDS_OK << std::endl;
         listAuctions(packetIn.auctions);
     } else if (packetIn.status == "NLG") {
-        std::cout << NOT_LOGGED << std::endl;
+        std::cerr << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "NOK") {
-        std::cout << MYBIDS_NOK << std::endl;
+        std::cerr << MYBIDS_NOK << std::endl;
     } else {
         std::cerr << PACKET_ERR << std::endl;
     }
@@ -334,15 +336,33 @@ void listCommand(UserState &state) {
         std::cout << LIST_OK << std::endl;
         listAuctions(packetIn.auctions);
     } else if (packetIn.status == "NOK") {
-        std::cout << LIST_NOK << std::endl;
+        std::cerr << LIST_NOK << std::endl;
     } else {
         std::cerr << PACKET_ERR << std::endl;
     }
 }
 
 void showAssetCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    std::string aid = readToken(state.line);
+    if (checkAID(aid) == -1) {
+        return;
+    }
+
+    SASPacket packetOut;
+    packetOut.AID = aid;
+    RSAPacket packetIn;
+    if (state.sendAndReceiveTCPPacket(packetOut, packetIn) == -1) {
+        return;
+    }
+
+    if (packetIn.status == "OK") {
+        std::cout << SHOW_ASSET_OK(packetIn.assetfName, packetIn.assetfSize)
+                  << std::endl;
+    } else if (packetIn.status == "NOK") {
+        std::cerr << SHOW_ASSET_NOK << std::endl;
+    } else {
+        std::cerr << PACKET_ERR << std::endl;
+    }
 }
 
 void bidCommand(UserState &state) {
@@ -386,8 +406,45 @@ void bidCommand(UserState &state) {
 }
 
 void showRecordCommand(UserState &state) {
-    (void)state;
-    // TODO: implement
+    std::string aid = readToken(state.line);
+    if (checkAID(aid) == -1) {
+        return;
+    }
+
+    SRCPacket packetOut;
+    packetOut.AID = aid;
+    RRCPacket packetIn;
+    if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RRC_LEN) == -1) {
+        return;
+    }
+
+    if (packetIn.status == "OK") {
+        std::cout << "General information about requested auction:"
+                  << std::endl;
+        std::cout << "host UID: " << packetIn.hostUID
+                  << " | auction name: " << packetIn.auctionName
+                  << " | asset file name: " << packetIn.assetfName
+                  << " | start value: " << packetIn.startValue
+                  << " | start date time: " << packetIn.startDateTime
+                  << " | time active: " << packetIn.timeActive << std::endl;
+        if (!packetIn.endDateTime.empty()) {
+            std::cout << "end date time: " << packetIn.endDateTime
+                      << " | end seconds: " << packetIn.endSecTime << std::endl;
+        }
+        int i = 0;
+        for (Bid bid : packetIn.bids) {
+            std::cout << i++ << " -----------------------------------------"
+                      << std::endl;
+            std::cout << "bidder UID: " << bid.bidderUID
+                      << " | bid value: " << bid.value
+                      << " | bid date time: " << bid.dateTime
+                      << " | bid seconds: " << bid.secTime << std::endl;
+        }
+    } else if (packetIn.status == "NOK") {
+        std::cerr << SHOW_RECORD_NOK << std::endl;
+    } else {
+        std::cerr << PACKET_ERR << std::endl;
+    }
 }
 
 // Helper functions
