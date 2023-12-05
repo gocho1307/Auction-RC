@@ -15,12 +15,13 @@
 #define PASSWORD_LEN (8)
 #define AID_LEN (3)
 #define MAX_NAME_LEN (10)
-#define MAX_START_VAL (999999)
+#define MAX_VAL (999999)
 #define MAX_DURATION (99999)
 #define CAL_DATE_LEN (10)
 #define TIME_DATE_LEN (8)
 #define MAX_BID_TIME (999999)
 #define MAX_FILE_NAME_LEN (24)
+#define MAX_BIDS_LISTINGS (50)
 
 #define TCP_READ_TIMEOUT_SECS (10)
 #define TCP_WRITE_TIMEOUT_SECS (10 * 60) // 10 minutes

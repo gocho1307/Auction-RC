@@ -55,9 +55,9 @@ void UserState::getServerAddresses() {
 }
 
 int UserState::openTCPSocket() {
-    if ((this->socketTCP = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    if ((this->socketTCP = socket(AF_INET, SOCK_STREAM, 0))) {
         std::cerr << SOCKET_CREATE_ERR << std::endl;
-        return -1;
+        return 1;
     }
     struct timeval timeout;
     timeout.tv_sec = TCP_READ_TIMEOUT_SECS;
@@ -65,25 +65,25 @@ int UserState::openTCPSocket() {
     if (setsockopt(this->socketTCP, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                    sizeof(timeout)) < 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << std::endl;
-        return -1;
+        return 1;
     }
     memset(&timeout, 0, sizeof(timeout));
     timeout.tv_sec = TCP_WRITE_TIMEOUT_SECS;
     if (setsockopt(this->socketTCP, SOL_SOCKET, SO_SNDTIMEO, &timeout,
                    sizeof(timeout)) < 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << std::endl;
-        return -1;
+        return 1;
     }
     return 0;
 }
 
 int UserState::closeTCPSocket() {
-    if (this->socketTCP == -1) {
+    if (this->socketTCP) {
         return 0; // socket was already closed
     }
     if (close(this->socketTCP) != 0) {
         std::cerr << SOCKET_CLOSE_ERR << std::endl;
-        return -1;
+        return 1;
     }
     this->socketTCP = -1;
     return 0;
@@ -92,15 +92,15 @@ int UserState::closeTCPSocket() {
 int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
                                        UDPPacket &packetIn, size_t lim) {
     std::string response;
-    if (sendUDPPacket(packetOut, this->addrUDP, this->socketUDP) == -1) {
-        return -1;
+    if (sendUDPPacket(packetOut, this->addrUDP, this->socketUDP)) {
+        return 1;
     }
-    if (receiveUDPPacket(response, this->addrUDP, this->socketUDP, lim) == -1) {
-        return -1;
+    if (receiveUDPPacket(response, this->addrUDP, this->socketUDP, lim)) {
+        return 1;
     }
-    if (packetIn.deserialize(response) == -1) {
+    if (packetIn.deserialize(response)) {
         std::cerr << PACKET_ERR << std::endl;
-        return -1;
+        return 1;
     }
     return 0;
 }
@@ -108,20 +108,20 @@ int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
 int UserState::sendAndReceiveTCPPacket(TCPPacket &packetOut,
                                        TCPPacket &packetIn) {
     std::string response;
-    if (this->openTCPSocket() == -1) {
-        return -1;
+    if (this->openTCPSocket()) {
+        return 1;
     }
     if (connect(this->socketTCP, this->addrTCP->ai_addr,
-                this->addrTCP->ai_addrlen) == -1) {
+                this->addrTCP->ai_addrlen)) {
         std::cerr << TCP_CONNECT_ERR << std::endl;
-        return -1;
+        return 1;
     }
-    if (packetOut.serialize(this->socketTCP) == -1) {
-        return -1;
+    if (packetOut.serialize(this->socketTCP)) {
+        return 1;
     }
-    if (packetIn.deserialize(this->socketTCP) == -1) {
+    if (packetIn.deserialize(this->socketTCP)) {
         std::cerr << PACKET_ERR << std::endl;
-        return -1;
+        return 1;
     }
     return this->closeTCPSocket();
 }

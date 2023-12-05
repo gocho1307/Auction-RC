@@ -112,10 +112,10 @@ class OPAPacket : public TCPPacket {
     std::string UID;
     std::string password;
     std::string auctionName;
-    int startValue;
-    int timeActive;
+    uint32_t startValue;
+    uint32_t timeActive;
     std::string assetfName;
-    size_t assetfSize;
+    uint32_t assetfSize;
     std::string assetfPath;
 
     int serialize(const int fd);
@@ -230,7 +230,7 @@ class BIDPacket : public TCPPacket {
     std::string UID;
     std::string password;
     std::string AID;
-    int value;
+    uint32_t value;
 
     int serialize(const int fd);
     int deserialize(const int fd);
@@ -262,7 +262,7 @@ class RSAPacket : public TCPPacket {
     static constexpr const char *ID = "RSA";
     std::string status;
     std::string assetfName;
-    size_t assetfSize;
+    uint32_t assetfSize;
 
     int serialize(const int fd);
     int deserialize(const int fd);
@@ -288,14 +288,14 @@ class RRCPacket : public UDPPacket {
     std::string hostUID;
     std::string auctionName;
     std::string assetfName;
-    int startValue;
+    uint32_t startValue;
     std::string calStartDate;
     std::string timeStartDate;
-    int timeActive;
+    uint32_t timeActive;
     std::vector<Bid> bids;
     std::string calEndDate;
     std::string timeEndDate;
-    int endSecTime;
+    uint32_t endSecTime;
 
     std::string serialize();
     int deserialize(std::string &buffer);
@@ -323,11 +323,11 @@ class ERRTCPPacket : public TCPPacket {
     }
 };
 
-int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, int fd);
+int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, const int fd);
 
-int receiveUDPPacket(std::string &response, struct addrinfo *res, int fd,
+int receiveUDPPacket(std::string &response, struct addrinfo *res, const int fd,
                      const size_t lim);
 
-int sendTCPPacket(const char *msg, const size_t len, int fd);
+int sendTCPPacket(const char *msg, const size_t len, const int fd);
 
 #endif // __PROTOCOL_HPP__

@@ -12,13 +12,13 @@ typedef struct {
 
 typedef struct {
     std::string bidderUID;
-    int value;
+    uint32_t value;
     std::string calDate;
     std::string timeDate;
-    int secTime;
+    uint32_t secTime;
 } Bid;
 
-int toInt(std::string intStr, int &num);
+int toInt(std::string intStr, uint32_t &num);
 
 std::string toDate(time_t seconds);
 
