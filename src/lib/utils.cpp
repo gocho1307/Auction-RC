@@ -181,3 +181,12 @@ void setupSigHandlers(void (*sigF)(int)) {
         return;
     }
 }
+
+std::string listAuctionsToString(std::vector<Auction> auctions) {
+    std::string output;
+    for (const Auction &auction : auctions) {
+        output += " " + auction.AID + " " + std::to_string(auction.state);
+    }
+
+    return output;
+}

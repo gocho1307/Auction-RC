@@ -524,8 +524,20 @@ std::string RLIPacket::serialize() {
 }
 
 int LINPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID) || readSpace(buffer)) {
+        return 1;
+    }
+
+    UID = readString(buffer);
+    if (UID.empty() || readSpace(buffer)) {
+        return 1;
+    }
+
+    password = readString(buffer);
+    if (password.empty()) {
+        return 1;
+    }
+
     return readNewLine(buffer) || !buffer.empty();
 }
 
@@ -534,8 +546,20 @@ std::string RLOPacket::serialize() {
 }
 
 int LOUPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID) || readSpace(buffer)) {
+        return 1;
+    }
+
+    UID = readString(buffer);
+    if (UID.empty() || readSpace(buffer)) {
+        return 1;
+    }
+
+    password = readString(buffer);
+    if (password.empty()) {
+        return 1;
+    }
+
     return readNewLine(buffer) || !buffer.empty();
 }
 
@@ -544,8 +568,20 @@ std::string RURPacket::serialize() {
 }
 
 int UNRPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID) || readSpace(buffer)) {
+        return 1;
+    }
+
+    UID = readString(buffer);
+    if (UID.empty() || readSpace(buffer)) {
+        return 1;
+    }
+
+    password = readString(buffer);
+    if (password.empty()) {
+        return 1;
+    }
+
     return readNewLine(buffer) || !buffer.empty();
 }
 
@@ -574,35 +610,49 @@ int CLSPacket::deserialize(const int fd) {
 }
 
 std::string RMAPacket::serialize() {
-    // TODO: implement
-    return "";
+    return std::string(ID) + " " + status + listAuctionsToString(auctions) +
+           "\n";
 }
 
 int LMAPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID) || readSpace(buffer)) {
+        return 1;
+    }
+
+    UID = readString(buffer);
+    if (UID.empty() || readSpace(buffer)) {
+        return 1;
+    }
     return readNewLine(buffer) || !buffer.empty();
 }
 
 std::string RMBPacket::serialize() {
-    // TODO: implement
-    return "";
+    return std::string(ID) + " " + status + listAuctionsToString(auctions) +
+           "\n";
 }
 
 int LMBPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID) || readSpace(buffer)) {
+        return 1;
+    }
+
+    UID = readString(buffer);
+    if (UID.empty()) {
+        return 1;
+    }
+
     return readNewLine(buffer) || !buffer.empty();
 }
 
 std::string RLSPacket::serialize() {
-    // TODO: implement
-    return "";
+    return std::string(ID) + " " + status + listAuctionsToString(auctions) +
+           "\n";
 }
 
 int LSTPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID)) {
+        return 1;
+    }
     return readNewLine(buffer) || !buffer.empty();
 }
 
@@ -631,13 +681,19 @@ int SASPacket::deserialize(const int fd) {
 }
 
 std::string RRCPacket::serialize() {
-    // TODO: implement
+    // TODO: implement NOW
     return "";
 }
 
 int SRCPacket::deserialize(std::string &buffer) {
-    (void)buffer;
-    // TODO: implement
+    if (readString(buffer) != std::string(ID) || readSpace(buffer)) {
+        return 1;
+    }
+
+    AID = readString(buffer);
+    if (AID.empty()) {
+        return 1;
+    }
     return readNewLine(buffer) || !buffer.empty();
 }
 

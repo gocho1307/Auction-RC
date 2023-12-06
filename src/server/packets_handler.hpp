@@ -7,7 +7,7 @@
 
 void handleLogin(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 void handleLogout(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleRegister(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleUnregister(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 void handleMyAuctions(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 void handleMyBids(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 void handleList(std::string &buffer, struct addrinfo *connection_addr, ServerState state);

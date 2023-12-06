@@ -74,7 +74,7 @@ void ServerState::registerPacketHandlers() {
     // UDP
     udp_packets_handler.insert({LINPacket::ID, handleLogin});
     udp_packets_handler.insert({LOUPacket::ID, handleLogout});
-    udp_packets_handler.insert({UNRPacket::ID, handleRegister});
+    udp_packets_handler.insert({UNRPacket::ID, handleUnregister});
     udp_packets_handler.insert({LMAPacket::ID, handleMyAuctions});
     udp_packets_handler.insert({LMBPacket::ID, handleMyBids});
     udp_packets_handler.insert({LSTPacket::ID, handleList});

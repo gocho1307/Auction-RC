@@ -123,9 +123,9 @@ int unregisterUser(std::string UID) {
     return 0;
 }
 
-int addHostedToUser(std::string UID, int AID, int base_value, int duration) {
-    std::string hosted_path =
-        "USERS/" + UID + "/HOSTED/" + std::to_string(AID) + ".txt";
+int addHostedToUser(std::string UID, std::string AID, int base_value,
+                    int duration) {
+    std::string hosted_path = "USERS/" + UID + "/HOSTED/" + AID + ".txt";
 
     std::ofstream file(hosted_path);
     if (!file.is_open()) {
@@ -137,9 +137,8 @@ int addHostedToUser(std::string UID, int AID, int base_value, int duration) {
     return 0;
 }
 
-int addBiddedToUser(std::string UID, int AID, int bid_value) {
-    std::string bidded_path =
-        "USERS/" + UID + "/BIDDED/" + std::to_string(AID) + ".txt";
+int addBiddedToUser(std::string UID, std::string AID, int bid_value) {
+    std::string bidded_path = "USERS/" + UID + "/BIDDED/" + AID + ".txt";
 
     std::ofstream file(bidded_path);
     if (!file.is_open()) {
@@ -148,6 +147,85 @@ int addBiddedToUser(std::string UID, int AID, int bid_value) {
 
     file << bid_value;
     file.close();
+    return 0;
+}
+
+int getUserHostedAuctions(std::string UID, std::vector<Auction> &auctions) {
+    std::string hosted_by_user_dir = "USERS/" + UID + "/HOSTED";
+
+    DIR *dir = opendir(hosted_by_user_dir.c_str());
+    if (dir == nullptr) {
+        return 1;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_type == DT_REG &&
+            std::string(entry->d_name).find(".txt") != std::string::npos) {
+
+            Auction new_auction;
+            new_auction.AID = entry->d_name;
+            new_auction.state =
+                (uint8_t)checkIfAuctionIsActive((std::string)entry->d_name) ? 1 : 0;
+            auctions.push_back(new_auction);
+        }
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+int getUserBiddedAuctions(std::string UID, std::vector<Auction> &auctions) {
+    std::string bidded_by_user_dir = "USERS/" + UID + "/BIDDED";
+
+    DIR *dir = opendir(bidded_by_user_dir.c_str());
+    if (dir == nullptr) {
+        return 1;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_type == DT_REG &&
+            std::string(entry->d_name).find(".txt") != std::string::npos) {
+
+            Auction new_auction;
+            new_auction.AID = entry->d_name;
+            new_auction.state =
+                (uint8_t)checkIfAuctionIsActive((std::string) entry->d_name) ? 1 : 0;
+            auctions.push_back(new_auction);
+        }
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+int getActiveAuctions(std::vector<Auction> &auctions) {
+    std::string bidded_by_user_dir = "AUCTIONS";
+
+    DIR *dir = opendir(bidded_by_user_dir.c_str());
+    if (dir == nullptr) {
+        return 1;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_type == DT_DIR &&
+            std::string(entry->d_name) != "." &&
+            std::string(entry->d_name) != "..") {
+
+            std::string folderName = entry->d_name;
+            
+            if(checkIfAuctionIsActive(entry->d_name)) {
+                Auction new_auction;
+                new_auction.AID = entry->d_name;
+                new_auction.state = (uint8_t) 1;
+                auctions.push_back(new_auction);
+            }
+        }
+    }
+
+    closedir(dir);
     return 0;
 }
 
@@ -173,9 +251,8 @@ bool checkIfPasswordMatch(std::string UID, std::string password_to_test) {
     return (stored_password == password_to_test);
 }
 
-bool checkIfUserHostedAuction(int AID, std::string UID) {
-    std::string auction_path =
-        "USERS/" + UID + "HOSTED/" + std::to_string(AID) + ".txt";
+bool checkIfUserHostedAuction(std::string AID, std::string UID) {
+    std::string auction_path = "USERS/" + UID + "HOSTED/" + AID + ".txt";
     return std::filesystem::exists(auction_path);
 }
 
@@ -184,8 +261,8 @@ bool checkIfUserIsLoggedIn(std::string UID) {
     return std::filesystem::exists(login_file_path);
 }
 
-int createAuctionDir(int AID, FileInfo fInfo, int start_value) {
-    std::string AID_dirname = "AUCTIONS/" + std::to_string(AID);
+int createAuctionDir(std::string AID, FileInfo fInfo, int start_value) {
+    std::string AID_dirname = "AUCTIONS/" + AID;
     if (std::filesystem::create_directory(AID_dirname) == false) {
         return 1;
     }
@@ -207,8 +284,7 @@ int createAuctionDir(int AID, FileInfo fInfo, int start_value) {
         return 1;
     }
 
-    std::string start_text_path = "AUCTIONS/" + std::to_string(AID) +
-                                  "/START_" + std::to_string(AID) + ".txt";
+    std::string start_text_path = "AUCTIONS/" + AID + "/START_" + AID + ".txt";
 
     std::ofstream file(start_text_path);
     if (!file.is_open()) {
@@ -221,9 +297,8 @@ int createAuctionDir(int AID, FileInfo fInfo, int start_value) {
     return 0;
 }
 
-int endAuction(int AID) {
-    std::string end_text_path = "AUCTIONS/" + std::to_string(AID) + "/END_" +
-                                std::to_string(AID) + ".txt";
+int endAuction(std::string AID) {
+    std::string end_text_path = "AUCTIONS/" + AID + "/END_" + AID + ".txt";
 
     std::ofstream file(end_text_path);
     if (!file.is_open()) {
@@ -234,9 +309,9 @@ int endAuction(int AID) {
     return 0;
 }
 
-int addBidToAuction(int AID, std::string user_that_bid, int bid_value) {
-    std::string bid_text_path = "AUCTIONS/" + std::to_string(AID) + "/BIDS/" +
-                                std::to_string(bid_value) + ".txt";
+int addBidToAuction(std::string AID, std::string user_that_bid, int bid_value) {
+    std::string bid_text_path =
+        "AUCTIONS/" + AID + "/BIDS/" + std::to_string(bid_value) + ".txt";
 
     std::ofstream file(bid_text_path);
     if (!file.is_open()) {
@@ -248,8 +323,7 @@ int addBidToAuction(int AID, std::string user_that_bid, int bid_value) {
 
     // Write in start text of auction the highest bid, deletes previous value
     // written in the start text
-    std::string start_text_path = "AUCTIONS/" + std::to_string(AID) +
-                                  "/START_" + std::to_string(AID) + ".txt";
+    std::string start_text_path = "AUCTIONS/" + AID + "/START_" + AID + ".txt";
 
     std::ofstream start_text_file(start_text_path, std::ios::trunc);
     if (!start_text_file.is_open()) {
@@ -261,20 +335,18 @@ int addBidToAuction(int AID, std::string user_that_bid, int bid_value) {
     return 0;
 }
 
-bool checkIfAuctionExists(int AID) {
-    std::string auction_dir = "AUCTIONS/" + std::to_string(AID);
+bool checkIfAuctionExists(std::string AID) {
+    std::string auction_dir = "AUCTIONS/" + AID;
     return std::filesystem::exists(auction_dir);
 }
 
-bool checkIfAuctionIsActive(int AID) {
-    std::string end_file = "AUCTIONS/" + std::to_string(AID) + "/END_" +
-                           std::to_string(AID) + ".txt";
+bool checkIfAuctionIsActive(std::string AID) {
+    std::string end_file = "AUCTIONS/" + AID + "/END_" + AID + ".txt";
     return !std::filesystem::exists(end_file);
 }
 
-bool isNewBidHigher(int AID, int bid_value) {
-    std::string start_text_path = "AUCTIONS/" + std::to_string(AID) +
-                                  "/START_" + std::to_string(AID) + ".txt";
+bool isNewBidHigher(std::string AID, int bid_value) {
+    std::string start_text_path = "AUCTIONS/" + AID + "/START_" + AID + ".txt";
 
     std::ifstream start_text_file(start_text_path);
     if (!start_text_file.is_open()) {
