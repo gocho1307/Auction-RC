@@ -113,7 +113,7 @@ class OPAPacket : public TCPPacket {
     std::string password;
     std::string auctionName;
     uint32_t startValue;
-    uint32_t timeActive;
+    uint32_t duration;
     std::string assetfName;
     uint32_t assetfSize;
     std::string assetfPath;
@@ -263,6 +263,7 @@ class RSAPacket : public TCPPacket {
     std::string status;
     std::string assetfName;
     uint32_t assetfSize;
+    std::string assetfPath;
 
     int serialize(const int fd);
     int deserialize(const int fd);
@@ -291,7 +292,7 @@ class RRCPacket : public UDPPacket {
     uint32_t startValue;
     std::string calStartDate;
     std::string timeStartDate;
-    uint32_t timeActive;
+    uint32_t duration;
     std::vector<Bid> bids;
     std::string calEndDate;
     std::string timeEndDate;

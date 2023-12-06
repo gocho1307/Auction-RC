@@ -3,16 +3,12 @@
 
 #include "../lib/utils.hpp"
 
-#include <string>
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <regex>
-#include <vector>
 #include <dirent.h>
+#include <iostream>
+#include <string>
+#include <unistd.h>
+#include <vector>
 
 typedef struct {
     std::string name;
@@ -29,12 +25,13 @@ int createUserDir(std::string UID, std::string password);
 int createLogin(std::string UID);
 int eraseLogin(std::string UID);
 int unregisterUser(std::string UID);
-int addHostedToUser(std::string UID, std::string AID, int base_value, int duration);
+int addHostedToUser(std::string UID, std::string AID, int base_value,
+                    int duration);
 int addBiddedToUser(std::string UID, std::string AID, int bid_value);
 int getUserHostedAuctions(std::string UID, std::vector<Auction> &auctions);
 int getUserBiddedAuctions(std::string UID, std::vector<Auction> &auctions);
 int getActiveAuctions(std::vector<Auction> &auctions);
-bool checkIfUserExists(const std::string UID); 
+bool checkIfUserExists(const std::string UID);
 bool checkIfPasswordMatch(std::string UID, std::string password_to_test);
 bool checkIfUserHostedAuction(std::string AID, std::string UID);
 bool checkIfUserIsLoggedIn(std::string UID);

@@ -42,6 +42,4 @@ int checkTimeDate(std::string timeDate);
 
 void setupSigHandlers(void (*sigF)(int));
 
-std::string listAuctionsToString(std::vector<Auction> auctions);
-
 #endif // __UTILS_HPP__

@@ -74,7 +74,6 @@
 #define OPEN_OK(aid) "New auction with the id of '" << aid << "' was created."
 #define OPEN_NOK "Could not open the auction."
 #define AID_ERR "Invalid auction id. Expected a 3 digit number."
-#define STATE_ERR "Invalid state. Expected either 0 or 1."
 #define CLOSE_OK "Auction closed successfully."
 #define CLOSE_EAU "The auction you tried to close does not exist."
 #define CLOSE_EOW "You cannot close auctions you do not own."

@@ -211,10 +211,10 @@ void openCommand(UserState &state) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
-    // TODO: check if timeActive can be equal to 0
-    uint32_t timeActive;
-    if (toInt(readToken(state.line), timeActive) || timeActive > MAX_DURATION ||
-        timeActive <= 0) {
+    // TODO: check if duration can be equal to 0
+    uint32_t duration;
+    if (toInt(readToken(state.line), duration) || duration > MAX_DURATION ||
+        duration <= 0) {
         std::cerr << DURATION_ERR << std::endl;
         return;
     }
@@ -224,7 +224,7 @@ void openCommand(UserState &state) {
     packetOut.auctionName = auctionName;
     packetOut.assetfPath = fPath;
     packetOut.startValue = startValue;
-    packetOut.timeActive = timeActive;
+    packetOut.duration = duration;
     ROAPacket packetIn;
     if (state.sendAndReceiveTCPPacket(packetOut, packetIn)) {
         return;
@@ -427,7 +427,7 @@ void showRecordCommand(UserState &state) {
                   << " | start value: " << packetIn.startValue
                   << " | start date time: " << packetIn.calStartDate << " "
                   << packetIn.timeStartDate
-                  << " | time active: " << packetIn.timeActive << std::endl;
+                  << " | time active: " << packetIn.duration << std::endl;
         if (!packetIn.calEndDate.empty()) {
             std::cout << "end date time: " << packetIn.calEndDate << " "
                       << packetIn.timeEndDate

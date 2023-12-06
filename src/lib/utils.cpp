@@ -96,7 +96,7 @@ int checkAID(std::string aid) {
 }
 
 int checkAuctionName(std::string auctionName) {
-    if (auctionName.length() > MAX_NAME_LEN) {
+    if (auctionName.length() > MAX_AUCTION_NAME_LEN) {
         std::cerr << NAME_ERR << std::endl;
         return 1;
     }
@@ -122,15 +122,19 @@ int checkFilePath(std::string fPath) {
 }
 
 int checkFileName(std::string fName) {
-    if (fName.length() > MAX_FILE_NAME_LEN) {
+    size_t fNameLen = fName.length();
+    if (fNameLen > MAX_FILE_NAME_LEN) {
         std::cerr << FILE_NAME_ERR << std::endl;
         return 1;
     }
     char c;
-    for (size_t i = 0; i < MAX_FILE_NAME_LEN; ++i) {
+    for (size_t i = 0; i < fNameLen; ++i) {
         c = fName.at(i);
-        if (!isalnum(c) || c != '-' || c != '_' ||
-            (i == MAX_FILE_NAME_LEN - 4 && c != '.')) {
+        if (!isalnum(c) && c != '-' && c != '_' && c != '.') {
+            std::cerr << FILE_NAME_ERR << std::endl;
+            return 1;
+        }
+        if (i == fNameLen - FILE_EXTENSION_LEN - 1 && c != '.') {
             std::cerr << FILE_NAME_ERR << std::endl;
             return 1;
         }
@@ -180,13 +184,4 @@ void setupSigHandlers(void (*sigF)(int)) {
         std::cerr << SIGACTION_ERR << std::endl;
         return;
     }
-}
-
-std::string listAuctionsToString(std::vector<Auction> auctions) {
-    std::string output;
-    for (const Auction &auction : auctions) {
-        output += " " + auction.AID + " " + std::to_string(auction.state);
-    }
-
-    return output;
 }

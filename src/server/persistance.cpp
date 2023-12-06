@@ -132,7 +132,7 @@ int addHostedToUser(std::string UID, std::string AID, int base_value,
         return 1;
     }
 
-    file << base_value + "\n" + duration;
+    file << std::to_string(base_value) + "\n" + std::to_string(duration);
     file.close();
     return 0;
 }
@@ -166,7 +166,8 @@ int getUserHostedAuctions(std::string UID, std::vector<Auction> &auctions) {
             Auction new_auction;
             new_auction.AID = entry->d_name;
             new_auction.state =
-                (uint8_t)checkIfAuctionIsActive((std::string)entry->d_name) ? 1 : 0;
+                (uint8_t)checkIfAuctionIsActive((std::string)entry->d_name) ? 1
+                                                                            : 0;
             auctions.push_back(new_auction);
         }
     }
@@ -191,7 +192,8 @@ int getUserBiddedAuctions(std::string UID, std::vector<Auction> &auctions) {
             Auction new_auction;
             new_auction.AID = entry->d_name;
             new_auction.state =
-                (uint8_t)checkIfAuctionIsActive((std::string) entry->d_name) ? 1 : 0;
+                (uint8_t)checkIfAuctionIsActive((std::string)entry->d_name) ? 1
+                                                                            : 0;
             auctions.push_back(new_auction);
         }
     }
@@ -210,16 +212,15 @@ int getActiveAuctions(std::vector<Auction> &auctions) {
 
     struct dirent *entry;
     while ((entry = readdir(dir)) != nullptr) {
-        if (entry->d_type == DT_DIR &&
-            std::string(entry->d_name) != "." &&
+        if (entry->d_type == DT_DIR && std::string(entry->d_name) != "." &&
             std::string(entry->d_name) != "..") {
 
             std::string folderName = entry->d_name;
-            
-            if(checkIfAuctionIsActive(entry->d_name)) {
+
+            if (checkIfAuctionIsActive(entry->d_name)) {
                 Auction new_auction;
                 new_auction.AID = entry->d_name;
-                new_auction.state = (uint8_t) 1;
+                new_auction.state = (uint8_t)1;
                 auctions.push_back(new_auction);
             }
         }
