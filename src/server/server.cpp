@@ -89,6 +89,7 @@ void awaitTCPPacket() {
 }
 
 void awaitUDPPacket() {
+    std::cout << "Entrou aquii" << std::endl;
     Address connection_addr;
     char buffer[128];
 

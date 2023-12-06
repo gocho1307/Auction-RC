@@ -46,7 +46,8 @@ void ServerState::resolveServerAddress() {
 
     if (bind(this->socketUDP, this->addrUDP->ai_addr,
              this->addrUDP->ai_addrlen) == -1) {
-        std::cerr << UDP_BIND_ERR << std::endl;
+        std::cerr << "Error binding UDP socket: ";
+        perror(""); // This will print the error description
         exit(EXIT_FAILURE);
     }
 
