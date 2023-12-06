@@ -6,6 +6,7 @@
 
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <string.h>
 #include <thread>
 #include <unistd.h>
 
@@ -89,14 +90,12 @@ void awaitTCPPacket() {
 }
 
 void awaitUDPPacket() {
-    std::cout << "Entrou aquii" << std::endl;
-    Address connection_addr;
     char buffer[128];
+    socklen_t addrlen;
+    struct sockaddr_in addr;
 
-    connection_addr.size = sizeof(connection_addr.addr);
     ssize_t n = recvfrom(state.socketUDP, buffer, 128, 0,
-                         (struct sockaddr *)&connection_addr.addr,
-                         &connection_addr.size);
+                         (struct sockaddr *)&addr, &addrlen);
 
     if (!state.shutDown) {
         return;
@@ -109,17 +108,27 @@ void awaitUDPPacket() {
         std::cerr << UDP_CONNECION_ERR << std::endl;
     }
 
+    struct addrinfo *connection_addr = new struct addrinfo;
+    memset(connection_addr, 0, sizeof(struct addrinfo));
+    connection_addr->ai_family = AF_UNSPEC;
+    connection_addr->ai_socktype = SOCK_DGRAM;
+    connection_addr->ai_addr = (struct sockaddr *)&addr;
+    connection_addr->ai_addrlen = addrlen;
+
+    /*
     connection_addr.socket = state.socketUDP;
     char addr_str[INET_ADDRSTRLEN + 1] = {0};
     inet_ntop(AF_INET, &connection_addr.addr.sin_addr, addr_str,
               INET_ADDRSTRLEN);
     std::cout << UDP_CONNECTION << addr_str << ":"
               << ntohs(connection_addr.addr.sin_port) << std::endl;
+    */
 
     std::string packet_id(buffer, 3);
     std::string buffer_str(buffer);
 
-    return state.processUDPPacket(packet_id, buffer_str, connection_addr);
+    return state.processUDPPacket(packet_id, buffer_str, connection_addr,
+                                  state);
 }
 
 void printHelp(std::ostream &stream, char *programPath) {

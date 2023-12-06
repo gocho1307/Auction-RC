@@ -3,6 +3,8 @@
 
 #include <netdb.h>
 #include <unordered_map>
+#include <string>
+#include <sys/socket.h>
 
 #include "../lib/constants.hpp"
 #include "../lib/protocol.hpp"
@@ -14,7 +16,7 @@ class Address {
     socklen_t size;
 };
 
-typedef void (*UDPPacketHandler)(std::string &, Address &);
+typedef void (*UDPPacketHandler)(std::string &, struct addrinfo*, class ServerState);
 typedef void (*TCPPacketHandler)(int connection_fd);
 
 class ServerState {
@@ -36,10 +38,11 @@ class ServerState {
     void resolveServerAddress();
     void registerPacketHandlers();
     void processUDPPacket(std::string packet_id, std::string &buffer,
-                          Address &connection_addr);
+                          struct addrinfo *connection_addr, ServerState state);
     void processTCPPacket(std::string packet_id, int connection_fd);
 
     ~ServerState();
 };
+
 
 #endif // __SERVER_STATE_HPP__

@@ -82,7 +82,7 @@ class RLOPacket : public UDPPacket {
     int deserialize(std::string &buffer);
 };
 
-// Send register packet (UNR)
+// Send unregister packet (UNR)
 #define UNR_LEN 21
 class UNRPacket : public UDPPacket {
   public:
@@ -94,7 +94,7 @@ class UNRPacket : public UDPPacket {
     int deserialize(std::string &buffer);
 };
 
-// Receive register packet (RUR)
+// Receive unregister packet (RUR)
 #define RUR_LEN 9
 class RURPacket : public UDPPacket {
   public:

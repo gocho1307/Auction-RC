@@ -27,9 +27,11 @@ int eraseLogin(std::string UID);
 int unregisterUser(std::string UID);
 int addHostedToUser(std::string UID, int AID, int base_value, int duration);
 int addBiddedToUser(std::string UID, int AID, int bid_value);
+int getHostedAuctions(std::string UID);
 bool checkIfUserExists(const std::string UID); 
 bool checkIfPasswordMatch(std::string UID, std::string password_to_test);
 bool checkIfUserHostedAuction(int AID, std::string UID);
+bool checkIfUserIsLoggedIn(std::string UID);
 
 // Auctions
 int createAuctionDir(int AID, FileInfo fInfo, int start_value);

@@ -5,13 +5,13 @@
 
 // UDP
 
-void handleLogin(std::string &buffer, Address &addr_from);
-void handleLogout(std::string &buffer, Address &addr_from);
-void handleRegister(std::string &buffer, Address &addr_from);
-void handleMyAuctions(std::string &buffer, Address &addr_from);
-void handleMyBids(std::string &buffer, Address &addr_from);
-void handleList(std::string &buffer, Address &addr_from);
-void handleShowRecord(std::string &buffer, Address &addr_from);
+void handleLogin(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleLogout(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleRegister(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleMyAuctions(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleMyBids(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleList(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+void handleShowRecord(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 
 // TCP
 

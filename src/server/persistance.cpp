@@ -179,6 +179,11 @@ bool checkIfUserHostedAuction(int AID, std::string UID) {
     return std::filesystem::exists(auction_path);
 }
 
+bool checkIfUserIsLoggedIn(std::string UID) {
+    std::string login_file_path = "USERS/" + UID + "/" + UID + "_login.txt";
+    return std::filesystem::exists(login_file_path);
+}
+
 int createAuctionDir(int AID, FileInfo fInfo, int start_value) {
     std::string AID_dirname = "AUCTIONS/" + std::to_string(AID);
     if (std::filesystem::create_directory(AID_dirname) == false) {
@@ -262,7 +267,8 @@ bool checkIfAuctionExists(int AID) {
 }
 
 bool checkIfAuctionIsActive(int AID) {
-    std::string end_file = "AUCTIONS/" + std::to_string(AID) + "/END_" + std::to_string(AID) + ".txt";
+    std::string end_file = "AUCTIONS/" + std::to_string(AID) + "/END_" +
+                           std::to_string(AID) + ".txt";
     return !std::filesystem::exists(end_file);
 }
 
@@ -281,4 +287,3 @@ bool isNewBidHigher(int AID, int bid_value) {
     start_text_file.close();
     return bid_value > current_bid_value;
 }
-

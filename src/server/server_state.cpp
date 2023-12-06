@@ -88,13 +88,14 @@ void ServerState::registerPacketHandlers() {
 }
 
 void ServerState::processUDPPacket(std::string packet_id, std::string &buffer,
-                                   Address &connection_addr) {
+                                   struct addrinfo *connection_addr,
+                                   ServerState state) {
     if (udp_packets_handler.count(packet_id) == 0) {
         std::cerr << UNKNOWN_PACKET_ERR << std::endl;
         return;
     }
 
-    udp_packets_handler[packet_id](buffer, connection_addr);
+    udp_packets_handler[packet_id](buffer, connection_addr, state);
 }
 
 void ServerState::processTCPPacket(std::string packet_id, int connection_fd) {
