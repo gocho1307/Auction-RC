@@ -125,7 +125,7 @@ class OPAPacket : public TCPPacket {
 // Receive open packet (ROA)
 class ROAPacket : public TCPPacket {
   public:
-    static constexpr const char *ID = "AID";
+    static constexpr const char *ID = "ROA";
     std::string status;
     std::string AID;
 

@@ -126,7 +126,7 @@ int TCPPacket::sendFile(std::string fPath, const int fd) {
     std::filesystem::path p(fPath);
     std::string fName = p.filename();
     size_t fSize = (size_t)std::filesystem::file_size(p);
-    std::string msg = fName + " " + std::to_string((int)fSize) + " ";
+    std::string msg = fName + " " + std::to_string(fSize) + " ";
     if (sendTCPPacket(msg.c_str(), msg.length(), fd)) {
         file.close();
         std::cerr << FILE_ERR << std::endl;
@@ -136,7 +136,7 @@ int TCPPacket::sendFile(std::string fPath, const int fd) {
     ssize_t read;
     ssize_t sent;
     char buffer[FILE_BUFFER_SIZE];
-    std::cout << "Upload is in progress..." << std::endl;
+    std::cout << "Upload is in progress...";
     while (file) {
         file.read(buffer, FILE_BUFFER_SIZE);
         read = (ssize_t)file.gcount();
@@ -149,14 +149,9 @@ int TCPPacket::sendFile(std::string fPath, const int fd) {
                 return 1;
             }
             sent += n;
-
-            // Upload bar
-            for (size_t i = 0; i < ((size_t)n / fSize) * 50; ++i) {
-                std::cout << "-";
-            }
         }
     }
-    std::cout << std::endl;
+    std::cout << " 100%" << std::endl;
     char newLine = '\n';
     if (sendTCPPacket(&newLine, 1, fd)) {
         file.close();
@@ -178,7 +173,7 @@ int TCPPacket::receiveFile(std::string fName, size_t fSize, const int fd) {
     ssize_t gotRead;
     char buffer[FILE_BUFFER_SIZE];
 
-    std::cout << "Download is in progress..." << std::endl;
+    std::cout << "Download is in progress...";
     while (remaining > 0) {
         toRead = std::min(remaining, (size_t)FILE_BUFFER_SIZE);
         gotRead = read(fd, buffer, toRead);
@@ -194,11 +189,6 @@ int TCPPacket::receiveFile(std::string fName, size_t fSize, const int fd) {
             return 1;
         }
         remaining -= (size_t)gotRead;
-
-        // Download bar
-        for (size_t i = 0; i < ((size_t)gotRead / fSize) * 50; ++i) {
-            std::cout << "-";
-        }
     }
     std::cout << " 100%" << std::endl;
     file.close();
@@ -415,7 +405,6 @@ int RRCPacket::deserialize(std::string &buffer) {
     if (checkFileName(assetfName) || readSpace(buffer)) {
         return 1;
     }
-    // TODO (previous): check if start value can be zero
     std::string strStartValue = readString(buffer);
     if (toInt(strStartValue, startValue) || startValue > MAX_VAL ||
         readSpace(buffer)) {
@@ -429,7 +418,6 @@ int RRCPacket::deserialize(std::string &buffer) {
     if (checkTimeDate(timeStartDate) || readSpace(buffer)) {
         return 1;
     }
-    // TODO (previous): check if time active can be zero
     std::string strTimeActive = readString(buffer);
     if (toInt(strTimeActive, duration) || duration > MAX_DURATION) {
         return 1;
@@ -492,7 +480,7 @@ int RRCPacket::deserialize(std::string &buffer) {
             return 1;
         }
     } while (!buffer.empty() && buffer.front() != '\n' &&
-             ++i < MAX_BIDS_LISTINGS);
+             ++i <= MAX_BIDS_LISTINGS);
     return readNewLine(buffer);
 }
 
@@ -571,12 +559,10 @@ int OPAPacket::deserialize(const int fd) {
     if (checkAuctionName(auctionName) || readSpace(fd)) {
         return 1;
     }
-    // TODO (previous): check if start value can be zero
     std::string strStartValue = readString(fd, MAX_VAL_DIGS);
     if (toInt(strStartValue, startValue) || startValue > MAX_VAL) {
         return 1;
     }
-    // TODO (previous): check if time active can be zero
     std::string strTimeActive = readString(fd, MAX_DURATION_DIGS);
     if (toInt(strTimeActive, duration) || duration > MAX_DURATION) {
         return 1;
@@ -668,7 +654,6 @@ int BIDPacket::deserialize(const int fd) {
     if (checkAID(AID) || readSpace(fd)) {
         return 1;
     }
-    // TODO (previous): check if time active can be zero
     std::string strValue = readString(fd, MAX_VAL_DIGS);
     if (toInt(strValue, value) || value > MAX_VAL) {
         return 1;
@@ -691,9 +676,22 @@ int SASPacket::deserialize(const int fd) {
 }
 
 std::string RRCPacket::serialize() {
-    // TODO: implement
-    // NOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    return "";
+    std::string msg = std::string(ID) + " " + status;
+    if (status == "OK") {
+        msg += " " + hostUID + " " + auctionName + " " + assetfName + " " +
+               std::to_string(startValue) + " " + calStartDate + " " +
+               timeStartDate + " " + std::to_string(duration);
+        for (const Bid &bid : bids) {
+            msg += " B " + bid.bidderUID + " " + std::to_string(bid.value) +
+                   " " + bid.calDate + " " + bid.timeDate + " " +
+                   std::to_string(bid.secTime);
+        }
+        if (!calEndDate.empty()) {
+            msg += " E " + calEndDate + " " + timeEndDate + " " +
+                   std::to_string(endSecTime);
+        }
+    }
+    return msg + "\n";
 }
 
 int SRCPacket::deserialize(std::string &buffer) {

@@ -143,8 +143,9 @@ int checkFileName(std::string fName) {
 }
 
 int checkCalDate(std::string calDate) {
+    struct tm t;
     if (calDate.empty() || calDate.length() != CAL_DATE_LEN ||
-        !strptime(calDate.c_str(), "%Y-%m-%d", NULL)) {
+        !strptime(calDate.c_str(), "%Y-%m-%d", &t)) {
         std::cerr << CAL_DATE_ERR << std::endl;
         return 1;
     }
@@ -152,8 +153,9 @@ int checkCalDate(std::string calDate) {
 }
 
 int checkTimeDate(std::string timeDate) {
+    struct tm t;
     if (timeDate.empty() || timeDate.length() != TIME_DATE_LEN ||
-        !strptime(timeDate.c_str(), "%H:%M:%S", NULL)) {
+        !strptime(timeDate.c_str(), "%H:%M:%S", &t)) {
         std::cerr << TIME_DATE_ERR << std::endl;
         return 1;
     }

@@ -204,23 +204,20 @@ void openCommand(UserState &state) {
     if (checkFilePath(fPath)) {
         return;
     }
-    // TODO: check if startValue can be equal to 0
     uint32_t startValue;
-    if (toInt(readToken(state.line), startValue) || startValue > MAX_VAL ||
-        startValue <= 0) {
+    if (toInt(readToken(state.line), startValue) || startValue > MAX_VAL) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
-    // TODO: check if duration can be equal to 0
     uint32_t duration;
-    if (toInt(readToken(state.line), duration) || duration > MAX_DURATION ||
-        duration <= 0) {
+    if (toInt(readToken(state.line), duration) || duration > MAX_DURATION) {
         std::cerr << DURATION_ERR << std::endl;
         return;
     }
 
     OPAPacket packetOut;
     packetOut.UID = state.UID;
+    packetOut.password = state.password;
     packetOut.auctionName = auctionName;
     packetOut.assetfPath = fPath;
     packetOut.startValue = startValue;
@@ -419,13 +416,13 @@ void showRecordCommand(UserState &state) {
     }
 
     if (packetIn.status == "OK") {
-        std::cout << "General information about requested auction:"
+        std::cout << "General information about the requested auction:"
                   << std::endl;
         std::cout << "host UID: " << packetIn.hostUID
                   << " | auction name: " << packetIn.auctionName
                   << " | asset file name: " << packetIn.assetfName
-                  << " | start value: " << packetIn.startValue
-                  << " | start date time: " << packetIn.calStartDate << " "
+                  << " | start value: " << packetIn.startValue << std::endl
+                  << "start date time: " << packetIn.calStartDate << " "
                   << packetIn.timeStartDate
                   << " | time active: " << packetIn.duration << std::endl;
         if (!packetIn.calEndDate.empty()) {
@@ -435,13 +432,14 @@ void showRecordCommand(UserState &state) {
         }
         int i = 0;
         for (Bid bid : packetIn.bids) {
-            std::cout << i++ << " -----------------------------------------"
+            std::cout << "-----------------------------------------------------"
+                         "----------"
                       << std::endl;
+            std::cout << "Bid number " << ++i << ":" << std::endl;
             std::cout << "bidder UID: " << bid.bidderUID
-                      << " | bid value: " << bid.value
-                      << " | bid date time: " << bid.calDate << " "
-                      << bid.timeDate << " | bid seconds: " << bid.secTime
-                      << std::endl;
+                      << " | bid value: " << bid.value << std::endl
+                      << "bid date time: " << bid.calDate << " " << bid.timeDate
+                      << " | bid seconds: " << bid.secTime << std::endl;
         }
     } else if (packetIn.status == "NOK") {
         std::cerr << SHOW_RECORD_NOK << std::endl;
