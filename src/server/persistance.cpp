@@ -236,7 +236,7 @@ bool checkIfUserExists(const std::string UID) {
 }
 
 bool checkIfPasswordMatch(std::string UID, std::string password_to_test) {
-    std::string pass_file_path = "USERS" + UID + "/" + UID + "_pass.txt";
+    std::string pass_file_path = "USERS/" + UID + "/" + UID + "_pass.txt";
 
     std::ifstream password_file(pass_file_path);
     if (!password_file.is_open()) {
