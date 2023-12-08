@@ -43,12 +43,12 @@ LDFLAGS = -std=c++17
 LDFLAGS += $(INCLUDES)
 LDFLAGS += -pthread
 
-# optional debug symbols: run make DEBUG=yes to activate them
+# Optional debug symbols: run make DEBUG=yes to activate them
 ifeq ($(strip $(DEBUG)), yes)
   CXXFLAGS += -g -fsanitize=address
 endif
 
-# optional O3 optimization symbols: run make OPTIM=no to deactivate them
+# Optional O3 optimization symbols: run make OPTIM=no to deactivate them
 ifeq ($(strip $(OPTIM)), no)
   CXXFLAGS += -O0
 else
@@ -57,7 +57,7 @@ endif
 
 .PHONY: all clean fmt fmt-check package
 
-# must be the first target in the Makefile
+# Must be the first target in the Makefile
 all: $(TARGET_EXECS)
 
 $(USER_EXEC): $(USER_OBJECTS) $(LIB_OBJECTS)
@@ -67,7 +67,12 @@ $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 clean:
-	rm -f $(TARGET_EXECS) $(OBJECTS) proj_075.zip *.txt *.jpg *.png *.mp4
+	rm -f $(TARGET_EXECS) $(OBJECTS)
+	# Remove artifacts
+	rm -f proj_075.zip *.txt *.jpg *.png *.mp4
+
+clean-serverdata:
+	rm -rf USERS AUCTIONS
 
 fmt: $(SOURCES) $(HEADERS)
 	$(FORMATTER) -i $^
@@ -76,5 +81,4 @@ fmt-check: $(SOURCES) $(HEADERS)
 	$(FORMATTER) -n --Werror $^
 
 package: clean
-	cp README.md readme.txt
-	zip proj_075.zip $(SOURCES) $(HEADERS) Makefile .clang-format readme.txt docs/*.xlsx
+	zip proj_075.zip $(SOURCES) $(HEADERS) Makefile .clang-format README.md docs/*.xlsx
