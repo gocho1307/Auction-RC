@@ -67,7 +67,7 @@ $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 clean:
-	rm -f $(TARGET_EXECS) $(OBJECTS) proj_075.zip *.txt *.jpg *.png
+	rm -f $(TARGET_EXECS) $(OBJECTS) proj_075.zip *.txt *.jpg *.png *.mp4
 
 fmt: $(SOURCES) $(HEADERS)
 	$(FORMATTER) -i $^

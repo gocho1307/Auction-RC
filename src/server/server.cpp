@@ -97,8 +97,9 @@ void awaitUDPPacket() {
     memset(connection_addr, 0, sizeof(struct addrinfo));
     connection_addr->ai_family = AF_UNSPEC;
     connection_addr->ai_socktype = SOCK_DGRAM;
-    ssize_t n = recvfrom(state.socketUDP, buffer, 21, 0,
-                         connection_addr->ai_addr, &connection_addr->ai_addrlen);
+    ssize_t n =
+        recvfrom(state.socketUDP, buffer, 21, 0, connection_addr->ai_addr,
+                 &connection_addr->ai_addrlen);
 
     if (n == -1) {
         if (errno == EAGAIN) { // timeout

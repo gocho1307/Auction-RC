@@ -281,7 +281,7 @@ class SRCPacket : public UDPPacket {
 };
 
 // Receive showRecord packet (RRC)
-#define RRC_LEN 2163
+#define RRC_LEN 2213
 class RRCPacket : public UDPPacket {
   public:
     static constexpr const char *ID = "RRC";

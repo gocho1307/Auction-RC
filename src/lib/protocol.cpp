@@ -45,7 +45,7 @@ int UDPPacket::readNewLine(std::string &buffer) {
         return 1;
     }
     buffer.erase(buffer.begin());
-    return !buffer.empty();
+    return 0;
 }
 
 int UDPPacket::readAuctions(std::string &buffer,
@@ -736,8 +736,13 @@ int receiveUDPPacket(std::string &response, struct addrinfo *res, const int fd,
         return 1;
     }
     char msg[lim + 1] = {0};
-    if (recvfrom(fd, msg, lim, 0, res->ai_addr, &res->ai_addrlen) == -1) {
+    ssize_t n;
+    if ((n = recvfrom(fd, msg, lim, 0, res->ai_addr, &res->ai_addrlen)) == -1) {
         std::cerr << RECVFROM_ERR << std::endl;
+        return 1;
+    }
+    if (n == lim) {
+        std::cerr << PACKET_ERR << std::endl;
         return 1;
     }
     response = msg;
