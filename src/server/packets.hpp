@@ -1,10 +1,16 @@
-#ifndef __PACKETS_HANDLER_HPP__
-#define __PACKETS_HANDLER_HPP__
+#ifndef __PACKETS_HPP__
+#define __PACKETS_HPP__
 
 #include "server_state.hpp"
 
-// UDP
+typedef void (*UDPPacketHandler)(std::string &, struct addrinfo *,
+                                 class ServerState);
+typedef std::map<std::string, UDPPacketHandler> UDPPacketsManager;
 
+typedef void (*TCPPacketHandler)(int connection_fd);
+typedef std::map<std::string, TCPPacketHandler> TCPPacketsManager;
+
+// UDP
 void handleLogin(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 void handleLogout(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 void handleUnregister(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
@@ -14,10 +20,9 @@ void handleList(std::string &buffer, struct addrinfo *connection_addr, ServerSta
 void handleShowRecord(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
 
 // TCP
-
 void handleOpenAuction(int connection_fd);
 void handleCloseAuction(int connection_fd);
 void handleBid(int connection_fd);
 void handleShowAsset(int connection_fd);
 
-#endif // __PACKETS_HANDLER_HPP__
+#endif // __PACKETS_HPP__

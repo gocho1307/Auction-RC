@@ -26,10 +26,11 @@
 #define TIME_DATE_LEN (8)
 #define MAX_BIDS_LISTINGS (50)
 
-#define TCP_READ_TIMEOUT_SECS (10)
-#define TCP_WRITE_TIMEOUT_SECS (10 * 60) // 10 minutes
+#define SERVER_READ_TIMEOUT_SECS (5)
+#define SERVER_WRITE_TIMEOUT_SECS (5)
+#define USER_READ_TIMEOUT_SECS (10)
+#define USER_WRITE_TIMEOUT_SECS (5 * 60) // 5 minutes
 
-// Same as in-class exercise, TODO: don't know if we should change
 #define MAX_TCP_QUEUE (5)
 
 #endif // __CONSTANTS_HPP__

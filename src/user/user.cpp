@@ -13,11 +13,8 @@ int main(int argc, char *argv[]) {
 
     state.readOpts(argc, argv);
     checkPort(state.port);
+    state.openUDPSocket();
     state.getServerAddresses();
-    if ((state.socketUDP = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-        std::cerr << SOCKET_CREATE_ERR << std::endl;
-        return EXIT_FAILURE;
-    }
 
     if (state.host.compare(DEFAULT_AS_HOST) == 0) {
         std::cout << DEFAULT_AS_HOST_STR << std::endl;
@@ -34,7 +31,7 @@ int main(int argc, char *argv[]) {
         interpretCommand(state);
     }
 
-    std::cout << std::endl << SHUTDOWN_STR << std::endl;
+    std::cout << std::endl << SHUTDOWN_USER << std::endl;
 
     if (state.loggedIn) {
         logoutCommand(state);

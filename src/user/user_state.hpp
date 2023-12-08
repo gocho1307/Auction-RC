@@ -25,6 +25,7 @@ class UserState {
 
     void readOpts(int argc, char *argv[]);
     void getServerAddresses();
+    void openUDPSocket();
     int openTCPSocket();
     int closeTCPSocket();
     int sendAndReceiveUDPPacket(UDPPacket &packetOut, UDPPacket &packetIn,

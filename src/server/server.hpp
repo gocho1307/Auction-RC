@@ -3,17 +3,18 @@
 
 #include <iostream>
 
-/*
-    Shows how to run the server.
-*/
+void mainUDP();
+
+void mainTCP();
+
+// void awaitUDPPacket();
+//
+// void awaitTCPPacket();
+//
+// void handlePacket();
+
 void printHelp(std::ostream &stream, char *programPath);
 
-void tcp();
-
-void awaitUDPPacket();
-
-void awaitTCPPacket();
-
-void handlePacket();
+void shutDownSigHandler(int sig);
 
 #endif // __SERVER_HPP__

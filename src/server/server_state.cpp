@@ -1,6 +1,6 @@
 #include "server_state.hpp"
 #include "../lib/messages.hpp"
-#include "packets_handler.hpp"
+#include "packets.hpp"
 #include "server.hpp"
 
 #include <cstring>
@@ -11,13 +11,13 @@
 
 void ServerState::readOpts(int argc, char *argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "p:v:h")) != -1) {
+    while ((opt = getopt(argc, argv, "p:vh")) != -1) {
         switch (opt) {
         case 'p':
             this->port = std::string(optarg);
             break;
         case 'v':
-            this->verbose_mode = true;
+            this->cverbose.active = true;
             break;
         case 'h':
             printHelp(std::cout, argv[0]);
@@ -29,25 +29,67 @@ void ServerState::readOpts(int argc, char *argv[]) {
     }
 }
 
-void ServerState::resolveServerAddress() {
+void ServerState::openUDPSocket() {
+    if ((this->socketUDP = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+        std::cerr << SOCKET_CREATE_ERR << strerror(errno) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    struct timeval UDPTimeout;
+    memset(&UDPTimeout, 0, sizeof(UDPTimeout));
+    UDPTimeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
+    UDPTimeout.tv_usec = 0;
+    if (setsockopt(this->socketUDP, SOL_SOCKET, SO_RCVTIMEO, &UDPTimeout,
+                   sizeof(UDPTimeout)) < 0) {
+        std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void ServerState::openTCPSocket() {
+    if ((this->socketTCP = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        std::cerr << SOCKET_CREATE_ERR << strerror(errno) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    const int flag = 1;
+    if (setsockopt(this->socketTCP, SOL_SOCKET, SO_REUSEADDR, &flag,
+                   sizeof(int)) < 0) {
+        std::cerr << SOCKET_REUSE_ERR << strerror(errno) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    // struct timeval TCPTimeout;
+    // memset(&TCPTimeout, 0, sizeof(TCPTimeout));
+    // TCPTimeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
+    // TCPTimeout.tv_usec = 0;
+    // if (setsockopt(this->socketTCP, SOL_SOCKET, SO_RCVTIMEO, &TCPTimeout,
+    //                sizeof(TCPTimeout)) < 0) {
+    //     std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
+    //     exit(EXIT_FAILURE);
+    // }
+    // TCPTimeout.tv_sec = SERVER_WRITE_TIMEOUT_SECS;
+    // TCPTimeout.tv_usec = 0;
+    // if (setsockopt(this->socketTCP, SOL_SOCKET, SO_SNDTIMEO, &TCPTimeout,
+    //                sizeof(TCPTimeout)) < 0) {
+    //     std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
+    //     exit(EXIT_FAILURE);
+    // }
+}
+
+void ServerState::getServerAddresses() {
     struct addrinfo hints;
     int res;
-    const char *port_str = port.c_str();
 
     // Get UDP address
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_INET;      // IPv4
     hints.ai_socktype = SOCK_DGRAM; // UDP socket
     hints.ai_flags = AI_PASSIVE;    // Listen on 0.0.0.0
-    if ((res = getaddrinfo(NULL, port_str, &hints, &this->addrUDP)) != 0) {
+    if ((res = getaddrinfo(NULL, port.c_str(), &hints, &this->addrUDP)) != 0) {
         std::cerr << GETADDRINFO_UDP_ERR << gai_strerror(res) << std::endl;
         exit(EXIT_FAILURE);
     }
-
     if (bind(this->socketUDP, this->addrUDP->ai_addr,
              this->addrUDP->ai_addrlen) == -1) {
-        std::cerr << "Error binding UDP socket: ";
-        perror(""); // This will print the error description
+        std::cerr << UDP_BIND_ERR << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -60,51 +102,14 @@ void ServerState::resolveServerAddress() {
         std::cerr << GETADDRINFO_TCP_ERR << gai_strerror(res) << std::endl;
         exit(EXIT_FAILURE);
     }
-
     if (bind(this->socketTCP, this->addrTCP->ai_addr,
              this->addrTCP->ai_addrlen) == -1) {
-        std::cerr << TCP_BIND_ERR << std::endl;
+        std::cerr << TCP_BIND_ERR << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Listening for connections on port " << port << std::endl;
-}
-
-void ServerState::registerPacketHandlers() {
-    // UDP
-    udp_packets_handler.insert({LINPacket::ID, handleLogin});
-    udp_packets_handler.insert({LOUPacket::ID, handleLogout});
-    udp_packets_handler.insert({UNRPacket::ID, handleUnregister});
-    udp_packets_handler.insert({LMAPacket::ID, handleMyAuctions});
-    udp_packets_handler.insert({LMBPacket::ID, handleMyBids});
-    udp_packets_handler.insert({LSTPacket::ID, handleList});
-    udp_packets_handler.insert({SRCPacket::ID, handleShowRecord});
-
-    // TCP
-    tcp_packets_handler.insert({OPAPacket::ID, handleOpenAuction});
-    tcp_packets_handler.insert({CLSPacket::ID, handleCloseAuction});
-    tcp_packets_handler.insert({BIDPacket::ID, handleBid});
-    tcp_packets_handler.insert({SASPacket::ID, handleShowAsset});
-}
-
-void ServerState::processUDPPacket(std::string packet_id, std::string &buffer,
-                                   struct addrinfo *connection_addr,
-                                   ServerState state) {
-    if (udp_packets_handler.count(packet_id) == 0) {
-        std::cerr << UNKNOWN_PACKET_ERR << std::endl;
-        return;
-    }
-
-    udp_packets_handler[packet_id](buffer, connection_addr, state);
-}
-
-void ServerState::processTCPPacket(std::string packet_id, int connection_fd) {
-    if (tcp_packets_handler.count(packet_id) == 0) {
-        std::cerr << UNKNOWN_PACKET_ERR << std::endl;
-        return;
-    }
-
-    tcp_packets_handler[packet_id](connection_fd);
+    std::cout << "[INFO] Starting to listen for connections on port: " << port
+              << std::endl;
 }
 
 ServerState::~ServerState() {

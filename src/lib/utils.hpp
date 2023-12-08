@@ -3,7 +3,15 @@
 
 #include <cstdint>
 #include <string>
+#include <netdb.h>
 #include <vector>
+
+class Address {
+  public:
+    int socket;
+    struct sockaddr_in addr;
+    socklen_t addrlen = sizeof(addr);
+};
 
 typedef struct {
     std::string AID;

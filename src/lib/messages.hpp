@@ -5,14 +5,15 @@
 
 #define DEFAULT_AS_HOST_STR "[INFO] Could not find ASIP address, using default host: " << DEFAULT_AS_HOST
 #define DEFAULT_AS_PORT_STR "[INFO] Could not find ASport number, using default port: " << DEFAULT_AS_PORT
-#define SHUTDOWN_STR "Closing the user application..."
+#define SHUTDOWN_USER "Closing the user application..."
 #define SHUTDOWN_SERVER "Closing the server application..."
 
 #define GETADDRINFO_UDP_ERR "[ERR] Failed to get address for UDP connection: "
 #define GETADDRINFO_TCP_ERR "[ERR] Failed to get address for TCP connection: "
-#define SOCKET_CREATE_ERR "[ERR] Failed to create socket."
-#define SOCKET_CLOSE_ERR "[ERR] Failed to close socket."
-#define SOCKET_TIMEOUT_ERR "[ERR] Failed to set socket timeout."
+#define SOCKET_CREATE_ERR "[ERR] Failed to create socket: "
+#define SOCKET_CLOSE_ERR "[ERR] Failed to close socket: "
+#define SOCKET_TIMEOUT_ERR "[ERR] Failed to set socket timeout: "
+#define SOCKET_REUSE_ERR "[ERR] Failed to set reuse address socket option: "
 #define TCP_CONNECT_ERR "[ERR] Failed to establish TCP connection."
 #define PORT_ERR "[ERR] Invalid port number."
 #define READING_ERR "[ERR] An unexpected error occured while reading a string."
@@ -25,11 +26,10 @@
 #define PACKET_ERR "[ERR] An error occured with the structure of the packet. Please try again..."
 #define FILE_SIZE_ERR "[ERR] Invalid file size received for the data."
 #define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
+#define TCP_BIND_ERR "[ERR] Failed to bind TCP address: "
+#define UDP_BIND_ERR "[ERR] Failed to bind UDP address: "
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
-#define TCP_BIND_ERR "[ERR] Failed to bind TCP address."
-#define UDP_BIND_ERR "[ERR] Failed to bind UDP address."
-#define TCP_CONNECION_ERR "[ERR] Failed to accept a TCP connection."
-#define UDP_CONNECION_ERR "[ERR] Failed to receive a message from a UDP connection."
+#define TCP_CONNECTION_ERR "[ERR] Failed to accept a TCP connection."
 #define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 
 #define TCP_CONNECTION "Receiving TCP connection from: "
