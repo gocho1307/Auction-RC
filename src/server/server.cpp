@@ -1,13 +1,12 @@
 #include "server.hpp"
-#include "../lib/constants.hpp"
 #include "../lib/messages.hpp"
-#include "../lib/utils.hpp"
 #include "packets.hpp"
-#include "server_state.hpp"
 
+#include <algorithm>
 #include <arpa/inet.h>
-#include <netdb.h>
-#include <string.h>
+#include <cstring>
+#include <sys/select.h>
+#include <sys/socket.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -31,73 +30,104 @@ int main(int argc, char *argv[]) {
                   << std::endl;
         return EXIT_FAILURE;
     } else if (pid == 0) { // Child (TCP listener)
-        while (!state.shutDown) {
-            mainTCP();
-        }
+        mainTCP();
         return EXIT_SUCCESS;
     } else { // Parent (UDP listener)
-        while (!state.shutDown) {
-            mainUDP();
-        }
+        mainUDP();
     }
 
     wait(NULL);
-    std::cout << std::endl << SHUTDOWN_SERVER << std::endl;
-
     return EXIT_SUCCESS;
 }
 
 void mainUDP() {
-    // LIN_LEN is the max size of a UDP message the server should receive
-    char buffer[LIN_LEN + 1] = {0};
+    while (!state.shutDown) {
+        // LIN_LEN is the max size of a UDP message the server should receive
+        char buffer[LIN_LEN + 1] = {0};
 
-    Address UDPFrom;
-    ssize_t n = recvfrom(state.socketUDP, buffer, LIN_LEN, 0,
-                         (struct sockaddr *)&UDPFrom.addr, &UDPFrom.addrlen);
-    if (n == -1) {
-        if (errno == EAGAIN) { // timeout
+        Address UDPFrom;
+        ssize_t n =
+            recvfrom(state.socketUDP, buffer, LIN_LEN, 0,
+                     (struct sockaddr *)&UDPFrom.addr, &UDPFrom.addrlen);
+        if (n == -1) {
+            if (errno == EAGAIN) { // timeout
+                return;
+            }
+            std::cerr << RECVFROM_ERR << std::endl;
             return;
         }
-        std::cerr << RECVFROM_ERR << std::endl;
-        return;
-    }
-    if (n <= PACKET_ID_LEN || n == LIN_LEN) { // invalid Packet size
-        ERRUDPPacket err;
-        sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
-                      state.socketUDP);
-        std::cerr << PACKET_ERR << std::endl;
-        return;
-    }
+        if (n <= PACKET_ID_LEN || n == LIN_LEN) { // invalid Packet size
+            ERRUDPPacket err;
+            sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr,
+                          UDPFrom.addrlen, state.socketUDP);
+            std::cerr << PACKET_ERR << std::endl;
+            return;
+        }
 
-    char strAddr[INET_ADDRSTRLEN + 1] = {0};
-    inet_ntop(AF_INET, &UDPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
-    std::cout << UDP_CONNECTION << strAddr << ":"
-              << ntohs(UDPFrom.addr.sin_port) << std::endl;
+        char strAddr[INET_ADDRSTRLEN + 1] = {0};
+        inet_ntop(AF_INET, &UDPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
+        std::cout << UDP_CONNECTION << strAddr << ":"
+                  << ntohs(UDPFrom.addr.sin_port) << std::endl;
 
-    std::string msg(buffer);
-    interpretUDPPacket(state, msg, UDPFrom);
+        std::string msg(buffer);
+        interpretUDPPacket(state, msg, UDPFrom);
+    }
+    std::cout << std::endl << SHUTDOWN_UDP_SERVER << std::endl;
 }
 
 void mainTCP() {
-    Address TCPFrom;
-    int fd = accept(state.socketTCP, (struct sockaddr *)&TCPFrom.addr,
-                    &TCPFrom.addrlen);
-    if (fd < 0) {
-        if (errno == EAGAIN) { // timeout
-            return;
-        }
-        std::cerr << TCP_ACCEPT_ERR << std::endl;
+    if (listen(state.socketTCP, MAX_TCP_QUEUE) == -1) {
+        std::cerr << TCP_LISTEN_ERR << std::endl;
         return;
     }
 
-    char addr_str[INET_ADDRSTRLEN + 1] = {0};
-    inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, addr_str, INET_ADDRSTRLEN);
-    std::cout << TCP_CONNECTION << addr_str << ":"
-              << ntohs(TCPFrom.addr.sin_port) << std::endl;
+    int fds, maxfd, newfd = -1;
+    fd_set rdfs;
+    struct timeval timeout;
+    while (!state.shutDown) {
+        FD_ZERO(&rdfs);
+        FD_SET(state.socketTCP, &rdfs);
+        maxfd = state.socketTCP;
+        if (newfd != -1) {
+            FD_SET(newfd, &rdfs);
+            maxfd = std::max(maxfd, newfd);
+        }
 
-    // TODO: handle packet somehow here
+        memset(&timeout, 0, sizeof(timeout));
+        timeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
+        fds =
+            select(maxfd + 1, &rdfs, (fd_set *)NULL, (fd_set *)NULL, &timeout);
+        if (fds == -1) {
+            std::cerr << SELECT_ERR << strerror(errno) << std::endl;
+            return;
+        }
+        if (fds == 0) {
+            continue; // timeout
+        }
 
-    close(fd);
+        if (FD_ISSET(state.socketTCP, &rdfs)) {
+            Address TCPFrom;
+            if ((newfd =
+                     accept(state.socketTCP, (struct sockaddr *)&TCPFrom.addr,
+                            &TCPFrom.addrlen)) == -1) {
+                std::cerr << TCP_ACCEPT_ERR << std::endl;
+                return;
+            }
+            memset(&timeout, 0, sizeof(timeout));
+            timeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
+            if (setsockopt(newfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,
+                           sizeof(timeout)) < 0) {
+                std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
+                return;
+            }
+        }
+        if (FD_ISSET(newfd, &rdfs)) {
+            interpretTCPPacket(state, newfd);
+            close(newfd);
+            newfd = -1;
+        }
+    }
+    std::cout << std::endl << SHUTDOWN_TCP_SERVER << std::endl;
 }
 
 void printHelp(std::ostream &stream, char *programPath) {

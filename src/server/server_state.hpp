@@ -1,28 +1,38 @@
 #ifndef __SERVER_STATE_HPP__
 #define __SERVER_STATE_HPP__
 
-#include <iostream>
-#include <map>
-#include <netdb.h>
-#include <string>
-#include <sys/socket.h>
-
 #include "../lib/constants.hpp"
 #include "../lib/protocol.hpp"
+
+#include <iostream>
+#include <netdb.h>
+#include <string>
 
 class VerboseStream {
   public:
     bool active = false;
 
-    template <class T> VerboseStream &operator<<(T val) {
+    template <class T> VerboseStream &operator<<(T rhs) {
         if (active) {
-            std::cout << val;
+            std::cout << rhs;
         }
         return *this;
     }
-    VerboseStream &operator<<(std::ostream &(*f)(std::ostream &)) {
+    VerboseStream &operator<<(std::ostream &(*pf)(std::ostream &)) {
         if (active) {
-            f(std::cout);
+            pf(std::cout);
+        }
+        return *this;
+    }
+    VerboseStream &operator<<(std::ostream &(*pf)(std::ios &)) {
+        if (active) {
+            pf(std::cout);
+        }
+        return *this;
+    }
+    VerboseStream &operator<<(std::ostream &(*pf)(std::ios_base &)) {
+        if (active) {
+            pf(std::cout);
         }
         return *this;
     }

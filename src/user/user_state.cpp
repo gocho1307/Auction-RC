@@ -37,7 +37,6 @@ void UserState::openUDPSocket() {
     struct timeval timeout;
     memset(&timeout, 0, sizeof(timeout));
     timeout.tv_sec = USER_READ_TIMEOUT_SECS;
-    timeout.tv_usec = 0;
     if (setsockopt(this->socketUDP, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                    sizeof(timeout)) != 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
@@ -53,7 +52,6 @@ int UserState::openTCPSocket() {
     struct timeval timeout;
     memset(&timeout, 0, sizeof(timeout));
     timeout.tv_sec = USER_READ_TIMEOUT_SECS;
-    timeout.tv_usec = 0;
     if (setsockopt(this->socketTCP, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                    sizeof(timeout)) != 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;

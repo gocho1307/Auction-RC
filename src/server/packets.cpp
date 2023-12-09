@@ -3,6 +3,7 @@
 #include "../lib/protocol.hpp"
 #include "persistance.hpp"
 #include "server_state.hpp"
+#include <unistd.h>
 
 UDPPacketsHandler UDPHandler = {{"LIN", LINHandler}, {"LOU", LOUHandler},
                                 {"UNR", UNRHandler}, {"LMA", LMAHandler},
@@ -17,30 +18,41 @@ void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
     std::string packetID(msg, 3);
     msg.erase(0, 3);
 
-    if (UDPHandler.find(packetID) == UDPHandler.end() ||
-        UDPHandler[packetID](state, msg, UDPFrom)) {
+    if (UDPHandler.find(packetID) == UDPHandler.end()) {
         ERRUDPPacket err;
         sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                       state.socketUDP);
         std::cerr << PACKET_ERR << std::endl;
+        return;
     }
+    UDPHandler[packetID](state, msg, UDPFrom);
 }
 
 void interpretTCPPacket(ServerState &state, const int fd) {
-    (void)state;
-    (void)fd;
-    // TODO
+    char c;
+    std::string packetID;
+    int n = PACKET_ID_LEN;
+    while (n-- > 0 && read(fd, &c, 1)) {
+        packetID.push_back(c);
+    }
+
+    if (packetID.length() != PACKET_ID_LEN ||
+        TCPHandler.find(packetID) == TCPHandler.end()) {
+        ERRUDPPacket err;
+        err.serialize();
+        std::cerr << PACKET_ERR << std::endl;
+        return;
+    }
+    TCPHandler[packetID](state, fd);
 }
 
-int LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LINPacket packetIn;
     RLIPacket packetOut;
 
     if (packetIn.deserialize(msg)) {
-        return 1;
-    }
-
-    if (!checkIfUserExists(packetIn.UID)) {
+        packetOut.status = "ERR";
+    } else if (!checkIfUserExists(packetIn.UID)) {
         if (createUserDir(packetIn.UID, packetIn.password)) {
             packetOut.status = "ERR";
         } else {
@@ -53,19 +65,17 @@ int LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
     } else {
         packetOut.status = "OK";
     }
-    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
-                         UDPFrom.addrlen, state.socketUDP);
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-int LOUHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void LOUHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LOUPacket packetIn;
     RLOPacket packetOut;
 
     if (packetIn.deserialize(msg)) {
-        return 1;
-    }
-
-    if (!checkIfUserExists(packetIn.UID)) {
+        packetOut.status = "ERR";
+    } else if (!checkIfUserExists(packetIn.UID)) {
         packetOut.status = "UNR";
     } else if (!checkIfUserIsLoggedIn(packetIn.UID)) {
         packetOut.status = "NOK";
@@ -74,19 +84,17 @@ int LOUHandler(ServerState &state, std::string msg, Address UDPFrom) {
     } else {
         packetOut.status = "OK";
     }
-    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
-                         UDPFrom.addrlen, state.socketUDP);
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-int UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
     UNRPacket packetIn;
     RURPacket packetOut;
 
     if (packetIn.deserialize(msg)) {
-        return 1;
-    }
-
-    if (!checkIfUserExists(packetIn.UID)) {
+        packetOut.status = "ERR";
+    } else if (!checkIfUserExists(packetIn.UID)) {
         packetOut.status = "UNR";
     } else if (!checkIfUserIsLoggedIn(packetIn.UID)) {
         packetOut.status = "NOK";
@@ -95,20 +103,18 @@ int UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
     } else {
         packetOut.status = "OK";
     }
-    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
-                         UDPFrom.addrlen, state.socketUDP);
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-int LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LMAPacket packetIn;
     RMAPacket packetOut;
 
-    if (packetIn.deserialize(msg)) {
-        return 1;
-    }
-
     std::vector<Auction> auctions;
-    if (!checkIfUserIsLoggedIn(packetIn.UID)) {
+    if (packetIn.deserialize(msg)) {
+        packetOut.status = "ERR";
+    } else if (!checkIfUserIsLoggedIn(packetIn.UID)) {
         packetOut.status = "NLG";
     } else if (getUserHostedAuctions(packetIn.UID, auctions)) {
         packetOut.status = "ERR";
@@ -118,20 +124,18 @@ int LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.auctions = auctions;
     }
-    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
-                         UDPFrom.addrlen, state.socketUDP);
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-int LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LMBPacket packetIn;
     RMBPacket packetOut;
 
-    if (packetIn.deserialize(msg)) {
-        return 1;
-    }
-
     std::vector<Auction> auctions;
-    if (!checkIfUserIsLoggedIn(packetIn.UID)) {
+    if (packetIn.deserialize(msg)) {
+        packetOut.status = "ERR";
+    } else if (!checkIfUserIsLoggedIn(packetIn.UID)) {
         packetOut.status = "NLG";
     } else if (getUserBiddedAuctions(packetIn.UID, auctions)) {
         packetOut.status = "ERR";
@@ -141,20 +145,18 @@ int LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.auctions = auctions;
     }
-    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
-                         UDPFrom.addrlen, state.socketUDP);
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-int LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LSTPacket packetIn;
     RLSPacket packetOut;
 
-    if (packetIn.deserialize(msg)) {
-        return 1;
-    }
-
     std::vector<Auction> auctions;
-    if (getActiveAuctions(auctions)) {
+    if (packetIn.deserialize(msg)) {
+        packetOut.status = "ERR";
+    } else if (getActiveAuctions(auctions)) {
         packetOut.status = "ERR";
     } else if (auctions.empty()) {
         packetOut.status = "NOK";
@@ -162,42 +164,37 @@ int LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.auctions = auctions;
     }
-    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
-                         UDPFrom.addrlen, state.socketUDP);
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-int SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
+void SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
     (void)state;
     (void)msg;
     (void)UDPFrom;
-    // TODO
-    return 0;
+    // TODO: implement
 }
 
-int OPAHandler(ServerState &state, const int fd) {
+void OPAHandler(ServerState &state, const int fd) {
     (void)state;
     (void)fd;
-    // TODO
-    return 0;
+    // TODO: implement
 }
 
-int CLSHandler(ServerState &state, const int fd) {
+void CLSHandler(ServerState &state, const int fd) {
     (void)state;
     (void)fd;
-    // TODO
-    return 0;
+    // TODO: implement
 }
 
-int BIDHandler(ServerState &state, const int fd) {
+void BIDHandler(ServerState &state, const int fd) {
     (void)state;
     (void)fd;
-    // TODO
-    return 0;
+    // TODO: implement
 }
 
-int SASHandler(ServerState &state, const int fd) {
+void SASHandler(ServerState &state, const int fd) {
     (void)state;
     (void)fd;
-    // TODO
-    return 0;
+    // TODO: implement
 }

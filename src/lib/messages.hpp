@@ -6,7 +6,8 @@
 #define DEFAULT_AS_HOST_STR "[INFO] Could not find ASIP address, using default host: " << DEFAULT_AS_HOST
 #define DEFAULT_AS_PORT_STR "[INFO] Could not find ASport number, using default port: " << DEFAULT_AS_PORT
 #define SHUTDOWN_USER "Closing the user application..."
-#define SHUTDOWN_SERVER "Closing the server application..."
+#define SHUTDOWN_UDP_SERVER "Closing the UDP server..."
+#define SHUTDOWN_TCP_SERVER "Closing the TCP server..."
 
 #define GETADDRINFO_UDP_ERR "[ERR] Failed to get address for UDP connection: "
 #define GETADDRINFO_TCP_ERR "[ERR] Failed to get address for TCP connection: "
@@ -31,6 +32,7 @@
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
 #define TCP_ACCEPT_ERR "[ERR] Failed to accept a TCP connection."
 #define CREATE_DIR_ERR "[ERR] Failed creating directory: "
+#define SELECT_ERR "[ERR] An error occured while calling select(): "
 
 #define TCP_CONNECTION "Receiving TCP connection from: "
 #define UDP_CONNECTION "Receiving UDP connection from: "
