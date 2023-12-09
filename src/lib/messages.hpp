@@ -25,7 +25,7 @@
 #define READ_ERR "[ERR] Failed to receive message via TCP."
 #define FILE_ERR "[ERR] Failed to process the file."
 #define PACKET_ERR "[ERR] An error occured with the structure of the packet. Please try again..."
-#define FILE_SIZE_ERR "[ERR] Invalid file size received for the data."
+#define FILE_SIZE_ERR "[ERR] Invalid file size. The maximum size is 10MB."
 #define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
 #define TCP_BIND_ERR "[ERR] Failed to bind TCP address: "
 #define UDP_BIND_ERR "[ERR] Failed to bind UDP address: "

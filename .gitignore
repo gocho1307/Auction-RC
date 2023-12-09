@@ -3,10 +3,7 @@
 *.out
 user
 AS
-*.txt
-*.jpg
-*.png
-*.mp4
+readme.txt
 *.zip
 USERS
 AUCTIONS

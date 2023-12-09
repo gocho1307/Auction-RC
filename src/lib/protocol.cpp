@@ -126,6 +126,11 @@ int TCPPacket::sendFile(std::string fPath, const int fd) {
     std::filesystem::path p(fPath);
     std::string fName = p.filename();
     size_t fSize = (size_t)std::filesystem::file_size(p);
+    if (fSize > MAX_FILE_SIZE) {
+        file.close();
+        std::cerr << FILE_SIZE_ERR << std::endl;
+        return 1;
+    }
     std::string msg = fName + " " + std::to_string(fSize) + " ";
     if (sendTCPPacket(msg.c_str(), msg.length(), fd)) {
         file.close();
