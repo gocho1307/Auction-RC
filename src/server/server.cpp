@@ -84,6 +84,7 @@ void mainTCP() {
     int fds, maxfd, newfd = -1;
     fd_set rdfs;
     struct timeval timeout;
+    Address TCPFrom;
     while (!state.shutDown) {
         FD_ZERO(&rdfs);
         FD_SET(state.socketTCP, &rdfs);
@@ -102,26 +103,25 @@ void mainTCP() {
             return;
         }
         if (fds == 0) {
+            // TODO: search the data base for expired auctions
             continue; // timeout
         }
 
         if (FD_ISSET(state.socketTCP, &rdfs)) {
-            Address TCPFrom;
             if ((newfd =
                      accept(state.socketTCP, (struct sockaddr *)&TCPFrom.addr,
                             &TCPFrom.addrlen)) == -1) {
                 std::cerr << TCP_ACCEPT_ERR << std::endl;
                 return;
             }
-            memset(&timeout, 0, sizeof(timeout));
-            timeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
-            if (setsockopt(newfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,
-                           sizeof(timeout)) < 0) {
-                std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
-                return;
-            }
         }
         if (FD_ISSET(newfd, &rdfs)) {
+            char strAddr[INET_ADDRSTRLEN + 1] = {0};
+            inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, strAddr,
+                      INET_ADDRSTRLEN);
+            std::cout << TCP_CONNECTION << strAddr << ":"
+                      << ntohs(TCPFrom.addr.sin_port) << std::endl;
+
             interpretTCPPacket(state, newfd);
             close(newfd);
             newfd = -1;

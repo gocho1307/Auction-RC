@@ -34,8 +34,8 @@
 #define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 #define SELECT_ERR "[ERR] An error occured while calling select(): "
 
-#define TCP_CONNECTION "Receiving TCP connection from: "
-#define UDP_CONNECTION "Receiving UDP connection from: "
+#define TCP_CONNECTION "Receiving TCP connection from "
+#define UDP_CONNECTION "Receiving UDP connection from "
 
 #define UNEXPECTED_COMMAND_ERR(commandName) "The command '" << commandName << "' is not supported by this application."
 #define LOGIN_ERR "A user is already logged in. To log into another account, please log out first."
