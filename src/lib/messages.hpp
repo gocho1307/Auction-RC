@@ -3,8 +3,12 @@
 
 #include "constants.hpp"
 
-#define DEFAULT_AS_HOST_STR "[INFO] Could not find ASIP address, using default host: " << DEFAULT_AS_HOST
-#define DEFAULT_AS_PORT_STR "[INFO] Could not find ASport number, using default port: " << DEFAULT_AS_PORT
+#define DEFAULT_AS_HOST_STR                                                    \
+    "[INFO] Could not find ASIP address, using default host: "                 \
+        << DEFAULT_AS_HOST
+#define DEFAULT_AS_PORT_STR                                                    \
+    "[INFO] Could not find ASport number, using default port: "                \
+        << DEFAULT_AS_PORT
 #define SHUTDOWN_USER "Closing the user application..."
 #define SHUTDOWN_UDP_SERVER "Closing the UDP server..."
 #define SHUTDOWN_TCP_SERVER "Closing the TCP server..."
@@ -24,7 +28,9 @@
 #define WRITE_ERR "[ERR] Failed to send message via TCP."
 #define READ_ERR "[ERR] Failed to receive message via TCP."
 #define FILE_ERR "[ERR] Failed to process the file."
-#define PACKET_ERR "[ERR] An error occured with the structure of the packet. Please try again..."
+#define PACKET_ERR                                                             \
+    "[ERR] An error occured with the structure of the packet. Please try "     \
+    "again..."
 #define FILE_SIZE_ERR "[ERR] Invalid file size. The maximum size is 10MB."
 #define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
 #define TCP_BIND_ERR "[ERR] Failed to bind TCP address: "
@@ -37,8 +43,11 @@
 #define TCP_CONNECTION "Receiving TCP connection from "
 #define UDP_CONNECTION "Receiving UDP connection from "
 
-#define UNEXPECTED_COMMAND_ERR(commandName) "The command '" << commandName << "' is not supported by this application."
-#define LOGIN_ERR "A user is already logged in. To log into another account, please log out first."
+#define UNEXPECTED_COMMAND_ERR(commandName)                                    \
+    "The command '" << commandName << "' is not supported by this application."
+#define LOGIN_ERR                                                              \
+    "A user is already logged in. To log into another account, please log "    \
+    "out first."
 #define UID_ERR "Invalid user ID. Expected a 6 digit positive number."
 #define PASSWORD_ERR "Invalid password. Expected 8 alphanumeric characters."
 #define LOGIN_OK "Logged in successfully."
@@ -49,12 +58,21 @@
 #define NO_LOGIN "No user is currently logged in."
 #define NOT_LOGGED "User is not logged in."
 #define NO_REG(user) "User '" << user << "' is not registered."
-#define EXIT_ERR "A user is still logged in, please make sure to logout before exitting the application."
-#define NAME_ERR "Invalid description. Expected up to 10 alphanumeric characters."
-#define FILE_NAME_ERR "Invalid file name. Expected up to 24 alphanumeric characters (plus '-', '_' and '.') with a 3-letter extension."
+#define EXIT_ERR                                                               \
+    "A user is still logged in, please make sure to logout before exitting "   \
+    "the application."
+#define NAME_ERR                                                               \
+    "Invalid description. Expected up to 10 alphanumeric characters."
+#define FILE_NAME_ERR                                                          \
+    "Invalid file name. Expected up to 24 alphanumeric characters (plus '-', " \
+    "'_' and '.') with a 3-letter extension."
 #define FILE_EXISTANCE_ERR "The given file doesn't exist."
-#define START_VAL_ERR "Invalid start value for the auction. Expected a positive value with up to 6 digits."
-#define DURATION_ERR "Invalid duration (in seconds) for the auction. Expected a positive value with up to 5 digits."
+#define START_VAL_ERR                                                          \
+    "Invalid start value for the auction. Expected a positive value with up "  \
+    "to 6 digits."
+#define DURATION_ERR                                                           \
+    "Invalid duration (in seconds) for the auction. Expected a positive "      \
+    "value with up to 5 digits."
 #define OPEN_OK(aid) "New auction with the id of '" << aid << "' was created."
 #define OPEN_NOK "Could not open the auction."
 #define AID_ERR "Invalid auction id. Expected a 3 digit number."
@@ -64,7 +82,8 @@
 #define CLOSE_END "This auction is already closed."
 #define MYAUCTIONS_OK "Here are your ongoing auctions:"
 #define MYAUCTIONS_NOK "You do not have any ongoing auctions."
-#define MYBIDS_OK "Here are the ongoing auctions in which you have placed a bid:"
+#define MYBIDS_OK                                                              \
+    "Here are the ongoing auctions in which you have placed a bid:"
 #define MYBIDS_NOK "You do not have any ongoing bids."
 #define LIST_OK "Here are all the auctions:"
 #define LIST_NOK "There are no active auctions."
@@ -74,10 +93,12 @@
 #define BID_ILG "You cannot bid on an auction that you hosted."
 #define CAL_DATE_ERR "Invalid calendar date. Expected YYYY-MM-DD format."
 #define TIME_DATE_ERR "Invalid time. Expected HH:MM:SS format."
-#define SHOW_ASSET_NOK "Some problem occured transfering the asset file. Please try again..."
-#define SHOW_ASSET_OK(fName, fSize) "Successfully transfered the file." << std::endl  \
-                                        << "The file's name is '" << fName            \
-                                        << "' and it occupies '" << fSize             \
+#define SHOW_ASSET_NOK                                                         \
+    "Some problem occured transfering the asset file. Please try again..."
+#define SHOW_ASSET_OK(fName, fSize)                                            \
+    "Successfully transfered the file." << std::endl                           \
+                                        << "The file's name is '" << fName     \
+                                        << "' and it occupies '" << fSize      \
                                         << "' bytes."
 #define SHOW_RECORD_NOK "The specified auction does not exist."
 

@@ -15,10 +15,10 @@ SERVER_SOURCES := $(wildcard $(SRC)/server/*.cpp)
 LIB_SOURCES := $(wildcard $(SRC)/lib/*.cpp)
 SOURCES := $(USER_SOURCES) $(SERVER_SOURCES) $(LIB_SOURCES)
 
-USER_HEADERS := $(USER_SOURCES:.cpp=.hpp)
-SERVER_HEADERS := $(SERVER_SOURCES:.cpp=.hpp)
-LIB_HEADERS := $(LIB_SOURCES:.cpp=.hpp)
-HEADERS := $(USER_HEADERS) $(SERVER_SOURCES) $(LIB_HEADERS)
+USER_HEADERS := $(wildcard $(SRC)/user/*.hpp)
+SERVER_HEADERS := $(wildcard $(SRC)/server/*.hpp)
+LIB_HEADERS := $(wildcard $(SRC)/lib/*.hpp)
+HEADERS := $(USER_HEADERS) $(SERVER_HEADERS) $(LIB_HEADERS)
 
 USER_OBJECTS := $(USER_SOURCES:.cpp=.o)
 SERVER_OBJECTS := $(SERVER_SOURCES:.cpp=.o)
@@ -55,7 +55,7 @@ else
   CXXFLAGS += -O3
 endif
 
-.PHONY: all clean fmt fmt-check package
+.PHONY: all clean clean-data fmt fmt-check package
 
 # Must be the first target in the Makefile
 all: $(TARGET_EXECS)
