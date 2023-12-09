@@ -4,24 +4,24 @@
 
 #include <iostream>
 
-CommandsHandler handler = {{"login", loginCommand},
-                           {"logout", logoutCommand},
-                           {"unregister", unregisterCommand},
-                           {"exit", exitCommand},
-                           {"open", openCommand},
-                           {"close", closeCommand},
-                           {"myauctions", myAuctionsCommand},
-                           {"ma", myAuctionsCommand},
-                           {"mybids", myBidsCommand},
-                           {"mb", myBidsCommand},
-                           {"list", listCommand},
-                           {"l", listCommand},
-                           {"show_asset", showAssetCommand},
-                           {"sa", showAssetCommand},
-                           {"bid", bidCommand},
-                           {"b", bidCommand},
-                           {"show_record", showRecordCommand},
-                           {"sr", showRecordCommand}};
+CommandsHandler handler = {{"login", loginHandler},
+                           {"logout", logoutHandler},
+                           {"unregister", unregisterHandler},
+                           {"exit", exitHandler},
+                           {"open", openHandler},
+                           {"close", closeHandler},
+                           {"myauctions", myAuctionsHandler},
+                           {"ma", myAuctionsHandler},
+                           {"mybids", myBidsHandler},
+                           {"mb", myBidsHandler},
+                           {"list", listHandler},
+                           {"l", listHandler},
+                           {"show_asset", showAssetHandler},
+                           {"sa", showAssetHandler},
+                           {"bid", bidHandler},
+                           {"b", bidHandler},
+                           {"show_record", showRecordHandler},
+                           {"sr", showRecordHandler}};
 
 std::string readToken(std::string &line) {
     std::string str = "";
@@ -36,7 +36,7 @@ std::string readToken(std::string &line) {
     return str;
 }
 
-void helpCommand() {
+void helpHandler() {
     std::cout << std::endl << "Available commands:" << std::endl;
 
     std::cout << "  - login <UID> <password>\t"
@@ -93,7 +93,7 @@ void interpretCommand(UserState &state) {
     handler[commandName](state);
 }
 
-void loginCommand(UserState &state) {
+void loginHandler(UserState &state) {
     if (state.loggedIn) {
         std::cerr << LOGIN_ERR << std::endl;
         return;
@@ -131,7 +131,7 @@ void loginCommand(UserState &state) {
     state.password = password;
 }
 
-void logoutCommand(UserState &state) {
+void logoutHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -157,7 +157,7 @@ void logoutCommand(UserState &state) {
     state.loggedIn = false;
 }
 
-void unregisterCommand(UserState &state) {
+void unregisterHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -183,7 +183,7 @@ void unregisterCommand(UserState &state) {
     state.loggedIn = false;
 }
 
-void exitCommand(UserState &state) {
+void exitHandler(UserState &state) {
     if (state.loggedIn) {
         std::cerr << EXIT_ERR << std::endl;
         return;
@@ -191,7 +191,7 @@ void exitCommand(UserState &state) {
     state.shutDown = true;
 }
 
-void openCommand(UserState &state) {
+void openHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -238,7 +238,7 @@ void openCommand(UserState &state) {
     }
 }
 
-void closeCommand(UserState &state) {
+void closeHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -272,7 +272,7 @@ void closeCommand(UserState &state) {
     }
 }
 
-void myAuctionsCommand(UserState &state) {
+void myAuctionsHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -297,7 +297,7 @@ void myAuctionsCommand(UserState &state) {
     }
 }
 
-void myBidsCommand(UserState &state) {
+void myBidsHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -322,7 +322,7 @@ void myBidsCommand(UserState &state) {
     }
 }
 
-void listCommand(UserState &state) {
+void listHandler(UserState &state) {
     LSTPacket packetOut;
     RLSPacket packetIn;
     if (state.sendAndReceiveUDPPacket(packetOut, packetIn, RLS_LEN)) {
@@ -339,7 +339,7 @@ void listCommand(UserState &state) {
     }
 }
 
-void showAssetCommand(UserState &state) {
+void showAssetHandler(UserState &state) {
     std::string aid = readToken(state.line);
     if (checkAID(aid)) {
         return;
@@ -362,7 +362,7 @@ void showAssetCommand(UserState &state) {
     }
 }
 
-void bidCommand(UserState &state) {
+void bidHandler(UserState &state) {
     if (!state.loggedIn) {
         std::cerr << NO_LOGIN << std::endl;
         return;
@@ -402,7 +402,7 @@ void bidCommand(UserState &state) {
     }
 }
 
-void showRecordCommand(UserState &state) {
+void showRecordHandler(UserState &state) {
     std::string aid = readToken(state.line);
     if (checkAID(aid)) {
         return;

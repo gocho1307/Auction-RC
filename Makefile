@@ -68,10 +68,9 @@ $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
 
 clean:
 	rm -f $(TARGET_EXECS) $(OBJECTS)
-	# Remove artifacts
 	rm -f proj_075.zip *.txt *.jpg *.png *.mp4
 
-clean-serverdata:
+clean-data:
 	rm -rf USERS AUCTIONS
 
 fmt: $(SOURCES) $(HEADERS)

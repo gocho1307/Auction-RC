@@ -29,7 +29,7 @@
 #define TCP_BIND_ERR "[ERR] Failed to bind TCP address: "
 #define UDP_BIND_ERR "[ERR] Failed to bind UDP address: "
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
-#define TCP_CONNECTION_ERR "[ERR] Failed to accept a TCP connection."
+#define TCP_ACCEPT_ERR "[ERR] Failed to accept a TCP connection."
 #define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 
 #define TCP_CONNECTION "Receiving TCP connection from: "

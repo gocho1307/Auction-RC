@@ -11,20 +11,20 @@ typedef std::map<std::string, std::function<void(UserState &)>> CommandsHandler;
 
 std::string readToken(std::string &line);
 
-void helpCommand();
+void helpHandler();
 void interpretCommand(UserState &state);
-void loginCommand(UserState &state);
-void logoutCommand(UserState &state);
-void unregisterCommand(UserState &state);
-void exitCommand(UserState &state);
-void openCommand(UserState &state);
-void closeCommand(UserState &state);
-void myAuctionsCommand(UserState &state);
-void myBidsCommand(UserState &state);
-void listCommand(UserState &state);
-void showAssetCommand(UserState &state);
-void bidCommand(UserState &state);
-void showRecordCommand(UserState &state);
+void loginHandler(UserState &state);
+void logoutHandler(UserState &state);
+void unregisterHandler(UserState &state);
+void exitHandler(UserState &state);
+void openHandler(UserState &state);
+void closeHandler(UserState &state);
+void myAuctionsHandler(UserState &state);
+void myBidsHandler(UserState &state);
+void listHandler(UserState &state);
+void showAssetHandler(UserState &state);
+void bidHandler(UserState &state);
+void showRecordHandler(UserState &state);
 
 void listAuctions(std::vector<Auction> auctions);
 

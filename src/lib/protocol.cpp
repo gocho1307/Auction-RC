@@ -715,29 +715,24 @@ int ERRTCPPacket::serialize(const int fd) {
 
 // Transmit packets
 
-int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, const int fd) {
-    if (res == NULL) {
-        std::cerr << GETADDRINFO_UDP_ERR << std::endl;
-        return 1;
-    }
+int sendUDPPacket(UDPPacket &packet, struct sockaddr *addr, socklen_t addrlen,
+                  const int fd) {
     std::string msg = packet.serialize();
-    if (sendto(fd, msg.c_str(), msg.length(), 0, res->ai_addr,
-               res->ai_addrlen) == -1) {
+    if (sendto(fd, msg.c_str(), msg.length(), 0, addr, addrlen) == -1) {
         std::cerr << SENDTO_ERR << std::endl;
         return 1;
     }
     return 0;
 }
 
-int receiveUDPPacket(std::string &response, struct addrinfo *res, const int fd,
-                     const size_t lim) {
-    if (res == NULL) {
-        std::cerr << GETADDRINFO_UDP_ERR << std::endl;
-        return 1;
-    }
+int receiveUDPPacket(std::string &response, struct sockaddr *addr,
+                     socklen_t *addrlen, const int fd, const size_t lim) {
     char msg[lim + 1] = {0};
     ssize_t n;
-    if ((n = recvfrom(fd, msg, lim, 0, res->ai_addr, &res->ai_addrlen)) == -1) {
+    if ((n = recvfrom(fd, msg, lim, 0, addr, addrlen)) == -1) {
+        if (errno == EAGAIN) { // timeout, keep moving forward
+            return 1;
+        }
         std::cerr << RECVFROM_ERR << std::endl;
         return 1;
     }

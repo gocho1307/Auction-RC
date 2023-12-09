@@ -5,7 +5,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <netdb.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -56,22 +55,6 @@ void ServerState::openTCPSocket() {
         std::cerr << SOCKET_REUSE_ERR << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
-    // struct timeval TCPTimeout;
-    // memset(&TCPTimeout, 0, sizeof(TCPTimeout));
-    // TCPTimeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
-    // TCPTimeout.tv_usec = 0;
-    // if (setsockopt(this->socketTCP, SOL_SOCKET, SO_RCVTIMEO, &TCPTimeout,
-    //                sizeof(TCPTimeout)) < 0) {
-    //     std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
-    //     exit(EXIT_FAILURE);
-    // }
-    // TCPTimeout.tv_sec = SERVER_WRITE_TIMEOUT_SECS;
-    // TCPTimeout.tv_usec = 0;
-    // if (setsockopt(this->socketTCP, SOL_SOCKET, SO_SNDTIMEO, &TCPTimeout,
-    //                sizeof(TCPTimeout)) < 0) {
-    //     std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
-    //     exit(EXIT_FAILURE);
-    // }
 }
 
 void ServerState::getServerAddresses() {

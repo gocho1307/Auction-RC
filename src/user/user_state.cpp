@@ -59,13 +59,6 @@ int UserState::openTCPSocket() {
         std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
         return 1;
     }
-    timeout.tv_sec = USER_WRITE_TIMEOUT_SECS;
-    timeout.tv_usec = 0;
-    if (setsockopt(this->socketTCP, SOL_SOCKET, SO_SNDTIMEO, &timeout,
-                   sizeof(timeout)) != 0) {
-        std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
-        return 1;
-    }
     return 0;
 }
 
@@ -109,10 +102,12 @@ void UserState::getServerAddresses() {
 int UserState::sendAndReceiveUDPPacket(UDPPacket &packetOut,
                                        UDPPacket &packetIn, size_t lim) {
     std::string response;
-    if (sendUDPPacket(packetOut, this->addrUDP, this->socketUDP)) {
+    if (sendUDPPacket(packetOut, this->addrUDP->ai_addr,
+                      this->addrUDP->ai_addrlen, this->socketUDP)) {
         return 1;
     }
-    if (receiveUDPPacket(response, this->addrUDP, this->socketUDP, lim)) {
+    if (receiveUDPPacket(response, this->addrUDP->ai_addr,
+                         &this->addrUDP->ai_addrlen, this->socketUDP, lim)) {
         return 1;
     }
     if (packetIn.deserialize(response)) {

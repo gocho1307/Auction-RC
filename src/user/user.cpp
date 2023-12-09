@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         std::cout << DEFAULT_AS_PORT_STR << std::endl;
     }
     printTitle();
-    helpCommand();
+    helpHandler();
 
     while (!std::cin.eof() && !state.shutDown) {
         std::cout << PROMPT;
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     std::cout << std::endl << SHUTDOWN_USER << std::endl;
 
     if (state.loggedIn) {
-        logoutCommand(state);
+        logoutHandler(state);
     }
     return EXIT_SUCCESS;
 }

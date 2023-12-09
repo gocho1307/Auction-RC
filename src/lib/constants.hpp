@@ -27,10 +27,7 @@
 #define MAX_BIDS_LISTINGS (50)
 
 #define SERVER_READ_TIMEOUT_SECS (5)
-#define SERVER_WRITE_TIMEOUT_SECS (5)
 #define USER_READ_TIMEOUT_SECS (10)
-#define USER_WRITE_TIMEOUT_SECS (5 * 60) // 5 minutes
-
 #define MAX_TCP_QUEUE (5)
 
 #endif // __CONSTANTS_HPP__

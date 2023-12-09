@@ -1,201 +1,203 @@
 #include "packets.hpp"
+#include "../lib/messages.hpp"
 #include "../lib/protocol.hpp"
 #include "persistance.hpp"
 #include "server_state.hpp"
 
-void handleLogin(std::string &buffer, struct addrinfo *connection_addr,
-                 ServerState state) {
-    LINPacket packet_in;
-    RLIPacket packet_out;
+UDPPacketsHandler UDPHandler = {{"LIN", LINHandler}, {"LOU", LOUHandler},
+                                {"UNR", UNRHandler}, {"LMA", LMAHandler},
+                                {"LMB", LMBHandler}, {"LST", LSTHandler},
+                                {"SRC", SRCHandler}};
+TCPPacketsHandler TCPHandler = {{"OPA", OPAHandler},
+                                {"CLS", CLSHandler},
+                                {"SAS", SASHandler},
+                                {"BID", BIDHandler}};
 
-    packet_in.deserialize(buffer);
+void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
+    std::string packetID(msg, 3);
+    msg.erase(0, 3);
 
-    if (!checkIfUserExists(packet_in.UID)) {
-        if (createUserDir(packet_in.UID, packet_in.password) == 1) {
-            packet_out.status = "ERR";
-        } else {
-            packet_out.status = "REG";
-        }
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
+    if (UDPHandler.find(packetID) == UDPHandler.end() ||
+        UDPHandler[packetID](state, msg, UDPFrom)) {
+        ERRUDPPacket err;
+        sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                      state.socketUDP);
+        std::cerr << PACKET_ERR << std::endl;
     }
-    if (!checkIfPasswordMatch(packet_in.UID, packet_in.password)) {
-        packet_out.status = "NOK";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (createLogin(packet_in.UID) == 1) {
-        packet_out.status = "ERR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    packet_out.status = "OK";
-    sendUDPPacket(packet_out, connection_addr, state.socketUDP);
 }
 
-void handleLogout(std::string &buffer, struct addrinfo *connection_addr,
-                  ServerState state) {
-    LOUPacket packet_in;
-    RLOPacket packet_out;
-
-    packet_in.deserialize(buffer);
-
-    if (!checkIfUserExists(packet_in.UID)) {
-        packet_out.status = "UNR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (!checkIfUserIsLoggedIn(packet_in.UID)) {
-        packet_out.status = "NOK";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (eraseLogin(packet_in.UID) == 1) {
-        packet_out.status = "ERR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    packet_out.status = "OK";
-    sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-}
-
-void handleUnregister(std::string &buffer, struct addrinfo *connection_addr,
-                      ServerState state) {
-    UNRPacket packet_in;
-    RURPacket packet_out;
-
-    packet_in.deserialize(buffer);
-
-    if (!checkIfUserExists(packet_in.UID)) {
-        packet_out.status = "UNR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (!checkIfUserIsLoggedIn(packet_in.UID)) {
-        packet_out.status = "NOK";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (unregisterUser(packet_in.UID) == 1) {
-        packet_out.status = "ERR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    packet_out.status = "OK";
-    sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-}
-
-void handleMyAuctions(std::string &buffer, struct addrinfo *connection_addr,
-                      ServerState state) {
-    LMAPacket packet_in;
-    RMAPacket packet_out;
-
-    packet_in.deserialize(buffer);
-
-    if (!checkIfUserIsLoggedIn(packet_in.UID)) {
-        packet_out.status = "NLG";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    std::vector<Auction> auctions;
-    if (getUserHostedAuctions(packet_in.UID, auctions) == 1) {
-        packet_out.status = "ERR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (auctions.empty()) {
-        packet_out.status = "NOK";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    packet_out.status = "OK";
-    packet_out.auctions = auctions;
-    sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-}
-
-void handleMyBids(std::string &buffer, struct addrinfo *connection_addr,
-                  ServerState state) {
-    LMBPacket packet_in;
-    RMBPacket packet_out;
-
-    packet_in.deserialize(buffer);
-
-    if (!checkIfUserIsLoggedIn(packet_in.UID)) {
-        packet_out.status = "NLG";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    std::vector<Auction> auctions;
-    if (getUserBiddedAuctions(packet_in.UID, auctions) == 1) {
-        packet_out.status = "ERR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (auctions.empty()) {
-        packet_out.status = "NOK";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    packet_out.status = "OK";
-    packet_out.auctions = auctions;
-    sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-}
-
-void handleList(std::string &buffer, struct addrinfo *connection_addr,
-                ServerState state) {
-    LSTPacket packet_in;
-    RLSPacket packet_out;
-
-    packet_in.deserialize(buffer);
-
-    std::vector<Auction> auctions;
-    if (getActiveAuctions(auctions) == 1) {
-        packet_out.status = "ERR";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-    if (auctions.empty()) {
-        packet_out.status = "NOK";
-        sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-        return;
-    }
-
-    packet_out.status = "OK";
-    packet_out.auctions = auctions;
-    sendUDPPacket(packet_out, connection_addr, state.socketUDP);
-}
-
-void handleShowRecord(std::string &buffer, struct addrinfo *connection_addr,
-                      ServerState state) {
-    (void)buffer;
-    (void)connection_addr;
+void interpretTCPPacket(ServerState &state, const int fd) {
     (void)state;
-    // TO DO
+    (void)fd;
+    // TODO
 }
 
-void handleOpenAuction(int connection_fd) {
-    (void)connection_fd;
-    // TO DO
+int LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    LINPacket packetIn;
+    RLIPacket packetOut;
+
+    if (packetIn.deserialize(msg)) {
+        return 1;
+    }
+
+    if (!checkIfUserExists(packetIn.UID)) {
+        if (createUserDir(packetIn.UID, packetIn.password)) {
+            packetOut.status = "ERR";
+        } else {
+            packetOut.status = "REG";
+        }
+    } else if (!checkIfPasswordMatch(packetIn.UID, packetIn.password)) {
+        packetOut.status = "NOK";
+    } else if (createLogin(packetIn.UID)) {
+        packetOut.status = "ERR";
+    } else {
+        packetOut.status = "OK";
+    }
+    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
+                         UDPFrom.addrlen, state.socketUDP);
 }
 
-void handleCloseAuction(int connection_fd) {
-    (void)connection_fd;
-    // TO DO
+int LOUHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    LOUPacket packetIn;
+    RLOPacket packetOut;
+
+    if (packetIn.deserialize(msg)) {
+        return 1;
+    }
+
+    if (!checkIfUserExists(packetIn.UID)) {
+        packetOut.status = "UNR";
+    } else if (!checkIfUserIsLoggedIn(packetIn.UID)) {
+        packetOut.status = "NOK";
+    } else if (eraseLogin(packetIn.UID)) {
+        packetOut.status = "ERR";
+    } else {
+        packetOut.status = "OK";
+    }
+    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
+                         UDPFrom.addrlen, state.socketUDP);
 }
 
-void handleBid(int connection_fd) {
-    (void)connection_fd;
-    // TO DO
+int UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    UNRPacket packetIn;
+    RURPacket packetOut;
+
+    if (packetIn.deserialize(msg)) {
+        return 1;
+    }
+
+    if (!checkIfUserExists(packetIn.UID)) {
+        packetOut.status = "UNR";
+    } else if (!checkIfUserIsLoggedIn(packetIn.UID)) {
+        packetOut.status = "NOK";
+    } else if (unregisterUser(packetIn.UID)) {
+        packetOut.status = "ERR";
+    } else {
+        packetOut.status = "OK";
+    }
+    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
+                         UDPFrom.addrlen, state.socketUDP);
 }
 
-void handleShowAsset(int connection_fd) {
-    (void)connection_fd;
-    // TO DO
+int LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    LMAPacket packetIn;
+    RMAPacket packetOut;
+
+    if (packetIn.deserialize(msg)) {
+        return 1;
+    }
+
+    std::vector<Auction> auctions;
+    if (!checkIfUserIsLoggedIn(packetIn.UID)) {
+        packetOut.status = "NLG";
+    } else if (getUserHostedAuctions(packetIn.UID, auctions)) {
+        packetOut.status = "ERR";
+    } else if (auctions.empty()) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.auctions = auctions;
+    }
+    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
+                         UDPFrom.addrlen, state.socketUDP);
+}
+
+int LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    LMBPacket packetIn;
+    RMBPacket packetOut;
+
+    if (packetIn.deserialize(msg)) {
+        return 1;
+    }
+
+    std::vector<Auction> auctions;
+    if (!checkIfUserIsLoggedIn(packetIn.UID)) {
+        packetOut.status = "NLG";
+    } else if (getUserBiddedAuctions(packetIn.UID, auctions)) {
+        packetOut.status = "ERR";
+    } else if (auctions.empty()) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.auctions = auctions;
+    }
+    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
+                         UDPFrom.addrlen, state.socketUDP);
+}
+
+int LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    LSTPacket packetIn;
+    RLSPacket packetOut;
+
+    if (packetIn.deserialize(msg)) {
+        return 1;
+    }
+
+    std::vector<Auction> auctions;
+    if (getActiveAuctions(auctions)) {
+        packetOut.status = "ERR";
+    } else if (auctions.empty()) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.auctions = auctions;
+    }
+    return sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr,
+                         UDPFrom.addrlen, state.socketUDP);
+}
+
+int SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
+    (void)state;
+    (void)msg;
+    (void)UDPFrom;
+    // TODO
+    return 0;
+}
+
+int OPAHandler(ServerState &state, const int fd) {
+    (void)state;
+    (void)fd;
+    // TODO
+    return 0;
+}
+
+int CLSHandler(ServerState &state, const int fd) {
+    (void)state;
+    (void)fd;
+    // TODO
+    return 0;
+}
+
+int BIDHandler(ServerState &state, const int fd) {
+    (void)state;
+    (void)fd;
+    // TODO
+    return 0;
+}
+
+int SASHandler(ServerState &state, const int fd) {
+    (void)state;
+    (void)fd;
+    // TODO
+    return 0;
 }

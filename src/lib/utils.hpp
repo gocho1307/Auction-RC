@@ -2,8 +2,8 @@
 #define __UTILS_HPP__
 
 #include <cstdint>
-#include <string>
 #include <netdb.h>
+#include <string>
 #include <vector>
 
 class Address {

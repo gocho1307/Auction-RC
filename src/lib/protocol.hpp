@@ -324,10 +324,11 @@ class ERRTCPPacket : public TCPPacket {
     }
 };
 
-int sendUDPPacket(UDPPacket &packet, struct addrinfo *res, const int fd);
+int sendUDPPacket(UDPPacket &packet, struct sockaddr *addr, socklen_t addrlen,
+                  const int fd);
 
-int receiveUDPPacket(std::string &response, struct addrinfo *res, const int fd,
-                     const size_t lim);
+int receiveUDPPacket(std::string &response, struct sockaddr *addr,
+                     socklen_t *addrlen, const int fd, const size_t lim);
 
 int sendTCPPacket(const char *msg, const size_t len, const int fd);
 

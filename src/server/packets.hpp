@@ -2,27 +2,30 @@
 #define __PACKETS_HPP__
 
 #include "server_state.hpp"
+#include <functional>
 
-typedef void (*UDPPacketHandler)(std::string &, struct addrinfo *,
-                                 class ServerState);
-typedef std::map<std::string, UDPPacketHandler> UDPPacketsManager;
+typedef std::map<std::string,
+                 std::function<int(ServerState &, std::string, Address)>>
+    UDPPacketsHandler;
+typedef std::map<std::string, std::function<int(ServerState &, const int)>>
+    TCPPacketsHandler;
 
-typedef void (*TCPPacketHandler)(int connection_fd);
-typedef std::map<std::string, TCPPacketHandler> TCPPacketsManager;
+void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom);
+void interpretTCPPacket(ServerState &state, const int fd);
 
 // UDP
-void handleLogin(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleLogout(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleUnregister(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleMyAuctions(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleMyBids(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleList(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
-void handleShowRecord(std::string &buffer, struct addrinfo *connection_addr, ServerState state);
+int LINHandler(ServerState &state, std::string msg, Address UDPFrom);
+int LOUHandler(ServerState &state, std::string msg, Address UDPFrom);
+int UNRHandler(ServerState &state, std::string msg, Address UDPFrom);
+int LMAHandler(ServerState &state, std::string msg, Address UDPFrom);
+int LMBHandler(ServerState &state, std::string msg, Address UDPFrom);
+int LSTHandler(ServerState &state, std::string msg, Address UDPFrom);
+int SRCHandler(ServerState &state, std::string msg, Address UDPFrom);
 
 // TCP
-void handleOpenAuction(int connection_fd);
-void handleCloseAuction(int connection_fd);
-void handleBid(int connection_fd);
-void handleShowAsset(int connection_fd);
+int OPAHandler(ServerState &state, const int fd);
+int CLSHandler(ServerState &state, const int fd);
+int BIDHandler(ServerState &state, const int fd);
+int SASHandler(ServerState &state, const int fd);
 
 #endif // __PACKETS_HPP__
