@@ -735,7 +735,7 @@ int receiveUDPPacket(std::string &response, struct sockaddr *addr,
     char msg[lim + 1] = {0};
     ssize_t n;
     if ((n = recvfrom(fd, msg, lim, 0, addr, addrlen)) == -1) {
-        if (errno == EAGAIN) { // timeout, keep moving forward
+        if (errno == EINTR || errno == EAGAIN) {
             return 1;
         }
         std::cerr << RECVFROM_ERR << std::endl;

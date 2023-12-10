@@ -4,15 +4,15 @@
 #define PROMPT "> "
 
 #define DEFAULT_AS_HOST "tejo.tecnico.ulisboa.pt"
-// #define DEFAULT_AS_HOST "localhost"
 #define DEFAULT_AS_PORT "58011"
+// #define DEFAULT_AS_HOST "localhost"
 // #define DEFAULT_AS_PORT "58075"
 
 #define FILE_BUFFER_SIZE (1024)
 #define MAX_FILE_SIZE (10000000)
 #define MAX_FILE_SIZE_DIGS (8)
-#define FILE_EXTENSION_LEN (3)
 #define MAX_FILE_NAME_LEN (24)
+#define FILE_EXTENSION_LEN (3)
 
 #define PACKET_ID_LEN (3)
 #define MAX_STATUS_LEN (3)
@@ -28,8 +28,8 @@
 #define TIME_DATE_LEN (8)
 #define MAX_BIDS_LISTINGS (50)
 
-#define SERVER_READ_TIMEOUT_SECS (5)
-#define USER_READ_TIMEOUT_SECS (10)
+#define READ_TIMEOUT_SECS (15)
+#define WRITE_TIMEOUT_SECS (10 * 60) // 10 minutes
 #define MAX_TCP_QUEUE (5)
 
 #endif // __CONSTANTS_HPP__

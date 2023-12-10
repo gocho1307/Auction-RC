@@ -107,7 +107,7 @@ void mainTCP() {
         }
 
         memset(&timeout, 0, sizeof(timeout));
-        timeout.tv_sec = SERVER_READ_TIMEOUT_SECS;
+        timeout.tv_sec = READ_TIMEOUT_SECS;
         fds =
             select(maxfd + 1, &rdfs, (fd_set *)NULL, (fd_set *)NULL, &timeout);
         if (fds == -1) {
@@ -127,6 +127,12 @@ void mainTCP() {
                      accept(state.socketTCP, (struct sockaddr *)&TCPFrom.addr,
                             &TCPFrom.addrlen)) == -1) {
                 std::cerr << TCP_ACCEPT_ERR << std::endl;
+                return;
+            }
+            timeout.tv_sec = WRITE_TIMEOUT_SECS;
+            if (setsockopt(newfd, SOL_SOCKET, SO_SNDTIMEO, &timeout,
+                           sizeof(timeout)) != 0) {
+                std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
                 return;
             }
         }
