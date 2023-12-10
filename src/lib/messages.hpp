@@ -39,6 +39,7 @@
 #define TCP_ACCEPT_ERR "[ERR] Failed to accept a TCP connection."
 #define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 #define SELECT_ERR "[ERR] An error occured while calling select(): "
+#define DATA_BASE_ERR "[ERR] Can't create the initial data base directories."
 
 #define TCP_CONNECTION "Receiving TCP connection from "
 #define UDP_CONNECTION "Receiving UDP connection from "

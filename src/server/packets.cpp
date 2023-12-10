@@ -15,7 +15,7 @@ TCPPacketsHandler TCPHandler = {{"OPA", OPAHandler},
                                 {"BID", BIDHandler}};
 
 void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
-    std::string packetID(msg, 3);
+    std::string packetID = msg.substr(0, 3);
     msg.erase(0, 3);
 
     if (UDPHandler.find(packetID) == UDPHandler.end()) {

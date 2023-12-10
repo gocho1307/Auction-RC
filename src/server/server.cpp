@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cstring>
+#include <filesystem>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -22,6 +23,14 @@ int main(int argc, char *argv[]) {
     state.getServerAddresses();
 
     state.cverbose << "[INFO] Verbose mode is activated." << std::endl;
+
+    std::filesystem::create_directory("USERS");
+    std::filesystem::create_directory("AUCTIONS");
+    if (!std::filesystem::exists("USERS") ||
+        !std::filesystem::exists("AUCTIONS")) {
+        std::cerr << DATA_BASE_ERR << std::endl;
+        return EXIT_FAILURE;
+    }
 
     // Get both UDP and TCP listeners running
     pid_t pid = fork();
@@ -50,8 +59,11 @@ void mainUDP() {
             recvfrom(state.socketUDP, buffer, LIN_LEN, 0,
                      (struct sockaddr *)&UDPFrom.addr, &UDPFrom.addrlen);
         if (n == -1) {
+            if (errno == EINTR) { // shutDown
+                break;
+            }
             if (errno == EAGAIN) { // timeout
-                return;
+                continue;
             }
             std::cerr << RECVFROM_ERR << std::endl;
             return;
@@ -99,12 +111,15 @@ void mainTCP() {
         fds =
             select(maxfd + 1, &rdfs, (fd_set *)NULL, (fd_set *)NULL, &timeout);
         if (fds == -1) {
+            if (errno == EINTR) {
+                break;
+            }
             std::cerr << SELECT_ERR << strerror(errno) << std::endl;
             return;
         }
-        if (fds == 0) {
+        if (fds == 0) { // timeout
             // TODO: search the data base for expired auctions
-            continue; // timeout
+            continue;
         }
 
         if (FD_ISSET(state.socketTCP, &rdfs)) {
