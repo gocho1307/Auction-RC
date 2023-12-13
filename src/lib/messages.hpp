@@ -94,8 +94,7 @@
 #define BID_ILG "You cannot bid on an auction that you hosted."
 #define CAL_DATE_ERR "Invalid calendar date. Expected YYYY-MM-DD format."
 #define TIME_DATE_ERR "Invalid time. Expected HH:MM:SS format."
-#define SHOW_ASSET_NOK                                                         \
-    "Some problem occured transfering the asset file. Please try again..."
+#define SHOW_ASSET_NOK "Some problem occured transfering the asset file."
 #define SHOW_ASSET_OK(fName, fSize)                                            \
     "Successfully transfered the file." << std::endl                           \
                                         << "The file's name is '" << fName     \

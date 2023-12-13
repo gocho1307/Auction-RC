@@ -45,7 +45,7 @@ int UDPPacket::readNewLine(std::string &buffer) {
         return 1;
     }
     buffer.erase(buffer.begin());
-    return 0;
+    return !buffer.empty();
 }
 
 int UDPPacket::readAuctions(std::string &buffer,
@@ -496,9 +496,6 @@ std::string RLIPacket::serialize() {
 }
 
 int LINPacket::deserialize(std::string &buffer) {
-    if (readSpace(buffer)) {
-        return 1;
-    }
     UID = readString(buffer);
     if (checkUID(UID) || readSpace(buffer)) {
         return 1;
@@ -512,9 +509,6 @@ std::string RLOPacket::serialize() {
 }
 
 int LOUPacket::deserialize(std::string &buffer) {
-    if (readSpace(buffer)) {
-        return 1;
-    }
     UID = readString(buffer);
     if (checkUID(UID) || readSpace(buffer)) {
         return 1;
@@ -528,9 +522,6 @@ std::string RURPacket::serialize() {
 }
 
 int UNRPacket::deserialize(std::string &buffer) {
-    if (readSpace(buffer)) {
-        return 1;
-    }
     UID = readString(buffer);
     if (checkUID(UID) || readSpace(buffer)) {
         return 1;
@@ -549,9 +540,6 @@ int ROAPacket::serialize(const int fd) {
 }
 
 int OPAPacket::deserialize(const int fd) {
-    if (readSpace(fd)) {
-        return 1;
-    }
     UID = readString(fd, UID_LEN);
     if (checkUID(UID) || readSpace(fd)) {
         return 1;
@@ -581,9 +569,6 @@ int RCLPacket::serialize(const int fd) {
 }
 
 int CLSPacket::deserialize(const int fd) {
-    if (readSpace(fd)) {
-        return 1;
-    }
     UID = readString(fd, UID_LEN);
     if (checkUID(UID) || readSpace(fd)) {
         return 1;
@@ -605,9 +590,6 @@ std::string RMAPacket::serialize() {
 }
 
 int LMAPacket::deserialize(std::string &buffer) {
-    if (readSpace(buffer)) {
-        return 1;
-    }
     UID = readString(buffer);
     return checkUID(UID) || readNewLine(buffer);
 }
@@ -621,9 +603,6 @@ std::string RMBPacket::serialize() {
 }
 
 int LMBPacket::deserialize(std::string &buffer) {
-    if (readSpace(buffer)) {
-        return 1;
-    }
     UID = readString(buffer);
     return checkUID(UID) || readNewLine(buffer);
 }
@@ -636,7 +615,7 @@ std::string RLSPacket::serialize() {
     return msg + "\n";
 }
 
-int LSTPacket::deserialize(std::string &buffer) { return readNewLine(buffer); }
+int LSTPacket::deserialize(std::string &buffer) { return !buffer.empty(); }
 
 int RBDPacket::serialize(const int fd) {
     std::string msg = std::string(ID) + " " + status + "\n";
@@ -644,9 +623,6 @@ int RBDPacket::serialize(const int fd) {
 }
 
 int BIDPacket::deserialize(const int fd) {
-    if (readSpace(fd)) {
-        return 1;
-    }
     UID = readString(fd, UID_LEN);
     if (checkUID(UID) || readSpace(fd)) {
         return 1;
@@ -673,9 +649,6 @@ int RSAPacket::serialize(const int fd) {
 }
 
 int SASPacket::deserialize(const int fd) {
-    if (readSpace(fd)) {
-        return 1;
-    }
     AID = readString(fd, AID_LEN);
     return checkAID(AID) || readNewLine(fd);
 }
@@ -700,9 +673,6 @@ std::string RRCPacket::serialize() {
 }
 
 int SRCPacket::deserialize(std::string &buffer) {
-    if (readSpace(buffer)) {
-        return 1;
-    }
     AID = readString(buffer);
     return checkAID(AID) || readNewLine(buffer);
 }

@@ -3,20 +3,21 @@
 #include "../lib/protocol.hpp"
 #include "persistance.hpp"
 #include "server_state.hpp"
+
 #include <unistd.h>
 
-UDPPacketsHandler UDPHandler = {{"LIN", LINHandler}, {"LOU", LOUHandler},
-                                {"UNR", UNRHandler}, {"LMA", LMAHandler},
-                                {"LMB", LMBHandler}, {"LST", LSTHandler},
-                                {"SRC", SRCHandler}};
-TCPPacketsHandler TCPHandler = {{"OPA", OPAHandler},
-                                {"CLS", CLSHandler},
-                                {"SAS", SASHandler},
-                                {"BID", BIDHandler}};
+UDPPacketsHandler UDPHandler = {{"LIN ", LINHandler}, {"LOU ", LOUHandler},
+                                {"UNR ", UNRHandler}, {"LMA ", LMAHandler},
+                                {"LMB ", LMBHandler}, {"LST\n", LSTHandler},
+                                {"SRC ", SRCHandler}};
+TCPPacketsHandler TCPHandler = {{"OPA ", OPAHandler},
+                                {"CLS ", CLSHandler},
+                                {"SAS ", SASHandler},
+                                {"BID ", BIDHandler}};
 
 void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
-    std::string packetID = msg.substr(0, 3);
-    msg.erase(0, 3);
+    std::string packetID = msg.substr(0, PACKET_ID_LEN + 1);
+    msg.erase(0, PACKET_ID_LEN + 1);
 
     if (UDPHandler.find(packetID) == UDPHandler.end()) {
         ERRUDPPacket err;
@@ -31,12 +32,12 @@ void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
 void interpretTCPPacket(ServerState &state, const int fd) {
     char c;
     std::string packetID;
-    int n = PACKET_ID_LEN;
+    int n = PACKET_ID_LEN + 1;
     while (n-- > 0 && read(fd, &c, 1)) {
         packetID.push_back(c);
     }
 
-    if (packetID.length() != PACKET_ID_LEN ||
+    if (packetID.length() != PACKET_ID_LEN + 1 ||
         TCPHandler.find(packetID) == TCPHandler.end()) {
         ERRUDPPacket err;
         err.serialize();

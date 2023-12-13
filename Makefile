@@ -42,6 +42,7 @@ CXXFLAGS += -Wnull-dereference -Wshadow -Wsign-conversion -Wswitch-default -Wund
 
 LDFLAGS = -std=c++17
 LDFLAGS += $(INCLUDES)
+LDFLAGS += -pthread
 
 # Optional debug symbols: run make DEBUG=yes to activate them
 ifeq ($(strip $(DEBUG)), yes)
