@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         std::cout << DEFAULT_AS_PORT_STR << std::endl;
     }
     printTitle();
-    helpHandler();
+    helpHandler(state);
 
     while (!std::cin.eof() && !state.shutDown) {
         std::cout << PROMPT;

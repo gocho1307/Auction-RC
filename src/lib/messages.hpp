@@ -40,6 +40,9 @@
 #define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 #define SELECT_ERR "[ERR] An error occured while calling select(): "
 #define DATA_BASE_ERR "[ERR] Can't create the initial data base directories."
+#define FILE_OPEN_ERR(path) "[ERR] Error opening file: " << path
+#define FILE_CREATE_ERR(path) "[ERR] Error creating file: " << path
+#define DIR_CREATE_ERR(dir) "[ERR] Error creating directory: " << dir
 
 #define TCP_CONNECTION "Receiving TCP connection from "
 #define UDP_CONNECTION "Receiving UDP connection from "

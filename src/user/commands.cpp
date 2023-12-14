@@ -21,7 +21,8 @@ CommandsHandler handler = {{"login", loginHandler},
                            {"bid", bidHandler},
                            {"b", bidHandler},
                            {"show_record", showRecordHandler},
-                           {"sr", showRecordHandler}};
+                           {"sr", showRecordHandler},
+                           {"help", helpHandler}};
 
 std::string readToken(std::string &line) {
     std::string str = "";
@@ -36,7 +37,21 @@ std::string readToken(std::string &line) {
     return str;
 }
 
-void helpHandler() {
+void interpretCommand(UserState &state) {
+    std::string commandName = readToken(state.line);
+    if (commandName.empty() && state.line.empty()) {
+        return; // the user pressed enter
+    }
+
+    if (handler.find(commandName) == handler.end()) {
+        std::cerr << UNEXPECTED_COMMAND_ERR(commandName) << std::endl;
+        return;
+    }
+    handler[commandName](state);
+}
+
+void helpHandler(UserState &state) {
+    (void)state; // not used
     std::cout << std::endl << "Available commands:" << std::endl;
 
     std::cout << "  - login <UID> <password>\t"
@@ -78,19 +93,8 @@ void helpHandler() {
               << "Presents information about the specified auction."
               << std::endl
               << std::endl;
-}
 
-void interpretCommand(UserState &state) {
-    std::string commandName = readToken(state.line);
-    if (commandName.empty() && state.line.empty()) {
-        return; // the user pressed enter
-    }
-
-    if (handler.find(commandName) == handler.end()) {
-        std::cerr << UNEXPECTED_COMMAND_ERR(commandName) << std::endl;
-        return;
-    }
-    handler[commandName](state);
+    std::cout << "  - help\t Shows this message." << std::endl << std::endl;
 }
 
 void loginHandler(UserState &state) {

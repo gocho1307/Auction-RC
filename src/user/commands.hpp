@@ -10,9 +10,9 @@
 typedef std::map<std::string, std::function<void(UserState &)>> CommandsHandler;
 
 std::string readToken(std::string &line);
-
-void helpHandler();
 void interpretCommand(UserState &state);
+
+void helpHandler(UserState &state);
 void loginHandler(UserState &state);
 void logoutHandler(UserState &state);
 void unregisterHandler(UserState &state);

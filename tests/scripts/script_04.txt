@@ -9,4 +9,5 @@ unregister
 login 111111 abcdefgh
 logout
 login 222222 hgfedcba
+logout
 exit
