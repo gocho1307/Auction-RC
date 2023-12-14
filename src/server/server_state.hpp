@@ -50,6 +50,7 @@ class ServerState {
     int socketTCP = -1; // current, if any
 
     bool shutDown = false;
+    int globalAID = 0;
 
     void readOpts(int argc, char *argv[]);
     void openUDPSocket();

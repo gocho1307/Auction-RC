@@ -28,7 +28,7 @@
 #define TIME_DATE_LEN (8)
 #define MAX_BIDS_LISTINGS (50)
 
-#define READ_TIMEOUT_SECS (15)
+#define READ_TIMEOUT_SECS (10)
 #define WRITE_TIMEOUT_SECS (10 * 60) // 10 minutes
 #define MAX_TCP_QUEUE (5)
 

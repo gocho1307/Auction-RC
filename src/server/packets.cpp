@@ -4,6 +4,8 @@
 #include "persistance.hpp"
 #include "server_state.hpp"
 
+#include <iomanip>
+#include <sstream>
 #include <unistd.h>
 
 UDPPacketsHandler UDPHandler = {{"LIN ", LINHandler}, {"LOU ", LOUHandler},
@@ -54,7 +56,7 @@ void LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
     if (packetIn.deserialize(msg)) {
         packetOut.status = "ERR";
     } else if (checkRegister(packetIn.UID)) {
-        if (checkLogin(packetIn.UID, packetIn.password) &&
+        if (checkLoginMatch(packetIn.UID, packetIn.password) &&
             loginUser(packetIn.UID)) {
             packetOut.status = "OK";
         } else {
@@ -75,15 +77,14 @@ void LOUHandler(ServerState &state, std::string msg, Address UDPFrom) {
 
     if (packetIn.deserialize(msg)) {
         packetOut.status = "ERR";
-    } else if (checkRegister(packetIn.UID)) {
-        if (checkLogin(packetIn.UID, packetIn.password) &&
-            logoutUser(packetIn.UID)) {
-            packetOut.status = "OK";
-        } else {
-            packetOut.status = "NOK";
-        }
-    } else {
+    } else if (!checkRegister(packetIn.UID)) {
         packetOut.status = "UNR";
+    } else if (!checkLoggedIn(packetIn.UID) ||
+               !checkLoginMatch(packetIn.UID, packetIn.password) ||
+               !logoutUser(packetIn.UID)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
     }
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
@@ -95,15 +96,14 @@ void UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
 
     if (packetIn.deserialize(msg)) {
         packetOut.status = "ERR";
-    } else if (checkRegister(packetIn.UID)) {
-        if (checkLogin(packetIn.UID, packetIn.password) &&
-            unregisterUser(packetIn.UID)) {
-            packetOut.status = "OK";
-        } else {
-            packetOut.status = "NOK";
-        }
-    } else {
+    } else if (!checkRegister(packetIn.UID)) {
         packetOut.status = "UNR";
+    } else if (!checkLoggedIn(packetIn.UID) ||
+               !checkLoginMatch(packetIn.UID, packetIn.password) ||
+               !unregisterUser(packetIn.UID)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
     }
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
@@ -112,13 +112,18 @@ void UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
 void LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LMAPacket packetIn;
     RMAPacket packetOut;
-    std::vector<Auction> auctions;
 
+    std::vector<Auction> auctions;
     if (packetIn.deserialize(msg)) {
         packetOut.status = "ERR";
+    } else if (!checkLoggedIn(packetIn.UID)) {
+        packetOut.status = "NLG";
+    } else if (!getAuctions("USERS/" + packetIn.UID + "/HOSTED", auctions)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.auctions = auctions;
     }
-    // TODO: implement
-
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -126,13 +131,18 @@ void LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
 void LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LMBPacket packetIn;
     RMBPacket packetOut;
-    std::vector<Auction> auctions;
 
+    std::vector<Auction> auctions;
     if (packetIn.deserialize(msg)) {
         packetOut.status = "ERR";
+    } else if (!checkLoggedIn(packetIn.UID)) {
+        packetOut.status = "NLG";
+    } else if (!getAuctions("USERS/" + packetIn.UID + "/BIDDED", auctions)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.auctions = auctions;
     }
-    // TODO: implement
-
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -140,13 +150,16 @@ void LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
 void LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
     LSTPacket packetIn;
     RLSPacket packetOut;
-    std::vector<Auction> auctions;
 
+    std::vector<Auction> auctions;
     if (packetIn.deserialize(msg)) {
         packetOut.status = "ERR";
+    } else if (!getAuctions("AUCTIONS", auctions)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.auctions = auctions;
     }
-    // TODO: implement
-
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -159,15 +172,48 @@ void SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
 }
 
 void OPAHandler(ServerState &state, const int fd) {
-    (void)state;
-    (void)fd;
-    // TODO: implement
+    OPAPacket packetIn;
+    ROAPacket packetOut;
+
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(AID_LEN) << ++state.globalAID;
+    std::string newAID = ss.str();
+    if (packetIn.deserialize(fd)) {
+        packetOut.status = "ERR";
+    } else if (!checkLoggedIn(packetIn.UID) ||
+               !checkLoginMatch(packetIn.UID, packetIn.password)) {
+        packetOut.status = "NLG";
+    } else if (!openAuction(newAID, packetIn.UID, packetIn.auctionName,
+                            packetIn.assetfName, packetIn.startValue,
+                            packetIn.duration)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.AID = newAID;
+    }
+    packetOut.serialize(fd);
 }
 
 void CLSHandler(ServerState &state, const int fd) {
-    (void)state;
-    (void)fd;
-    // TODO: implement
+    (void)state; // TODO: add threads
+    CLSPacket packetIn;
+    RCLPacket packetOut;
+
+    if (packetIn.deserialize(fd)) {
+        packetOut.status = "ERR";
+    } else if (!checkLoggedIn(packetIn.UID) ||
+               !checkLoginMatch(packetIn.UID, packetIn.password)) {
+        packetOut.status = "NLG";
+    } else if (!checkAuctionExists(packetIn.AID)) {
+        packetOut.status = "EAU";
+    } else if (!checkUserHostedAuction(packetIn.UID, packetIn.AID)) {
+        packetOut.status = "EOW";
+    } else if (!closeAuction(packetIn.AID)) {
+        packetOut.status = "END";
+    } else {
+        packetOut.status = "OK";
+    }
+    packetOut.serialize(fd);
 }
 
 void BIDHandler(ServerState &state, const int fd) {

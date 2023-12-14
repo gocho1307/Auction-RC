@@ -1,18 +1,22 @@
 #include "persistance.hpp"
 #include "../lib/constants.hpp"
 #include "../lib/messages.hpp"
+#include "../lib/utils.hpp"
 
 #include <filesystem>
 #include <fstream>
 
 int checkRegister(const std::string UID) {
-    std::string userDir = "USERS/" + UID;
-    std::string passPath = userDir + "/password.txt";
-    return std::filesystem::exists(userDir) &&
-           std::filesystem::exists(passPath);
+    return std::filesystem::exists("USERS/" + UID) &&
+           std::filesystem::exists("USERS/" + UID + "/password.txt");
 }
 
-int checkLogin(std::string UID, std::string password) {
+int checkLoggedIn(std::string UID) {
+    return checkRegister(UID) &&
+           std::filesystem::exists("USERS/" + UID + "/login");
+}
+
+int checkLoginMatch(std::string UID, std::string password) {
     if (!checkRegister(UID)) {
         return 0;
     }
@@ -55,7 +59,7 @@ int registerUser(std::string UID, std::string password) {
 }
 
 int loginUser(std::string UID) {
-    std::string loginPath = "USERS/" + UID + "/login.txt";
+    std::string loginPath = "USERS/" + UID + "/login";
     std::ofstream loginFile(loginPath);
     if (!std::filesystem::exists(loginPath)) {
         std::cerr << FILE_CREATE_ERR(loginPath) << std::endl;
@@ -66,12 +70,133 @@ int loginUser(std::string UID) {
 }
 
 int logoutUser(std::string UID) {
-    return std::filesystem::remove("USERS/" + UID + "/login.txt");
+    return std::filesystem::remove("USERS/" + UID + "/login");
 }
 
 int unregisterUser(std::string UID) {
     return logoutUser(UID) &&
            std::filesystem::remove("USERS/" + UID + "/password.txt");
+}
+
+void getAuctionTime(std::string AID, time_t &currentTime, uint32_t &fullTime,
+                    uint32_t &duration) {
+    std::ifstream timeFile("AUCTIONS/" + AID + "/time.txt");
+    if (!timeFile.is_open()) {
+        // TODO: throw exception
+    }
+    std::string strFullTime, strDuration;
+    std::getline(timeFile, strFullTime);
+    std::getline(timeFile, strDuration);
+    toInt(strFullTime, fullTime);
+    toInt(strDuration, duration);
+    timeFile.close();
+    currentTime = time(NULL); // TODO: must be positive
+}
+
+uint8_t checkAuctionExpiration(std::string AID) {
+    if (std::filesystem::exists("AUCTIONS/" + AID + "/end.txt")) {
+        return 0;
+    }
+
+    time_t currentTime;
+    uint32_t fullTime, duration;
+    getAuctionTime(AID, currentTime, fullTime, duration);
+
+    if ((uint32_t)currentTime - fullTime >= duration) {
+        std::ofstream endFile("AUCTIONS/" + AID + "/end.txt");
+        if (!endFile.is_open()) {
+            return 0;
+        }
+        endFile << toDate(fullTime + duration) << " " << duration << std::endl;
+        endFile.close();
+        return 0;
+    }
+    return 1;
+}
+
+int getAuctions(std::string path, std::vector<Auction> &auctions) {
+    const std::filesystem::path auctionsPath(path);
+    int activeAuctions = 0;
+
+    for (auto const &entry :
+         std::filesystem::directory_iterator(auctionsPath)) {
+        std::string AID = entry.path().filename();
+        uint8_t state = checkAuctionExpiration(AID);
+        if (state) {
+            activeAuctions++;
+        }
+        auctions.push_back({AID, state});
+    }
+    return (activeAuctions != 0);
+}
+
+int closeAuction(std::string AID) {
+    if (std::filesystem::exists("AUCTIONS/" + AID + "/end.txt")) {
+        return 0;
+    }
+    std::ofstream endFile("AUCTIONS/" + AID + "/end.txt");
+    if (!endFile.is_open()) {
+        return 0;
+    }
+
+    time_t currentTime;
+    uint32_t fullTime, duration;
+    getAuctionTime(AID, currentTime, fullTime, duration);
+
+    uint32_t finishTime = (uint32_t)currentTime - fullTime;
+    if (finishTime >= duration) {
+        endFile << toDate(fullTime + duration) << " " << duration << std::endl;
+        endFile.close();
+        return 0;
+    }
+    endFile << toDate(currentTime) << " " << finishTime << std::endl;
+    endFile.close();
+    return 1;
+}
+
+int checkAuctionExists(std::string AID) {
+    return std::filesystem::exists("AUCTIONS/" + AID);
+}
+
+int checkUserHostedAuction(std::string UID, std::string AID) {
+    return std::filesystem::exists("USERS/" + UID + "HOSTED/" + AID);
+}
+
+int openAuction(std::string newAID, std::string UID, std::string auctionName,
+                std::string assetfName, uint32_t startValue,
+                uint32_t duration) {
+    std::string auctionDir = "AUCTIONS/" + newAID;
+    if (!std::filesystem::create_directory(auctionDir)) {
+        return 0;
+    }
+    if (!std::filesystem::create_directory(auctionDir + "/ASSET") ||
+        !std::filesystem::create_directory(auctionDir + "/BIDS")) {
+        std::filesystem::remove_all(auctionDir);
+        return 0;
+    }
+    std::ofstream startFile(auctionDir + "/start.txt");
+    std::ofstream timeFile(auctionDir + "/time.txt");
+    if (!startFile.is_open() || !timeFile.is_open()) {
+        std::filesystem::remove_all(auctionDir);
+        return 0;
+    }
+    try {
+        std::filesystem::rename(assetfName,
+                                auctionDir + "/ASSET/" + assetfName);
+    } catch (std::filesystem::filesystem_error &e) {
+        std::filesystem::remove_all(auctionDir);
+        return 0;
+    }
+
+    time_t startTime = time(NULL); // TODO: must be positive
+    std::string date = toDate(startTime);
+    timeFile << startTime << std::endl << duration << std::endl;
+    timeFile.close();
+    startFile << UID << " " << auctionName << " " << assetfName << " "
+              << startValue << " " << date << " " << duration << std::endl;
+    startFile.close();
+
+    return 1;
 }
 
 // TODO: check below
@@ -104,103 +229,6 @@ int addBiddedToUser(std::string UID, std::string AID, int bid_value) {
     return 0;
 }
 
-int getUserHostedAuctions(std::string UID, std::vector<Auction> &auctions) {
-    std::string hosted_by_user_dir = "USERS/" + UID + "/HOSTED";
-
-    DIR *dir = opendir(hosted_by_user_dir.c_str());
-    if (dir == nullptr) {
-        return 1;
-    }
-
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != nullptr) {
-        if (entry->d_type == DT_REG &&
-            std::string(entry->d_name).find(".txt") != std::string::npos) {
-
-            Auction new_auction;
-            new_auction.AID = entry->d_name;
-            new_auction.state =
-                (uint8_t)checkIfAuctionIsActive((std::string)entry->d_name) ? 1
-                                                                            : 0;
-            auctions.push_back(new_auction);
-        }
-    }
-
-    closedir(dir);
-    return 0;
-}
-
-int getUserBiddedAuctions(std::string UID, std::vector<Auction> &auctions) {
-    std::string bidded_by_user_dir = "USERS/" + UID + "/BIDDED";
-
-    DIR *dir = opendir(bidded_by_user_dir.c_str());
-    if (dir == nullptr) {
-        return 1;
-    }
-
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != nullptr) {
-        if (entry->d_type == DT_REG &&
-            std::string(entry->d_name).find(".txt") != std::string::npos) {
-
-            Auction new_auction;
-            new_auction.AID = entry->d_name;
-            new_auction.state =
-                (uint8_t)checkIfAuctionIsActive((std::string)entry->d_name) ? 1
-                                                                            : 0;
-            auctions.push_back(new_auction);
-        }
-    }
-
-    closedir(dir);
-    return 0;
-}
-
-int getActiveAuctions(std::vector<Auction> &auctions) {
-    std::string bidded_by_user_dir = "AUCTIONS";
-
-    DIR *dir = opendir(bidded_by_user_dir.c_str());
-    if (dir == nullptr) {
-        return 1;
-    }
-
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != nullptr) {
-        if (entry->d_type == DT_DIR && std::string(entry->d_name) != "." &&
-            std::string(entry->d_name) != "..") {
-
-            std::string folderName = entry->d_name;
-
-            if (checkIfAuctionIsActive(entry->d_name)) {
-                Auction new_auction;
-                new_auction.AID = entry->d_name;
-                new_auction.state = (uint8_t)1;
-                auctions.push_back(new_auction);
-            }
-        }
-    }
-
-    closedir(dir);
-    return 0;
-}
-
-int checkIfUserHostedAuction(std::string AID, std::string UID) {
-    std::string auction_path = "USERS/" + UID + "HOSTED/" + AID + ".txt";
-    return std::filesystem::exists(auction_path);
-}
-
-int endAuction(std::string AID) {
-    std::string end_text_path = "AUCTIONS/" + AID + "/END_" + AID + ".txt";
-
-    std::ofstream file(end_text_path);
-    if (!file.is_open()) {
-        return 1;
-    }
-
-    file.close();
-    return 0;
-}
-
 int addBidToAuction(std::string AID, std::string user_that_bid, int bid_value) {
     std::string bid_text_path =
         "AUCTIONS/" + AID + "/BIDS/" + std::to_string(bid_value) + ".txt";
@@ -225,16 +253,6 @@ int addBidToAuction(std::string AID, std::string user_that_bid, int bid_value) {
     start_text_file << bid_value;
     start_text_file.close();
     return 0;
-}
-
-int checkIfAuctionExists(std::string AID) {
-    std::string auction_dir = "AUCTIONS/" + AID;
-    return std::filesystem::exists(auction_dir);
-}
-
-int checkIfAuctionIsActive(std::string AID) {
-    std::string end_file = "AUCTIONS/" + AID + "/END_" + AID + ".txt";
-    return !std::filesystem::exists(end_file);
 }
 
 int isNewBidHigher(std::string AID, int bid_value) {

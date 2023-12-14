@@ -10,30 +10,28 @@
 #include <unistd.h>
 #include <vector>
 
-// All these functions return 1 if successful, 0 otherwise
-
-// Users
 int checkRegister(const std::string UID);
-int checkLogin(std::string UID, std::string password);
+int checkLoggedIn(std::string UID);
+int checkLoginMatch(std::string UID, std::string password);
 int registerUser(std::string UID, std::string password);
 int loginUser(std::string UID);
 int logoutUser(std::string UID);
 int unregisterUser(std::string UID);
+void getAuctionTime(std::string AID, time_t &currentTime, uint32_t &fullTime,
+                    uint32_t &duration);
+uint8_t checkAuctionExpiration(std::string AID);
+int getAuctions(std::string path, std::vector<Auction> &auctions);
+int closeAuction(std::string AID);
+int checkAuctionExists(std::string AID);
+int checkUserHostedAuction(std::string UID, std::string AID);
+int openAuction(std::string newAID, std::string UID, std::string auctionName,
+                std::string assetfName, uint32_t startValue, uint32_t duration);
 
+// TODO: check below ---------------------------------------------------------
 int addHostedToUser(std::string UID, std::string AID, int base_value,
                     int duration);
 int addBiddedToUser(std::string UID, std::string AID, int bid_value);
-int getUserHostedAuctions(std::string UID, std::vector<Auction> &auctions);
-int getUserBiddedAuctions(std::string UID, std::vector<Auction> &auctions);
-int getActiveAuctions(std::vector<Auction> &auctions);
-int checkIfUserHostedAuction(std::string AID, std::string UID);
-int checkIfUserIsLoggedIn(std::string UID);
-
-// Auctions
-int endAuction(std::string AID);
 int addBidToAuction(std::string AID, std::string user_that_bid, int bid_value);
-int checkIfAuctionExists(std::string AID);
-int checkIfAuctionIsActive(std::string AID);
 int isNewBidHigher(std::string AID, int bid_value);
 
 #endif // __PERSISTANCE_HPP__
