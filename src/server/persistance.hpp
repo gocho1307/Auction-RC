@@ -27,12 +27,8 @@ int checkUserHostedAuction(std::string UID, std::string AID);
 int openAuction(std::string newAID, std::string UID, std::string auctionName,
                 std::string assetfName, uint32_t startValue, uint32_t duration);
 std::string getNewAID();
-
-// TODO: check below ---------------------------------------------------------
-int addHostedToUser(std::string UID, std::string AID, int base_value,
-                    int duration);
-int addBiddedToUser(std::string UID, std::string AID, int bid_value);
-int addBidToAuction(std::string AID, std::string user_that_bid, int bid_value);
-int isNewBidHigher(std::string AID, int bid_value);
+int getAuctionRecord(std::string AID, std::string &info);
+int bidAuction(std::string AID, std::string UID, uint32_t value);
+int getAuctionAsset(std::string AID, std::string &fPath);
 
 #endif // __PERSISTANCE_HPP__

@@ -143,7 +143,7 @@ void mainTCP() {
             std::cout << TCP_CONNECTION << strAddr << ":"
                       << ntohs(TCPFrom.addr.sin_port) << std::endl;
 
-            interpretTCPPacket(state, newfd);
+            interpretTCPPacket(newfd);
             close(newfd);
             newfd = -1;
         }

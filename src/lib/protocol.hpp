@@ -298,6 +298,8 @@ class RRCPacket : public UDPPacket {
     std::string timeEndDate;
     uint32_t endSecTime;
 
+    std::string info;
+
     std::string serialize();
     int deserialize(std::string &buffer);
 };

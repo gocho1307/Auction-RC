@@ -179,7 +179,10 @@ int openAuction(std::string newAID, std::string UID, std::string auctionName,
     }
     std::ofstream startFile(auctionDir + "/start.txt");
     std::ofstream timeFile(auctionDir + "/time.txt");
-    if (!startFile.is_open() || !timeFile.is_open()) {
+    std::ofstream nameFile(auctionDir + "/ASSET/name.txt");
+    std::ofstream hostFile("USERS/" + UID + "/HOSTED/" + newAID);
+    if (!startFile.is_open() || !timeFile.is_open() || !nameFile ||
+        !hostFile.is_open()) {
         std::filesystem::remove_all(auctionDir);
         return 0;
     }
@@ -190,6 +193,8 @@ int openAuction(std::string newAID, std::string UID, std::string auctionName,
         std::filesystem::remove_all(auctionDir);
         return 0;
     }
+    nameFile << assetfName << std::endl;
+    nameFile.close();
 
     time_t startTime = time(NULL); // TODO: must be positive
     std::string date = toDate(startTime);
@@ -215,22 +220,34 @@ std::string getNewAID() {
     return ss.str();
 }
 
+int getAuctionRecord(std::string AID, std::string &info) {
+    (void)info;
+    if (!checkAuctionExists(AID)) {
+        return 0;
+    }
+    // TODO : implement
+    return 1;
+}
+
+int bidAuction(std::string AID, std::string UID, uint32_t value) {
+    (void)AID;
+    (void)UID;
+    (void)value;
+    // TODO
+    return 1;
+}
+
+int getAuctionAsset(std::string AID, std::string &fPath) {
+    std::ifstream nameFile("AUCTIONS/" + AID + "/ASSET/name.txt");
+    if (!nameFile.is_open()) {
+        return 0;
+    }
+    std::getline(nameFile, fPath);
+    return 1;
+}
+
 // TODO: check below
 // ----------------------------------------------------------------
-
-int addHostedToUser(std::string UID, std::string AID, int base_value,
-                    int duration) {
-    std::string hosted_path = "USERS/" + UID + "/HOSTED/" + AID + ".txt";
-
-    std::ofstream file(hosted_path);
-    if (!file.is_open()) {
-        return 1;
-    }
-
-    file << std::to_string(base_value) + "\n" + std::to_string(duration);
-    file.close();
-    return 0;
-}
 
 int addBiddedToUser(std::string UID, std::string AID, int bid_value) {
     std::string bidded_path = "USERS/" + UID + "/BIDDED/" + AID + ".txt";

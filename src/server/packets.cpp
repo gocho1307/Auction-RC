@@ -31,7 +31,7 @@ void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
     UDPHandler[packetID](state, msg, UDPFrom);
 }
 
-void interpretTCPPacket(ServerState &state, const int fd) {
+void interpretTCPPacket(const int fd) {
     char c;
     std::string packetID;
     int n = PACKET_ID_LEN + 1;
@@ -46,7 +46,7 @@ void interpretTCPPacket(ServerState &state, const int fd) {
         std::cerr << PACKET_ERR << std::endl;
         return;
     }
-    TCPHandler[packetID](state, fd);
+    TCPHandler[packetID](fd);
 }
 
 void LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
@@ -165,14 +165,23 @@ void LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
 }
 
 void SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
-    (void)state;
-    (void)msg;
-    (void)UDPFrom;
-    // TODO: implement
+    SRCPacket packetIn;
+    RRCPacket packetOut;
+
+    std::string info;
+    if (packetIn.deserialize(msg)) {
+        packetOut.status = "ERR";
+    } else if (!getAuctionRecord(packetIn.AID, info)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.info = info;
+    }
+    sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
+                  state.socketUDP);
 }
 
-void OPAHandler(ServerState &state, const int fd) {
-    (void)state;
+void OPAHandler(const int fd) {
     OPAPacket packetIn;
     ROAPacket packetOut;
 
@@ -193,8 +202,7 @@ void OPAHandler(ServerState &state, const int fd) {
     packetOut.serialize(fd);
 }
 
-void CLSHandler(ServerState &state, const int fd) {
-    (void)state;
+void CLSHandler(const int fd) {
     CLSPacket packetIn;
     RCLPacket packetOut;
 
@@ -215,14 +223,39 @@ void CLSHandler(ServerState &state, const int fd) {
     packetOut.serialize(fd);
 }
 
-void BIDHandler(ServerState &state, const int fd) {
-    (void)state;
-    (void)fd;
-    // TODO: implement
+void BIDHandler(const int fd) {
+    BIDPacket packetIn;
+    RBDPacket packetOut;
+
+    if (packetIn.deserialize(fd)) {
+        packetOut.status = "ERR";
+    } else if (!checkAuctionExpiration(packetIn.AID)) {
+        packetOut.status = "NOK";
+    } else if (!checkLoggedIn(packetIn.UID) ||
+               !checkLoginMatch(packetIn.UID, packetIn.password)) {
+        packetOut.status = "NLG";
+    } else if (checkUserHostedAuction(packetIn.UID, packetIn.AID)) {
+        packetOut.status = "ILG";
+    } else if (!bidAuction(packetIn.AID, packetIn.UID, packetIn.value)) {
+        packetOut.status = "REF";
+    } else {
+        packetOut.status = "ACC";
+    }
+    packetOut.serialize(fd);
 }
 
-void SASHandler(ServerState &state, const int fd) {
-    (void)state;
-    (void)fd;
-    // TODO: implement
+void SASHandler(const int fd) {
+    SASPacket packetIn;
+    RSAPacket packetOut;
+
+    std::string fPath;
+    if (packetIn.deserialize(fd)) {
+        packetOut.status = "ERR";
+    } else if (!getAuctionAsset(packetIn.AID, fPath)) {
+        packetOut.status = "NOK";
+    } else {
+        packetOut.status = "OK";
+        packetOut.assetfPath = fPath;
+    }
+    packetOut.serialize(fd);
 }
