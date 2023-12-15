@@ -99,10 +99,10 @@
 #define TIME_DATE_ERR "Invalid time. Expected HH:MM:SS format."
 #define SHOW_ASSET_NOK "Some problem occured transfering the asset file."
 #define SHOW_ASSET_OK(fName, fSize)                                            \
-    "Successfully transfered the file." << std::endl                           \
-                                        << "The file's name is '" << fName     \
-                                        << "' and it occupies '" << fSize      \
-                                        << "' bytes."
+    "Successfully transfered the file."                                        \
+        << std::endl                                                           \
+        << "The file is stored at: ./" << fName << std::endl                   \
+        << "It occupies '" << fSize << "' bytes"
 #define SHOW_RECORD_NOK "The specified auction does not exist."
 
 #endif // __MESSAGES_HPP__

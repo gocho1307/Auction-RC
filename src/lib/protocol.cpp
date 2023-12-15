@@ -667,18 +667,7 @@ int SASPacket::deserialize(const int fd) {
 std::string RRCPacket::serialize() {
     std::string msg = std::string(ID) + " " + status;
     if (status == "OK") {
-        msg += " " + hostUID + " " + auctionName + " " + assetfName + " " +
-               std::to_string(startValue) + " " + calStartDate + " " +
-               timeStartDate + " " + std::to_string(duration);
-        for (const Bid &bid : bids) {
-            msg += " B " + bid.bidderUID + " " + std::to_string(bid.value) +
-                   " " + bid.calDate + " " + bid.timeDate + " " +
-                   std::to_string(bid.secTime);
-        }
-        if (!calEndDate.empty()) {
-            msg += " E " + calEndDate + " " + timeEndDate + " " +
-                   std::to_string(endSecTime);
-        }
+        msg += " " + info;
     }
     return msg + "\n";
 }

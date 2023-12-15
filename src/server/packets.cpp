@@ -227,16 +227,18 @@ void BIDHandler(const int fd) {
     BIDPacket packetIn;
     RBDPacket packetOut;
 
+    time_t currentTime;
     if (packetIn.deserialize(fd)) {
         packetOut.status = "ERR";
-    } else if (!checkAuctionExpiration(packetIn.AID)) {
+    } else if (!checkAuctionExpiration(packetIn.AID, currentTime)) {
         packetOut.status = "NOK";
     } else if (!checkLoggedIn(packetIn.UID) ||
                !checkLoginMatch(packetIn.UID, packetIn.password)) {
         packetOut.status = "NLG";
     } else if (checkUserHostedAuction(packetIn.UID, packetIn.AID)) {
         packetOut.status = "ILG";
-    } else if (!bidAuction(packetIn.AID, packetIn.UID, packetIn.value)) {
+    } else if (!bidAuction(packetIn.AID, packetIn.UID, packetIn.value,
+                           currentTime)) {
         packetOut.status = "REF";
     } else {
         packetOut.status = "ACC";
