@@ -422,17 +422,19 @@ void showRecordHandler(UserState &state) {
     if (packetIn.status == "OK") {
         std::cout << "General information about the requested auction:"
                   << std::endl;
-        std::cout << "host UID: " << packetIn.hostUID
+        std::cout << "hosted by: " << packetIn.hostUID
                   << " | auction name: " << packetIn.auctionName
                   << " | asset file name: " << packetIn.assetfName
                   << " | start value: " << packetIn.startValue << std::endl
                   << "start date time: " << packetIn.calStartDate << " "
                   << packetIn.timeStartDate
-                  << " | time active: " << packetIn.duration << std::endl;
+                  << " | maximum duration: " << packetIn.duration << " seconds"
+                  << std::endl;
         if (!packetIn.calEndDate.empty()) {
             std::cout << "end date time: " << packetIn.calEndDate << " "
                       << packetIn.timeEndDate
-                      << " | end seconds: " << packetIn.endSecTime << std::endl;
+                      << " | closed after: " << packetIn.endSecTime
+                      << " seconds" << std::endl;
         }
         int i = 0;
         for (Bid bid : packetIn.bids) {
@@ -440,10 +442,11 @@ void showRecordHandler(UserState &state) {
                          "----------"
                       << std::endl;
             std::cout << "Bid number " << ++i << ":" << std::endl;
-            std::cout << "bidder UID: " << bid.bidderUID
+            std::cout << "bid by: " << bid.bidderUID
                       << " | bid value: " << bid.value << std::endl
                       << "bid date time: " << bid.calDate << " " << bid.timeDate
-                      << " | bid seconds: " << bid.secTime << std::endl;
+                      << " | bidded after: " << bid.secTime << " seconds"
+                      << std::endl;
         }
     } else if (packetIn.status == "NOK") {
         std::cerr << SHOW_RECORD_NOK << std::endl;

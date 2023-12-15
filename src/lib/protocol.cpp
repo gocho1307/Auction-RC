@@ -585,7 +585,7 @@ int CLSPacket::deserialize(const int fd) {
         return 1;
     }
     password = readString(fd, PASSWORD_LEN);
-    if (checkPassword(password)) {
+    if (checkPassword(password) || readSpace(fd)) {
         return 1;
     }
     AID = readString(fd, AID_LEN);

@@ -118,7 +118,6 @@ void mainTCP() {
             return;
         }
         if (fds == 0) { // timeout
-            // TODO: search the data base for expired auctions
             continue;
         }
 

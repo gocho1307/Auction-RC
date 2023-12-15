@@ -3,6 +3,7 @@
 #include "../lib/messages.hpp"
 #include "../lib/utils.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -120,23 +121,23 @@ uint8_t getAuctionState(std::string AID) {
 
 int getAuctions(std::string path, std::vector<Auction> &auctions) {
     const std::filesystem::path auctionsPath(path);
-    int activeAuctions = 0;
 
-    for (auto const &entry :
-         std::filesystem::directory_iterator(auctionsPath)) {
-        std::string AID = entry.path().filename();
+    std::vector<std::filesystem::path> entries;
+    std::copy(std::filesystem::directory_iterator(auctionsPath),
+              std::filesystem::directory_iterator(),
+              std::back_inserter(entries));
+    std::sort(entries.begin(), entries.end());
+    for (auto const &entry : entries) {
+        std::string AID = entry.filename();
         uint8_t state = getAuctionState(AID);
-        if (state) {
-            activeAuctions++;
-        }
         auctions.push_back({AID, state});
     }
-    return (activeAuctions != 0);
+    return !auctions.empty();
 }
 
 int closeAuction(std::string AID) {
     time_t currentTime;
-    if (checkAuctionExpiration(AID, currentTime)) {
+    if (!checkAuctionExpiration(AID, currentTime)) {
         return 0;
     }
 
@@ -157,7 +158,7 @@ int checkAuctionExists(std::string AID) {
 }
 
 int checkUserHostedAuction(std::string UID, std::string AID) {
-    return std::filesystem::exists("USERS/" + UID + "HOSTED/" + AID);
+    return std::filesystem::exists("USERS/" + UID + "/HOSTED/" + AID);
 }
 
 std::string getNewAID() {
@@ -244,8 +245,9 @@ int getAuctionRecord(std::string AID, std::string &info) {
     while (std::getline(bidsFile, bidInfo) && i++ < MAX_BIDS_LISTINGS) {
         info += " B " + bidInfo;
     }
+    // TODO: need to only send the most recent 50 bids (not the oldest 50)
 
-    if (getAuctionState(AID)) {
+    if (!getAuctionState(AID)) {
         std::ifstream endFile("AUCTIONS/" + AID + "/end.txt");
         if (!endFile.is_open()) {
             return 0;
@@ -302,6 +304,7 @@ int getAuctionAsset(std::string AID, std::string &fPath) {
         return 0;
     }
     std::getline(nameFile, fPath);
+    fPath = "AUCTIONS/" + AID + "/ASSET/" + fPath;
     nameFile.close();
     return 1;
 }

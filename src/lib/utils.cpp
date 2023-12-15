@@ -101,7 +101,7 @@ int checkAuctionName(std::string auctionName) {
         return 1;
     }
     for (char c : auctionName) {
-        if (!isalnum(c)) {
+        if (!isalnum(c) && c != '-' && c != '_') {
             std::cerr << NAME_ERR << std::endl;
             return 1;
         }
