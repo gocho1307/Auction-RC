@@ -26,6 +26,7 @@ int checkAuctionExists(std::string AID);
 int checkUserHostedAuction(std::string UID, std::string AID);
 int openAuction(std::string newAID, std::string UID, std::string auctionName,
                 std::string assetfName, uint32_t startValue, uint32_t duration);
+std::string getNewAID();
 
 // TODO: check below ---------------------------------------------------------
 int addHostedToUser(std::string UID, std::string AID, int base_value,

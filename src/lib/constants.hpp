@@ -18,6 +18,7 @@
 #define MAX_STATUS_LEN (3)
 #define UID_LEN (6)
 #define PASSWORD_LEN (8)
+#define MAX_AUCTIONS (999)
 #define AID_LEN (3)
 #define MAX_AUCTION_NAME_LEN (10)
 #define MAX_VAL (999999)

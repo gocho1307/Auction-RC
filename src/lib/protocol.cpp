@@ -114,7 +114,7 @@ int TCPPacket::readNewLine(const int fd) {
     } else if (c != '\n') {
         return 1;
     }
-    return (int)read(fd, &c, 1);
+    return 0;
 }
 
 int TCPPacket::sendFile(std::string fPath, const int fd) {
@@ -553,11 +553,22 @@ int OPAPacket::deserialize(const int fd) {
         return 1;
     }
     std::string strStartValue = readString(fd, MAX_VAL_DIGS);
-    if (toInt(strStartValue, startValue) || startValue > MAX_VAL) {
+    if (toInt(strStartValue, startValue) || startValue > MAX_VAL ||
+        readSpace(fd)) {
         return 1;
     }
     std::string strTimeActive = readString(fd, MAX_DURATION_DIGS);
-    if (toInt(strTimeActive, duration) || duration > MAX_DURATION) {
+    if (toInt(strTimeActive, duration) || duration > MAX_DURATION ||
+        readSpace(fd)) {
+        return 1;
+    }
+    assetfName = readString(fd, MAX_FILE_NAME_LEN);
+    if (checkFileName(assetfName) || readSpace(fd)) {
+        return 1;
+    }
+    std::string strfSize = readString(fd, MAX_FILE_SIZE_DIGS);
+    if (toInt(strfSize, assetfSize) || assetfSize == 0 ||
+        assetfSize > MAX_FILE_SIZE || readSpace(fd)) {
         return 1;
     }
     return receiveFile(assetfName, assetfSize, fd) || readNewLine(fd);

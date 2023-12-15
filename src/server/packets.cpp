@@ -172,12 +172,11 @@ void SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
 }
 
 void OPAHandler(ServerState &state, const int fd) {
+    (void)state;
     OPAPacket packetIn;
     ROAPacket packetOut;
 
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(AID_LEN) << ++state.globalAID;
-    std::string newAID = ss.str();
+    std::string newAID = getNewAID();
     if (packetIn.deserialize(fd)) {
         packetOut.status = "ERR";
     } else if (!checkLoggedIn(packetIn.UID) ||
@@ -195,7 +194,7 @@ void OPAHandler(ServerState &state, const int fd) {
 }
 
 void CLSHandler(ServerState &state, const int fd) {
-    (void)state; // TODO: add threads
+    (void)state;
     CLSPacket packetIn;
     RCLPacket packetOut;
 

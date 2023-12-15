@@ -165,6 +165,9 @@ int checkUserHostedAuction(std::string UID, std::string AID) {
 int openAuction(std::string newAID, std::string UID, std::string auctionName,
                 std::string assetfName, uint32_t startValue,
                 uint32_t duration) {
+    if (newAID.empty()) {
+        return 0; // reached the maximum number of auctions
+    }
     std::string auctionDir = "AUCTIONS/" + newAID;
     if (!std::filesystem::create_directory(auctionDir)) {
         return 0;
@@ -197,6 +200,19 @@ int openAuction(std::string newAID, std::string UID, std::string auctionName,
     startFile.close();
 
     return 1;
+}
+
+std::string getNewAID() {
+    ssize_t count =
+        std::distance(std::filesystem::directory_iterator("AUCTIONS"),
+                      std::filesystem::directory_iterator{});
+    if (count >= MAX_AUCTIONS) {
+        return "";
+    }
+
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(AID_LEN) << count + 1;
+    return ss.str();
 }
 
 // TODO: check below
