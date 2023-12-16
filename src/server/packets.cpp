@@ -31,7 +31,7 @@ void interpretUDPPacket(ServerState &state, std::string msg, Address UDPFrom) {
     UDPHandler[packetID](state, msg, UDPFrom);
 }
 
-void interpretTCPPacket(const int fd) {
+void interpretTCPPacket(ServerState &state, const int fd) {
     char c;
     std::string packetID;
     int n = PACKET_ID_LEN + 1;
@@ -46,7 +46,7 @@ void interpretTCPPacket(const int fd) {
         std::cerr << PACKET_ERR << std::endl;
         return;
     }
-    TCPHandler[packetID](fd);
+    TCPHandler[packetID](state, fd);
 }
 
 void LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
@@ -67,6 +67,14 @@ void LINHandler(ServerState &state, std::string msg, Address UDPFrom) {
     } else {
         packetOut.status = "ERR";
     }
+
+    if (!packetIn.UID.empty()) {
+        state.cverbose << "User with id: " << packetIn.UID << " asked to login."
+                       << std::endl;
+    } else {
+        state.cverbose << "User with undefined id asked to login." << std::endl;
+    }
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -86,6 +94,15 @@ void LOUHandler(ServerState &state, std::string msg, Address UDPFrom) {
     } else {
         packetOut.status = "OK";
     }
+
+    if (!packetIn.UID.empty()) {
+        state.cverbose << "User with id: " << packetIn.UID
+                       << " asked to logout." << std::endl;
+    } else {
+        state.cverbose << "User with undefined id asked to logout."
+                       << std::endl;
+    }
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -105,6 +122,15 @@ void UNRHandler(ServerState &state, std::string msg, Address UDPFrom) {
     } else {
         packetOut.status = "OK";
     }
+
+    if (!packetIn.UID.empty()) {
+        state.cverbose << "User with id: " << packetIn.UID
+                       << " asked to unregister." << std::endl;
+    } else {
+        state.cverbose << "User with undefined id asked to unregister."
+                       << std::endl;
+    }
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -124,6 +150,16 @@ void LMAHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.auctions = auctions;
     }
+
+    if (!packetIn.UID.empty()) {
+        state.cverbose << "User with id: " << packetIn.UID
+                       << " asked to list their owned auctions." << std::endl;
+    } else {
+        state.cverbose
+            << "User with undefined id asked to list their owned auctions."
+            << std::endl;
+    }
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -143,6 +179,15 @@ void LMBHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.auctions = auctions;
     }
+
+    if (!packetIn.UID.empty()) {
+        state.cverbose << "User with id: " << packetIn.UID
+                       << " asked to list their bids." << std::endl;
+    } else {
+        state.cverbose << "User with undefined id asked to list their bids"
+                       << std::endl;
+    }
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -160,6 +205,9 @@ void LSTHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.auctions = auctions;
     }
+
+    state.cverbose << "A user asked to list all auctions." << std::endl;
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
@@ -177,11 +225,21 @@ void SRCHandler(ServerState &state, std::string msg, Address UDPFrom) {
         packetOut.status = "OK";
         packetOut.info = info;
     }
+
+    if (!packetIn.AID.empty()) {
+        state.cverbose << "A user sent a request for the record of auction: "
+                       << packetIn.AID << "." << std::endl;
+    } else {
+        state.cverbose
+            << "A user sent a request for the record of an undefined auction."
+            << std::endl;
+    }
+
     sendUDPPacket(packetOut, (struct sockaddr *)&UDPFrom.addr, UDPFrom.addrlen,
                   state.socketUDP);
 }
 
-void OPAHandler(const int fd) {
+void OPAHandler(ServerState &state, int fd) {
     OPAPacket packetIn;
     ROAPacket packetOut;
 
@@ -199,10 +257,20 @@ void OPAHandler(const int fd) {
         packetOut.status = "OK";
         packetOut.AID = newAID;
     }
+
+    if (!packetIn.UID.empty()) {
+        state.cverbose << "A user with id: " << packetIn.UID
+                       << " asked to open a new auction." << std::endl;
+    } else {
+        state.cverbose
+            << "A user with an undefined id asked to open a new auction."
+            << std::endl;
+    }
+
     packetOut.serialize(fd);
 }
 
-void CLSHandler(const int fd) {
+void CLSHandler(ServerState &state, const int fd) {
     CLSPacket packetIn;
     RCLPacket packetOut;
 
@@ -220,10 +288,22 @@ void CLSHandler(const int fd) {
     } else {
         packetOut.status = "OK";
     }
+
+    if (!packetIn.UID.empty() ||
+        !packetIn.AID.empty()) { // in case deserialize fails
+        state.cverbose << "A user with id: " << packetIn.UID
+                       << " asked to close an auction with identifier: "
+                       << packetIn.AID << "." << std::endl;
+    } else {
+        state.cverbose << "A user with an undefined id asked to close an "
+                          "auction with a undefined aid."
+                       << std::endl;
+    }
+
     packetOut.serialize(fd);
 }
 
-void BIDHandler(const int fd) {
+void BIDHandler(ServerState &state, const int fd) {
     BIDPacket packetIn;
     RBDPacket packetOut;
 
@@ -243,10 +323,22 @@ void BIDHandler(const int fd) {
     } else {
         packetOut.status = "ACC";
     }
+
+    if (!packetIn.UID.empty() ||
+        !packetIn.AID.empty()) { // in case deserialize fails
+        state.cverbose << "A user with id: " << packetIn.UID
+                       << " asked to bid on an auction with identifier: "
+                       << packetIn.AID << "." << std::endl;
+    } else {
+        state.cverbose << "A user with an undefined id asked to bid on an "
+                          "auction with a undefined aid."
+                       << std::endl;
+    }
+
     packetOut.serialize(fd);
 }
 
-void SASHandler(const int fd) {
+void SASHandler(ServerState &state, const int fd) {
     SASPacket packetIn;
     RSAPacket packetOut;
 
@@ -259,5 +351,16 @@ void SASHandler(const int fd) {
         packetOut.status = "OK";
         packetOut.assetfPath = fPath;
     }
+
+    if (!packetIn.AID.empty()) {
+        state.cverbose << "A user asked to receive the image illustrating the "
+                          "auction with identifier: "
+                       << packetIn.AID << "." << std::endl;
+    } else {
+        state.cverbose << "A user asked to receive the image illustrating an "
+                          "auction with a undefined aid."
+                       << std::endl;
+    }
+
     packetOut.serialize(fd);
 }

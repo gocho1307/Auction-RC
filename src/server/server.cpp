@@ -78,8 +78,8 @@ void mainUDP() {
 
         char strAddr[INET_ADDRSTRLEN + 1] = {0};
         inet_ntop(AF_INET, &UDPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
-        std::cout << UDP_CONNECTION << strAddr << ":"
-                  << ntohs(UDPFrom.addr.sin_port) << std::endl;
+        state.cverbose << UDP_CONNECTION << strAddr << ":"
+                       << ntohs(UDPFrom.addr.sin_port) << std::endl;
 
         std::string msg(buffer);
         interpretUDPPacket(state, msg, UDPFrom);
@@ -139,10 +139,10 @@ void mainTCP() {
             char strAddr[INET_ADDRSTRLEN + 1] = {0};
             inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, strAddr,
                       INET_ADDRSTRLEN);
-            std::cout << TCP_CONNECTION << strAddr << ":"
-                      << ntohs(TCPFrom.addr.sin_port) << std::endl;
+            state.cverbose << TCP_CONNECTION << strAddr << ":"
+                           << ntohs(TCPFrom.addr.sin_port) << std::endl;
 
-            interpretTCPPacket(newfd);
+            interpretTCPPacket(state, newfd);
             close(newfd);
             newfd = -1;
         }
