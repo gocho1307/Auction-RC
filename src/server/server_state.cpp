@@ -49,7 +49,7 @@ void ServerState::openTCPSocket() {
     }
     const int flag = 1;
     if (setsockopt(this->socketTCP, SOL_SOCKET, SO_REUSEADDR, &flag,
-                   sizeof(int)) < 0) {
+                   sizeof(flag)) < 0) {
         std::cerr << SOCKET_REUSE_ERR << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }

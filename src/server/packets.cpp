@@ -41,8 +41,8 @@ void interpretTCPPacket(ServerState &state, const int fd) {
 
     if (packetID.length() != PACKET_ID_LEN + 1 ||
         TCPHandler.find(packetID) == TCPHandler.end()) {
-        ERRUDPPacket err;
-        err.serialize();
+        ERRTCPPacket err;
+        err.serialize(fd);
         std::cerr << PACKET_ERR << std::endl;
         return;
     }

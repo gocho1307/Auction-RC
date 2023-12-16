@@ -1,6 +1,7 @@
 #ifndef __PACKETS_HPP__
 #define __PACKETS_HPP__
 
+#include "../lib/utils.hpp"
 #include "server_state.hpp"
 
 #include <functional>

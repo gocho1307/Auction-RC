@@ -726,6 +726,9 @@ int sendTCPPacket(const char *msg, const size_t len, const int fd) {
     while (bytesLeft > 0) {
         bytesWritten = write(fd, ptr, bytesLeft);
         if (bytesWritten <= 0) {
+            if (errno == EINTR || errno == EAGAIN) {
+                return 1;
+            }
             std::cerr << WRITE_ERR << std::endl;
             return 1;
         }

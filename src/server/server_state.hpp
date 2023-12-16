@@ -2,7 +2,6 @@
 #define __SERVER_STATE_HPP__
 
 #include "../lib/constants.hpp"
-#include "../lib/protocol.hpp"
 
 #include <iostream>
 #include <netdb.h>

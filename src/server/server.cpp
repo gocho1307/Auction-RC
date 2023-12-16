@@ -59,21 +59,23 @@ void mainUDP() {
             recvfrom(state.socketUDP, buffer, LIN_LEN, 0,
                      (struct sockaddr *)&UDPFrom.addr, &UDPFrom.addrlen);
         if (n == -1) {
+            if (errno == EAGAIN) { // timeout
+                ERRUDPPacket err;
+                sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr,
+                              UDPFrom.addrlen, state.socketUDP);
+                std::cerr << PACKET_ERR << std::endl;
+                continue;
+            }
             if (errno == EINTR) { // shutDown
                 break;
             }
-            if (errno == EAGAIN) { // timeout
-                continue;
-            }
             std::cerr << RECVFROM_ERR << std::endl;
-            return;
         }
         if (n <= PACKET_ID_LEN || n == LIN_LEN) { // invalid Packet size
             ERRUDPPacket err;
             sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr,
                           UDPFrom.addrlen, state.socketUDP);
-            std::cerr << PACKET_ERR << std::endl;
-            return;
+            continue;
         }
 
         char strAddr[INET_ADDRSTRLEN + 1] = {0};
@@ -93,61 +95,92 @@ void mainTCP() {
         return;
     }
 
-    int fds, maxfd, newfd = -1;
-    fd_set rdfs;
-    struct timeval timeout;
-    Address TCPFrom;
+    std::vector<Connection> conns(FD_SETSIZE);
+    int fds, maxfd = state.socketTCP, numConns = 0;
+    fd_set tmp, rdfs;
+    FD_ZERO(&rdfs);
+    FD_SET(state.socketTCP, &rdfs);
+    struct timeval tv;
+    memset(&tv, 0, sizeof(tv));
+    tv.tv_sec = READ_TIMEOUT_SECS;
     while (!state.shutDown) {
-        FD_ZERO(&rdfs);
-        FD_SET(state.socketTCP, &rdfs);
-        maxfd = state.socketTCP;
-        if (newfd != -1) {
-            FD_SET(newfd, &rdfs);
-            maxfd = std::max(maxfd, newfd);
-        }
-
-        memset(&timeout, 0, sizeof(timeout));
-        timeout.tv_sec = READ_TIMEOUT_SECS;
-        fds =
-            select(maxfd + 1, &rdfs, (fd_set *)NULL, (fd_set *)NULL, &timeout);
+        tmp = rdfs;
+        fds = select(maxfd + 1, &tmp, (fd_set *)NULL, (fd_set *)NULL, &tv);
         if (fds == -1) {
-            if (errno == EINTR) {
+            if (errno == EINTR) { // shutDown
                 break;
             }
             std::cerr << SELECT_ERR << strerror(errno) << std::endl;
-            return;
-        }
-        if (fds == 0) { // timeout
             continue;
         }
 
-        if (FD_ISSET(state.socketTCP, &rdfs)) {
-            if ((newfd =
-                     accept(state.socketTCP, (struct sockaddr *)&TCPFrom.addr,
-                            &TCPFrom.addrlen)) == -1) {
-                std::cerr << TCP_ACCEPT_ERR << std::endl;
-                return;
-            }
-            timeout.tv_sec = WRITE_TIMEOUT_SECS;
-            if (setsockopt(newfd, SOL_SOCKET, SO_SNDTIMEO, &timeout,
-                           sizeof(timeout)) != 0) {
-                std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
-                return;
+        for (int fd = 0; fd < maxfd + 1; ++fd) {
+            if (fd != state.socketTCP && FD_ISSET(fd, &rdfs)) {
+                Connection conn = conns.at((size_t)fd);
+                if ((uint32_t)time(NULL) - conn.time >= READ_TIMEOUT_SECS) {
+                    ERRTCPPacket err;
+                    err.serialize(fd);
+                    close(fd);
+                    FD_CLR(fd, &rdfs);
+                    --numConns;
+                    continue;
+                }
+                if (FD_ISSET(fd, &tmp)) {
+                    char strAddr[INET_ADDRSTRLEN + 1] = {0};
+                    inet_ntop(AF_INET, &conn.address.addr.sin_addr, strAddr,
+                              INET_ADDRSTRLEN);
+                    state.cverbose << TCP_CONNECTION << strAddr << ":"
+                                   << ntohs(conn.address.addr.sin_port)
+                                   << std::endl;
+                    interpretTCPPacket(state, fd);
+                    close(fd);
+                    FD_CLR(fd, &rdfs);
+                    --numConns;
+                }
             }
         }
-        if (FD_ISSET(newfd, &rdfs)) {
-            char strAddr[INET_ADDRSTRLEN + 1] = {0};
-            inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, strAddr,
-                      INET_ADDRSTRLEN);
-            state.cverbose << TCP_CONNECTION << strAddr << ":"
-                           << ntohs(TCPFrom.addr.sin_port) << std::endl;
-
-            interpretTCPPacket(state, newfd);
-            close(newfd);
-            newfd = -1;
+        if (FD_ISSET(state.socketTCP, &tmp)) {
+            if (numConns++ > MAX_TCP_CONNS) {
+                state.cverbose
+                    << "Maximum number of concurrent connections reached."
+                    << std::endl;
+                continue;
+            }
+            Connection conn;
+            if (!acceptConnection(conn)) {
+                continue;
+            }
+            conns.at((size_t)conn.fd) = conn;
+            FD_SET(conn.fd, &rdfs);
+            maxfd = std::max(maxfd, conn.fd);
+        }
+    }
+    for (int fd = 0; fd < maxfd + 1; ++fd) {
+        if (fd != state.socketTCP && FD_ISSET(fd, &rdfs)) {
+            ERRTCPPacket err;
+            err.serialize(fd);
+            close(fd);
         }
     }
     std::cout << std::endl << SHUTDOWN_TCP_SERVER << std::endl;
+}
+
+int acceptConnection(Connection &conn) {
+    conn.fd = accept(state.socketTCP, (struct sockaddr *)&conn.address.addr,
+                     &conn.address.addrlen);
+    if (conn.fd == -1) {
+        std::cerr << TCP_ACCEPT_ERR << std::endl;
+        return 0;
+    }
+    struct timeval tv;
+    memset(&tv, 0, sizeof(tv));
+    tv.tv_sec = WRITE_TIMEOUT_SECS;
+    if (setsockopt(conn.fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) != 0) {
+        std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
+        return 0;
+    }
+    conn.time = (uint32_t)time(NULL);
+    return 1;
 }
 
 void printHelp(std::ostream &stream, char *programPath) {

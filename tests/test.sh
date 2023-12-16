@@ -48,14 +48,13 @@ if  [ "$#" -lt 1 ]; then
 fi
 
 echo "You can find the result of the test in the tmp folder."
-echo ""
 
 if [ "$(pidof -x AS | wc -l)" -eq 0 ]; then
     ../AS -v -p $MY_PORT > tmp/server.log &
 fi
 
 printf "$MY_IP $MY_PORT %s\n" "$1" | $NET_CAT > tmp/report-"$1".html
-if [ -s tmp/report-"$1".html ] || grep -q "color=\"red\"" tmp/report-"$1".html; then
+if [ ! -s tmp/report-"$1".html ] || grep -q "color=\"red\"" tmp/report-"$1".html; then
     echo -e "$1: ${RED}Failed Test${NC}"
     echo "Server log:"
     cat tmp/server.log
