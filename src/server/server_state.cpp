@@ -32,14 +32,6 @@ void ServerState::openUDPSocket() {
         std::cerr << SOCKET_CREATE_ERR << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
-    struct timeval UDPTimeout;
-    memset(&UDPTimeout, 0, sizeof(UDPTimeout));
-    UDPTimeout.tv_sec = READ_TIMEOUT_SECS;
-    if (setsockopt(this->socketUDP, SOL_SOCKET, SO_RCVTIMEO, &UDPTimeout,
-                   sizeof(UDPTimeout)) < 0) {
-        std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
-        exit(EXIT_FAILURE);
-    }
 }
 
 void ServerState::openTCPSocket() {

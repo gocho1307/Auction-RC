@@ -59,29 +59,21 @@ void mainUDP() {
             recvfrom(state.socketUDP, buffer, LIN_LEN, 0,
                      (struct sockaddr *)&UDPFrom.addr, &UDPFrom.addrlen);
         if (n == -1) {
-            if (errno == EAGAIN) { // timeout
-                ERRUDPPacket err;
-                sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr,
-                              UDPFrom.addrlen, state.socketUDP);
-                std::cerr << PACKET_ERR << std::endl;
-                continue;
-            }
             if (errno == EINTR) { // shutDown
                 break;
             }
             std::cerr << RECVFROM_ERR << std::endl;
         }
+        char strAddr[INET_ADDRSTRLEN + 1] = {0};
+        inet_ntop(AF_INET, &UDPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
+        state.cverbose << UDP_CONNECTION << strAddr << ":"
+                       << ntohs(UDPFrom.addr.sin_port) << std::endl;
         if (n <= PACKET_ID_LEN || n == LIN_LEN) { // invalid Packet size
             ERRUDPPacket err;
             sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr,
                           UDPFrom.addrlen, state.socketUDP);
             continue;
         }
-
-        char strAddr[INET_ADDRSTRLEN + 1] = {0};
-        inet_ntop(AF_INET, &UDPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
-        state.cverbose << UDP_CONNECTION << strAddr << ":"
-                       << ntohs(UDPFrom.addr.sin_port) << std::endl;
 
         std::string msg(buffer);
         interpretUDPPacket(state, msg, UDPFrom);
@@ -126,12 +118,6 @@ void mainTCP() {
                     continue;
                 }
                 if (FD_ISSET(fd, &tmp)) {
-                    char strAddr[INET_ADDRSTRLEN + 1] = {0};
-                    inet_ntop(AF_INET, &conn.address.addr.sin_addr, strAddr,
-                              INET_ADDRSTRLEN);
-                    state.cverbose << TCP_CONNECTION << strAddr << ":"
-                                   << ntohs(conn.address.addr.sin_port)
-                                   << std::endl;
                     interpretTCPPacket(state, fd);
                     close(fd);
                     FD_CLR(fd, &rdfs);
@@ -166,8 +152,9 @@ void mainTCP() {
 }
 
 int acceptConnection(Connection &conn) {
-    conn.fd = accept(state.socketTCP, (struct sockaddr *)&conn.address.addr,
-                     &conn.address.addrlen);
+    Address TCPFrom;
+    conn.fd = accept(state.socketTCP, (struct sockaddr *)&TCPFrom.addr,
+                     &TCPFrom.addrlen);
     if (conn.fd == -1) {
         std::cerr << TCP_ACCEPT_ERR << std::endl;
         return 0;
@@ -180,11 +167,16 @@ int acceptConnection(Connection &conn) {
         return 0;
     }
     conn.time = (uint32_t)time(NULL);
+
+    char strAddr[INET_ADDRSTRLEN + 1] = {0};
+    inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
+    state.cverbose << TCP_CONNECTION << strAddr << ":"
+                   << ntohs(TCPFrom.addr.sin_port) << std::endl;
     return 1;
 }
 
 void printHelp(std::ostream &stream, char *programPath) {
-    stream << "Usage: " << programPath << "[-p ASport] [-v] [-h]" << std::endl;
+    stream << "Usage: " << programPath << " [-p ASport] [-v] [-h]" << std::endl;
     stream << "Available options:" << std::endl;
     stream << "-p ASport\tSet port of Auction Server. Default is: "
            << DEFAULT_AS_PORT << std::endl;

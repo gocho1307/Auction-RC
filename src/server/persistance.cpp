@@ -98,7 +98,7 @@ int checkAuctionExpiration(std::string AID, time_t &currentTime) {
         return 0;
     }
 
-    currentTime = time(NULL); // TODO: must be positive
+    currentTime = time(NULL);
     uint32_t fullTime, duration;
     getAuctionTime(AID, fullTime, duration);
 
@@ -216,7 +216,7 @@ int openAuction(std::string newAID, std::string UID, std::string auctionName,
     nameFile.close();
     highestBidFile << startValue << std::endl;
     highestBidFile.close();
-    time_t startTime = time(NULL); // TODO: must be positive
+    time_t startTime = time(NULL);
     timeFile << startTime << std::endl << duration << std::endl;
     timeFile.close();
     startFile << UID << " " << auctionName << " " << assetfName << " "

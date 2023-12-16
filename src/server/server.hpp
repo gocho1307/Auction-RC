@@ -7,7 +7,6 @@
 
 typedef struct {
     int fd;
-    Address address;
     uint32_t time;
 } Connection;
 
