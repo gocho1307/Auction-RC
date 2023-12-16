@@ -241,11 +241,18 @@ int getAuctionRecord(std::string AID, std::string &info) {
     startFile.close();
 
     std::string bidInfo;
-    int i = 0;
-    while (std::getline(bidsFile, bidInfo) && i++ < MAX_BIDS_LISTINGS) {
-        info += " B " + bidInfo;
+    std::vector<std::string> lines;
+    while (std::getline(bidsFile, bidInfo)) {
+        lines.push_back(bidInfo);
     }
-    // TODO: need to only send the most recent 50 bids (not the oldest 50)
+    size_t numBids = lines.size();
+    size_t i = 0;
+    if (numBids > MAX_BIDS_LISTINGS) {
+        i = numBids - MAX_BIDS_LISTINGS;
+    }
+    for (; i < numBids; ++i) {
+        info += " B " + lines.at(i);
+    }
 
     if (!getAuctionState(AID)) {
         std::ifstream endFile("AUCTIONS/" + AID + "/end.txt");
