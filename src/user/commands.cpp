@@ -209,7 +209,7 @@ void openHandler(UserState &state) {
         return;
     }
     uint32_t startValue;
-    if (toInt(readToken(state.line), startValue) || startValue > MAX_VAL) {
+    if (toInt(readToken(state.line), startValue) || startValue >= MAX_VAL) {
         std::cerr << START_VAL_ERR << std::endl;
         return;
     }
@@ -377,7 +377,7 @@ void bidHandler(UserState &state) {
     }
     uint32_t value;
     if (toInt(readToken(state.line), value) || value > MAX_VAL) {
-        std::cerr << START_VAL_ERR << std::endl;
+        std::cerr << VAL_ERR << std::endl;
         return;
     }
 

@@ -64,7 +64,10 @@
     "'_' and '.') with a 3-letter extension."
 #define FILE_EXISTANCE_ERR "The given file doesn't exist."
 #define START_VAL_ERR                                                          \
-    "Invalid start value for the auction. Expected a positive value with up "  \
+    "Invalid start value for the auction. The maximum start value is "         \
+        << MAX_VAL - 1 << "."
+#define VAL_ERR                                                                \
+    "Invalid bid value for the auction. Expected a positive value with up "    \
     "to 6 digits."
 #define DURATION_ERR                                                           \
     "Invalid duration (in seconds) for the auction. Expected a positive "      \

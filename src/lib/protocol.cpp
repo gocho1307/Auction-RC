@@ -173,11 +173,11 @@ int TCPPacket::receiveFile(std::string fName, size_t fSize, const int fd) {
         std::cerr << FILE_ERR << std::endl;
         return 1;
     }
+
     size_t remaining = fSize;
     size_t toRead;
     ssize_t gotRead;
     char buffer[FILE_BUFFER_SIZE];
-
     std::cout << "Download is in progress...";
     while (remaining > 0) {
         toRead = std::min(remaining, (size_t)FILE_BUFFER_SIZE);
@@ -411,7 +411,7 @@ int RRCPacket::deserialize(std::string &buffer) {
         return 1;
     }
     std::string strStartValue = readString(buffer);
-    if (toInt(strStartValue, startValue) || startValue > MAX_VAL ||
+    if (toInt(strStartValue, startValue) || startValue >= MAX_VAL ||
         readSpace(buffer)) {
         return 1;
     }
@@ -553,7 +553,7 @@ int OPAPacket::deserialize(const int fd) {
         return 1;
     }
     std::string strStartValue = readString(fd, MAX_VAL_DIGS);
-    if (toInt(strStartValue, startValue) || startValue > MAX_VAL ||
+    if (toInt(strStartValue, startValue) || startValue >= MAX_VAL ||
         readSpace(fd)) {
         return 1;
     }
