@@ -97,12 +97,12 @@ int checkAuctionExpiration(std::string AID, time_t &currentTime) {
         return 0;
     }
 
-    currentTime = time(NULL);
     uint32_t fullTime, duration;
     if (!getAuctionTime(AID, fullTime, duration)) {
         return 0;
     }
 
+    currentTime = time(NULL);
     if ((uint32_t)currentTime - fullTime >= duration) {
         std::ofstream endFile("AUCTIONS/" + AID + "/end.txt");
         if (!endFile.is_open()) {
@@ -184,6 +184,7 @@ int openAuction(std::string newAID, std::string UID, std::string auctionName,
         return 0; // reached the maximum number of auctions
     }
 
+    time_t startTime = time(NULL);
     std::string auctionDir = "AUCTIONS/" + newAID;
     if (!std::filesystem::create_directory(auctionDir)) {
         return 0;
@@ -219,7 +220,6 @@ int openAuction(std::string newAID, std::string UID, std::string auctionName,
     nameFile.close();
     highestBidFile << startValue << std::endl;
     highestBidFile.close();
-    time_t startTime = time(NULL);
     timeFile << startTime << std::endl << duration << std::endl;
     timeFile.close();
     startFile << UID << " " << auctionName << " " << assetfName << " "
