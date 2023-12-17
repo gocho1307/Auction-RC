@@ -116,6 +116,7 @@ class OPAPacket : public TCPPacket {
     uint32_t duration;
     std::string assetfName;
     uint32_t assetfSize;
+
     std::string assetfPath;
 
     int serialize(const int fd);
@@ -263,6 +264,7 @@ class RSAPacket : public TCPPacket {
     std::string status;
     std::string assetfName;
     uint32_t assetfSize;
+
     std::string assetfPath;
 
     int serialize(const int fd);

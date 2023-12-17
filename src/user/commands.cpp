@@ -152,7 +152,7 @@ void logoutHandler(UserState &state) {
     if (packetIn.status == "OK") {
         std::cout << LOGOUT_OK << std::endl;
     } else if (packetIn.status == "NOK") {
-        std::cerr << NO_LOGIN << std::endl;
+        std::cerr << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "UNR") {
         std::cerr << NO_REG(state.UID) << std::endl;
     } else {
@@ -178,7 +178,7 @@ void unregisterHandler(UserState &state) {
     if (packetIn.status == "OK") {
         std::cout << UNREG_OK(state.UID) << std::endl;
     } else if (packetIn.status == "NOK") {
-        std::cerr << NO_LOGIN << std::endl;
+        std::cerr << NOT_LOGGED << std::endl;
     } else if (packetIn.status == "UNR") {
         std::cerr << NO_REG(state.UID) << std::endl;
     } else {
