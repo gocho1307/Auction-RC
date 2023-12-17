@@ -16,7 +16,7 @@ int registerUser(std::string UID, std::string password);
 int loginUser(std::string UID);
 int logoutUser(std::string UID);
 int unregisterUser(std::string UID);
-void getAuctionTime(std::string AID, uint32_t &fullTime, uint32_t &duration);
+int getAuctionTime(std::string AID, uint32_t &fullTime, uint32_t &duration);
 int checkAuctionExpiration(std::string AID, time_t &currentTime);
 uint8_t getAuctionState(std::string AID);
 int getAuctions(std::string path, std::vector<Auction> &auctions);

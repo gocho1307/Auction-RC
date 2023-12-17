@@ -8,6 +8,8 @@
 typedef struct {
     int fd;
     uint32_t time;
+    char host[INET_ADDRSTRLEN + 1];
+    uint16_t port;
 } Connection;
 
 void mainUDP();

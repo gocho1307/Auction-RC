@@ -21,7 +21,6 @@
 #define SOCKET_REUSE_ERR "[ERR] Failed to set reuse address socket option: "
 #define TCP_CONNECT_ERR "[ERR] Failed to establish TCP connection."
 #define PORT_ERR "[ERR] Invalid port number."
-#define READING_ERR "[ERR] An unexpected error occured while reading a string."
 #define SIGACTION_ERR "[ERR] Failed to set signal action."
 #define SENDTO_ERR "[ERR] Failed to send message via UDP."
 #define RECVFROM_ERR "[ERR] Failed to receive message via UDP."
@@ -30,21 +29,16 @@
 #define FILE_ERR "[ERR] Failed to process the file."
 #define PACKET_ERR "[ERR] An error occured with the structure of the packet."
 #define FILE_SIZE_ERR "[ERR] Invalid file size. The maximum size is 10MB."
-#define UNKNOWN_PACKET_ERR "[ERR] This received packet ID is unknown."
 #define TCP_BIND_ERR "[ERR] Failed to bind TCP address: "
 #define UDP_BIND_ERR "[ERR] Failed to bind UDP address: "
 #define TCP_LISTEN_ERR "[ERR] An error occured while executing listen."
 #define TCP_ACCEPT_ERR "[ERR] Failed to accept a TCP connection."
-#define CREATE_DIR_ERR "[ERR] Failed creating directory: "
 #define SELECT_ERR "[ERR] An error occured while calling select(): "
-#define DATA_BASE_ERR "[ERR] Can't create the initial data base directories."
-#define FILE_OPEN_ERR(path) "[ERR] Error opening file: " << path
-#define FILE_CREATE_ERR(path) "[ERR] Error creating file: " << path
-#define DIR_CREATE_ERR(dir) "[ERR] Error creating directory: " << dir
 
 #define TCP_CONNECTION "Receiving TCP connection from "
+#define TCP_REFUSE "Timed out TCP connection from "
 #define UDP_CONNECTION "Receiving UDP connection from "
-
+#define UNKNOWN_MSG "The received message doesn't belong to the protocol."
 #define UNEXPECTED_COMMAND_ERR(commandName)                                    \
     "The command '" << commandName << "' is not supported by this application."
 #define LOGIN_ERR                                                              \

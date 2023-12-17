@@ -28,7 +28,8 @@ int main(int argc, char *argv[]) {
     std::filesystem::create_directory("AUCTIONS");
     if (!std::filesystem::exists("USERS") ||
         !std::filesystem::exists("AUCTIONS")) {
-        std::cerr << DATA_BASE_ERR << std::endl;
+        std::cerr << "[ERR] Can't create the initial data base directories."
+                  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -63,6 +64,7 @@ void mainUDP() {
                 break;
             }
             std::cerr << RECVFROM_ERR << std::endl;
+            continue;
         }
         char strAddr[INET_ADDRSTRLEN + 1] = {0};
         inet_ntop(AF_INET, &UDPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
@@ -72,6 +74,7 @@ void mainUDP() {
             ERRUDPPacket err;
             sendUDPPacket(err, (struct sockaddr *)&UDPFrom.addr,
                           UDPFrom.addrlen, state.socketUDP);
+            state.cverbose << "| " << UNKNOWN_MSG << std::endl;
             continue;
         }
 
@@ -110,6 +113,8 @@ void mainTCP() {
             if (fd != state.socketTCP && FD_ISSET(fd, &rdfs)) {
                 Connection conn = conns.at((size_t)fd);
                 if ((uint32_t)time(NULL) - conn.time >= READ_TIMEOUT_SECS) {
+                    state.cverbose << TCP_REFUSE << conn.host << ":"
+                                   << conn.port << std::endl;
                     ERRTCPPacket err;
                     err.serialize(fd);
                     close(fd);
@@ -118,6 +123,8 @@ void mainTCP() {
                     continue;
                 }
                 if (FD_ISSET(fd, &tmp)) {
+                    state.cverbose << TCP_CONNECTION << conn.host << ":"
+                                   << conn.port << std::endl;
                     interpretTCPPacket(state, fd);
                     close(fd);
                     FD_CLR(fd, &rdfs);
@@ -143,6 +150,9 @@ void mainTCP() {
     }
     for (int fd = 0; fd < maxfd + 1; ++fd) {
         if (fd != state.socketTCP && FD_ISSET(fd, &rdfs)) {
+            Connection conn = conns.at((size_t)fd);
+            state.cverbose << TCP_REFUSE << conn.host << ":" << conn.port
+                           << std::endl;
             ERRTCPPacket err;
             err.serialize(fd);
             close(fd);
@@ -168,10 +178,9 @@ int acceptConnection(Connection &conn) {
     }
     conn.time = (uint32_t)time(NULL);
 
-    char strAddr[INET_ADDRSTRLEN + 1] = {0};
-    inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, strAddr, INET_ADDRSTRLEN);
-    state.cverbose << TCP_CONNECTION << strAddr << ":"
-                   << ntohs(TCPFrom.addr.sin_port) << std::endl;
+    memset(conn.host, 0, sizeof(conn.host));
+    inet_ntop(AF_INET, &TCPFrom.addr.sin_addr, conn.host, INET_ADDRSTRLEN);
+    conn.port = ntohs(TCPFrom.addr.sin_port);
     return 1;
 }
 

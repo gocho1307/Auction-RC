@@ -25,7 +25,6 @@ int checkLoginMatch(std::string UID, std::string password) {
     std::string passPath = "USERS/" + UID + "/password.txt";
     std::ifstream passwordFile(passPath);
     if (!passwordFile.is_open()) {
-        std::cerr << FILE_OPEN_ERR(passPath) << std::endl;
         return 0;
     }
 
@@ -39,7 +38,6 @@ int registerUser(std::string UID, std::string password) {
     std::string userDir = "USERS/" + UID;
     if (!std::filesystem::exists(userDir)) {
         if (!std::filesystem::create_directory(userDir)) {
-            std::cerr << DIR_CREATE_ERR(userDir) << std::endl;
             return 0;
         }
         if (!std::filesystem::create_directory(userDir + "/HOSTED") ||
@@ -52,7 +50,6 @@ int registerUser(std::string UID, std::string password) {
     std::string passPath = userDir + "/password.txt";
     std::ofstream passwordFile(passPath);
     if (!passwordFile.is_open()) {
-        std::cerr << FILE_CREATE_ERR(passPath) << std::endl;
         return 0;
     }
     passwordFile << password << std::endl;
@@ -64,7 +61,6 @@ int loginUser(std::string UID) {
     std::string loginPath = "USERS/" + UID + "/login";
     std::ofstream loginFile(loginPath);
     if (!loginFile.is_open()) {
-        std::cerr << FILE_CREATE_ERR(loginPath) << std::endl;
         return 0;
     }
     loginFile.close();
@@ -80,10 +76,10 @@ int unregisterUser(std::string UID) {
            std::filesystem::remove("USERS/" + UID + "/password.txt");
 }
 
-void getAuctionTime(std::string AID, uint32_t &fullTime, uint32_t &duration) {
+int getAuctionTime(std::string AID, uint32_t &fullTime, uint32_t &duration) {
     std::ifstream timeFile("AUCTIONS/" + AID + "/time.txt");
     if (!timeFile.is_open()) {
-        // TODO: throw exception
+        return 0;
     }
     std::string strFullTime, strDuration;
     std::getline(timeFile, strFullTime);
@@ -91,6 +87,7 @@ void getAuctionTime(std::string AID, uint32_t &fullTime, uint32_t &duration) {
     toInt(strFullTime, fullTime);
     toInt(strDuration, duration);
     timeFile.close();
+    return 1;
 }
 
 int checkAuctionExpiration(std::string AID, time_t &currentTime) {
@@ -100,7 +97,9 @@ int checkAuctionExpiration(std::string AID, time_t &currentTime) {
 
     currentTime = time(NULL);
     uint32_t fullTime, duration;
-    getAuctionTime(AID, fullTime, duration);
+    if (!getAuctionTime(AID, fullTime, duration)) {
+        return 0;
+    }
 
     if ((uint32_t)currentTime - fullTime >= duration) {
         std::ofstream endFile("AUCTIONS/" + AID + "/end.txt");
@@ -146,7 +145,9 @@ int closeAuction(std::string AID) {
         return 0;
     }
     uint32_t fullTime, duration;
-    getAuctionTime(AID, fullTime, duration);
+    if (!getAuctionTime(AID, fullTime, duration)) {
+        return 0;
+    }
     endFile << toDate(currentTime) << " " << (uint32_t)currentTime - fullTime
             << std::endl;
     endFile.close();
@@ -291,7 +292,9 @@ int bidAuction(std::string AID, std::string UID, uint32_t value,
     highFile << value << std::endl;
     highFile.close();
     uint32_t fullTime, duration;
-    getAuctionTime(AID, fullTime, duration);
+    if (!getAuctionTime(AID, fullTime, duration)) {
+        return 0;
+    }
     bidsFile << UID << " " << value << " " << toDate(currentTime) << " "
              << (uint32_t)currentTime - fullTime << std::endl;
     bidsFile.close();
