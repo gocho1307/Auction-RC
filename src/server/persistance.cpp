@@ -50,6 +50,7 @@ int registerUser(std::string UID, std::string password) {
     std::string passPath = userDir + "/password.txt";
     std::ofstream passwordFile(passPath);
     if (!passwordFile.is_open()) {
+        std::filesystem::remove_all(userDir);
         return 0;
     }
     passwordFile << password << std::endl;
@@ -84,8 +85,9 @@ int getAuctionTime(std::string AID, uint32_t &fullTime, uint32_t &duration) {
     std::string strFullTime, strDuration;
     std::getline(timeFile, strFullTime);
     std::getline(timeFile, strDuration);
-    toInt(strFullTime, fullTime);
-    toInt(strDuration, duration);
+    if (toInt(strFullTime, fullTime) || toInt(strDuration, duration)) {
+        return 0;
+    }
     timeFile.close();
     return 1;
 }
@@ -246,6 +248,7 @@ int getAuctionRecord(std::string AID, std::string &info) {
     while (std::getline(bidsFile, bidInfo)) {
         lines.push_back(bidInfo);
     }
+    bidsFile.close();
     size_t numBids = lines.size();
     size_t i = 0;
     if (numBids > MAX_BIDS_LISTINGS) {
@@ -278,7 +281,9 @@ int bidAuction(std::string AID, std::string UID, uint32_t value,
     std::string strHighestValue;
     uint32_t highestValue;
     std::getline(highestFile, strHighestValue);
-    toInt(strHighestValue, highestValue);
+    if (toInt(strHighestValue, highestValue)) {
+        return 0;
+    }
     highestFile.close();
     if (value <= highestValue) {
         return 0;
