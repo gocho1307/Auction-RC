@@ -69,7 +69,7 @@ $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
 
 clean:
 	rm -f $(TARGET_EXECS) $(OBJECTS)
-	rm -f *.zip *.txt *.jpg *.png *.mp4 *.mkv *.html
+	rm -f *.zip *.txt *.jpg *.png *.mp4 *.mkv *.html *.xlsx
 
 clean-data:
 	rm -rf USERS AUCTIONS
@@ -81,4 +81,6 @@ fmt-check: $(SOURCES) $(HEADERS)
 	$(FORMATTER) -n --Werror $^
 
 package: clean
-	zip proj_075.zip $(SOURCES) $(HEADERS) Makefile .clang-format README.md *.xlsx
+	cp README.md readme.txt
+	cp docs/auto-avaliacao-075.xlsx auto-avaliacao-075.xlsx
+	zip proj_075.zip $(SOURCES) $(HEADERS) Makefile .clang-format readme.txt auto-avaliacao-075.xlsx

@@ -3,8 +3,6 @@
 
 #define PROMPT "> "
 
-// #define DEFAULT_AS_HOST "tejo.tecnico.ulisboa.pt"
-// #define DEFAULT_AS_PORT "58011"
 #define DEFAULT_AS_HOST "localhost"
 #define DEFAULT_AS_PORT "58075"
 

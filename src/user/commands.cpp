@@ -27,11 +27,11 @@ CommandsHandler handler = {{"login", loginHandler},
 std::string readToken(std::string &line) {
     std::string str = "";
     char c;
-    while (!line.empty() && !isspace(c = line.front())) {
-        str.push_back(c);
+    while (!line.empty() && isspace(line.front())) {
         line.erase(line.begin());
     }
-    while (!line.empty() && isspace(line.front())) {
+    while (!line.empty() && !isspace(c = line.front())) {
+        str.push_back(c);
         line.erase(line.begin());
     }
     return str;
