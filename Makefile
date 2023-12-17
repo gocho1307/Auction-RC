@@ -69,7 +69,6 @@ $(SERVER_EXEC): $(SERVER_OBJECTS) $(LIB_OBJECTS)
 
 clean:
 	rm -f $(TARGET_EXECS) $(OBJECTS)
-	rm -f *.zip *.txt *.jpg *.png *.mp4 *.mkv *.html *.xlsx
 
 clean-data:
 	rm -rf USERS AUCTIONS
