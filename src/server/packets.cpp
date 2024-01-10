@@ -35,7 +35,7 @@ void interpretTCPPacket(ServerState &state, const int fd) {
     char c;
     std::string packetID;
     int n = PACKET_ID_LEN + 1;
-    while (n-- > 0 && read(fd, &c, 1)) {
+    while (n-- > 0 && read(fd, &c, 1) == 1) {
         packetID.push_back(c);
     }
 

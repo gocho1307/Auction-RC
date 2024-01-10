@@ -171,6 +171,11 @@ int acceptConnection(Connection &conn) {
     }
     struct timeval tv;
     memset(&tv, 0, sizeof(tv));
+    tv.tv_sec = READ_TIMEOUT_SECS;
+    if (setsockopt(conn.fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0) {
+        std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;
+        return 0;
+    }
     tv.tv_sec = WRITE_TIMEOUT_SECS;
     if (setsockopt(conn.fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) != 0) {
         std::cerr << SOCKET_TIMEOUT_ERR << strerror(errno) << std::endl;

@@ -12,12 +12,9 @@
 #include <unistd.h>
 
 std::string UDPPacket::readString(std::string &buffer) {
-    if (buffer.empty()) {
-        return "";
-    }
-    std::string str;
+    std::string str = "";
     char c;
-    while ((c = buffer.front()) != ' ' && c != '\n') {
+    while (!buffer.empty() && (c = buffer.front()) != ' ' && c != '\n') {
         str.push_back(c);
         buffer.erase(buffer.begin());
     }
@@ -75,12 +72,12 @@ int UDPPacket::readAuctions(std::string &buffer,
 }
 
 std::string TCPPacket::readString(const int fd, const size_t lim) {
-    std::string str;
+    std::string str = "";
     size_t i = 0;
     char c = 0;
     while (i++ < lim && c != ' ' && c != '\n') {
         if (read(fd, &c, 1) != 1) {
-            return "";
+            return str;
         }
         str.push_back(c);
     }
